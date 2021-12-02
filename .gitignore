@@ -1,0 +1,12 @@
+node_modules
+/public/build/
+personal.sh
+prod_config.sh
+bucket_policy.json
+distconfig.json
+distribution-config.json
+dnsRecords.json
+
+.DS_Store
+dev_config.sh
+.serverless

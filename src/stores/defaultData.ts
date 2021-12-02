@@ -1,0 +1,440 @@
+// defaultData.ts Copyright Paul Beaudet 2021 MIT License
+
+import type {
+  indexOptions,
+  taskStores,
+  taskI,
+  columnIds,
+  velocityI,
+  allStoreTypes,
+  sigObject,
+  AmPm,
+} from '../shared/interface';
+import { createOid } from '../isomorphic/oid';
+
+// - budgeting -
+const frameOptions: number[] = [1, 2, 3, 4]; // Represented in weeks
+const frameValues: number[] = [604800000, 1209600000, 1814400000, 2419200000];
+const defaultFrame: number = frameValues[0]; // 1 Week in Milliseconds
+
+// IDs of columns
+const genId: { [key: string]: columnIds } = {
+  todo: '1',
+  done: '2',
+  time: '3',
+};
+
+const activitiesColumnName: string = 'Top Tasks Folder';
+const timelineColumnName: string = 'Recorded Tasks';
+const agendaColumnName: string = 'Tasks By Due Date';
+
+const genesisTask: taskI = {
+  id: genId.todo,
+  parentId: '0',
+  body: activitiesColumnName,
+  position: 0,
+  effort: 0,
+  rating: 0,
+  description: '',
+  status: 'todo',
+  priority: 0,
+  fraction: defaultFrame,
+  cadence: 'zero',
+  lastModified: 0,
+  timeCreated: 0,
+  dueDate: 0,
+  autoAssigned: true,
+};
+
+const timelineParent: taskI = {
+  ...genesisTask,
+  id: genId.time,
+  body: timelineColumnName,
+};
+
+const stores: taskStores[] = ['tasks'];
+const allStores: Array<allStoreTypes> = [
+  'events',
+  'tasks',
+  'timeline',
+  'tach',
+  'budget',
+  'connect',
+  'profiles',
+  'psks',
+];
+const indexes: indexOptions[] = [
+  'priority',
+  'timeOrder',
+  'tachOrder',
+  'budgetOrder',
+];
+
+// Effort point weight scale
+// -0: Will not do, Maybe available is shared categories
+// -1: Most basic unit, no problem
+// -2: Easy but incrementally tougher than a one
+// -3 (3): Also incrementally tougher than a 2
+// -4 (5): Known difficulty, significantly tougher than a 3
+// -5 (8): Known unknowns, significantly tougher than a 4
+// -6 (13): Unknown Unknowns; approachable - could be hard could be easy, have no idea
+// -7 (21): unknown unknowns; scary - I'm not completely avoiding this...
+// ...cont.. but it puts me off. About 2x tougher than a 6
+// -8 (34): Here be dragons
+// -9 (55 but actually 0): There is no spoon! physics lies! everything is a conspiracy!
+// 0 and 9 are practically the same multiplier-wise, meaning wise they read as follows
+// 9 not doing because thought to be impossible
+// 0 not doing because the desire is not there
+// These are the multipliers for the 10 point effort scale
+const fibonacciScale: number[] = [0, 1, 2, 3, 5, 8, 13, 21, 34, 0];
+
+// Velocity is calculated in milliseconds
+// This default value serves as a base starting point
+// Until the planner establishes a dynamically changing personal velocity
+// This default is: 30 Minutes => ( 30 * 60000 millis == 1 minute )
+const startingVelocity: number = 1800000;
+
+const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+
+const createDefaultTask = (): taskI => {
+  return {
+    position: 0,
+    parentId: genesisTask.id,
+    id: '',
+    body: 'Plan',
+    effort: 1,
+    rating: 1,
+    description: 'default task',
+    status: 'todo',
+    priority: 0,
+    fraction: 0,
+    // cadence: 'w,d,1,8',
+    cadence: 'zero',
+    lastModified: 1,
+    timeCreated: 1,
+    dueDate: 0,
+    autoAssigned: true,
+  };
+};
+
+const defaultNow = {
+  id: '0',
+  taskId: '0',
+  start: Date.now(),
+  type: 'habit',
+  lastModified: Date.now(),
+  duration: null,
+  body: 'Loading',
+  effort: 9,
+  done: false,
+};
+
+const taskPropSig: string[] = [
+  'id',
+  'parentId',
+  'body',
+  'position',
+  'effort',
+  'rating',
+  'description',
+  'status',
+  'priority',
+  'fraction',
+  'cadence',
+  'lastModified',
+  'timeCreated',
+];
+
+// property signatures of store objects
+const propSigs: sigObject = {
+  tasks: [...taskPropSig],
+  timeline: ['id', 'taskId', 'start', 'type'],
+  tach: ['id', 'millis', 'recorded'],
+  budget: ['id', 'start', 'frame'],
+};
+
+const newTach = (millis: number): velocityI => {
+  return {
+    id: createOid(),
+    millis,
+    recorded: Date.now(),
+  };
+};
+
+const shownStamps: number = 22;
+const days366: number = 31622400000;
+const days31: number = 2678400000;
+const weekInMillis: number = 604800000;
+const dayInMillis: number = 86400000;
+const hourInMillis: number = 3600000;
+const minInMillis: number = 60000;
+const INACTIVE_MILLIS: number = minInMillis * 9;
+const FIVE_MIN = 300000;
+
+const MAX_CHILDREN: number = 1000;
+const getPriorityIndexRange = (parentId: string): IDBKeyRange => {
+  const lowerBound = [parentId, 'todo', 0];
+  const upperBound = [parentId, 'todo', MAX_CHILDREN];
+  return IDBKeyRange.bound(lowerBound, upperBound);
+};
+
+const get24HourFormat = (hour: number, meridiem: AmPm): number => {
+  const hour24format: number = meridiem === 'AM' && hour === 12 ? 0 : hour;
+  return meridiem === 'PM' && hour24format !== 12 ? hour + 12 : hour24format;
+};
+
+const KEY_PAIR_CONFIG: EcKeyGenParams = {
+  name: 'ECDSA',
+  namedCurve: 'P-384',
+};
+
+const SIGN_VERIFY_CONFIG: EcdsaParams = {
+  name: 'ECDSA',
+  hash: {
+    name: 'SHA-384',
+  },
+};
+
+const DAYS: string[] = [
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+];
+
+const DAYS_SHORT: string[] = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+const MONTH: string[] = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+
+const MONTH_SHORT: string[] = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
+
+const utilizationOptions: string[] = [
+  'Today',
+  'Yesterday',
+  'This Sprint',
+  'Last Sprint',
+  'This Month',
+  'Last Month',
+  'This Week',
+  'Last Week',
+];
+
+const btnClass4 = 'col-3 btn-sm btn-outline-dark';
+const btnClass3 = 'col-4 btn-sm btn-outline-dark';
+const btnClass2 = 'col-6 btn-sm btn-outline-dark';
+
+interface defaultObj {
+  body: string;
+  fraction?: number;
+  children?: defaultObj[];
+  due?: number;
+  cadence?: string;
+}
+
+// NOTE! The first 25 chars of every body needs to be unique.
+// Or else it will disappear on peer sync
+const arrayOfDefaults: defaultObj[] = [
+  {
+    body: 'Click "rec" on another task to start another recording and stop this one (Beginner Tips maybe?)',
+  },
+  {
+    body: 'Work',
+    fraction: hourInMillis * 40,
+    cadence: 'many',
+    children: [
+      { body: 'Planning', cadence: 'many' },
+      {
+        body: 'Check how my time was utilized this week',
+        due: Date.now() + weekInMillis,
+      },
+    ],
+  },
+  {
+    body: 'Eat',
+    cadence: 'many',
+    children: [
+      { body: 'Breakfast', cadence: 'many' },
+      { body: 'Lunch', cadence: 'many' },
+      { body: 'Dinner', cadence: 'many' },
+    ],
+  },
+  { body: 'Sleep', fraction: hourInMillis * 8 * 7, cadence: 'many' },
+  {
+    body: 'Chores',
+    children: [{ body: 'Cleaning' }, { body: 'Take out Trash' }],
+  },
+  {
+    body: 'Beginner Tips (Click open on this folder)',
+    children: [
+      {
+        body: 'The goal is tell your time what to do, Set a budget for your week by clicking Time when editing a folder',
+      },
+      { body: 'To remove a task folder, click edit then click done' },
+      {
+        body: 'Views (Open me!)',
+        children: [
+          {
+            body: 'Click "View" in the top bar and select another type to see your data in a different light',
+          },
+          {
+            body: `"${timelineColumnName}" shows the task being recorded and previous recordings`,
+          },
+          {
+            body: `"${agendaColumnName}" shows tasks that have been marked as due`,
+            due: Date.now() + hourInMillis * 2,
+          },
+        ],
+      },
+      {
+        body: 'To set a recurring task click "edit" and then "many"',
+        children: [
+          { body: '"None" represents a one off task' },
+          {
+            body: '"Many" represents a repeating task, due dates are cleared when they are completed',
+          },
+          {
+            body: 'Task cadence like "once a week", will also be possible in the future, where due dates will be reassigned based on the cadence',
+          },
+        ],
+      },
+      {
+        body: 'Your data is stored on this device! No sign in needed! Sync with another device for a back up',
+      },
+      {
+        body: 'Syncing up with another device (Open me!)',
+        children: [
+          { body: 'Go to "setup" in the top bar and then "Peer Sync' },
+          {
+            body: 'Opt-in on Device A. It will generate a long id to share with Device B',
+          },
+          {
+            body: "Opt-in with Device B and paste in Device B's id. Then click connect",
+          },
+          {
+            body: "Device A should now ask if its okay to connect to Device B's id",
+          },
+          {
+            body: 'Check to be sure at least the last hand full of chars match',
+          },
+          { body: "Don't accept connect request from unknown device ids" },
+          {
+            body: 'Keep in mind with peer sync both instances of the app need to be up at the same time to sync',
+          },
+          {
+            body: 'The paid subscription product will sync in way only one device needs to be on at a time',
+          },
+        ],
+      },
+    ],
+  },
+];
+
+const getColdStartData = (): taskI[] => {
+  let now = Date.now();
+  const taskArray: taskI[] = [];
+  const recursiveTaskFolderCreation = (
+    defaultArray: defaultObj[],
+    parentId: string,
+  ) => {
+    defaultArray.forEach((task, position) => {
+      const id = task.body.slice(0, 24);
+      taskArray.push({
+        id,
+        parentId,
+        description: '',
+        priority: 0,
+        status: 'todo',
+        position,
+        rating: 1,
+        effort: 1,
+        fraction: task?.fraction ? task.fraction : 0,
+        dueDate: task?.due ? task.due : 0,
+        body: task.body,
+        timeCreated: now,
+        lastModified: now,
+        autoAssigned: task?.fraction && task.fraction ? false : true,
+        cadence: task?.cadence ? task.cadence : 'zero',
+      });
+      if (task?.children) {
+        recursiveTaskFolderCreation(task.children, id);
+      }
+    });
+  };
+  recursiveTaskFolderCreation(arrayOfDefaults, '1');
+
+  return taskArray;
+};
+
+export {
+  genesisTask,
+  startingVelocity,
+  fibonacciScale,
+  stores,
+  indexes,
+  timelineParent,
+  genId,
+  days,
+  createDefaultTask,
+  defaultNow,
+  newTach,
+  allStores,
+  shownStamps,
+  defaultFrame,
+  frameOptions,
+  frameValues,
+  propSigs,
+  dayInMillis,
+  hourInMillis,
+  minInMillis,
+  weekInMillis,
+  INACTIVE_MILLIS,
+  getPriorityIndexRange,
+  get24HourFormat,
+  FIVE_MIN,
+  MAX_CHILDREN,
+  KEY_PAIR_CONFIG,
+  SIGN_VERIFY_CONFIG,
+  DAYS,
+  DAYS_SHORT,
+  MONTH,
+  MONTH_SHORT,
+  utilizationOptions,
+  btnClass2,
+  btnClass3,
+  btnClass4,
+  timelineColumnName,
+  agendaColumnName,
+  activitiesColumnName,
+  getColdStartData,
+  days31,
+  days366,
+};
