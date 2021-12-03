@@ -44,13 +44,13 @@
         <UtilizateText {task} {fraction} />
       </div>
       <div class="col-1" />
-      <BudgetSlider
-        {task}
-        bind:fraction
-        bind:autoAssigned
-        availableFunds={$budgetAvail}
-      />
     </div>
+    <BudgetSlider
+      {task}
+      bind:fraction
+      bind:autoAssigned
+      availableFunds={$budgetAvail}
+    />
   {/if}
 {:else}
   <div class="text-center text-small row">
