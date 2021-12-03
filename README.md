@@ -67,7 +67,7 @@ Just a tip from a dilettante: When every dollar has an agreed job, it's easier t
 
 Copyright 2021 ~ Paul Beaudet ~ All rights reserved on [README.md](README.md).
 
-The code of this static website is Open Source under the MIT License ~ See LICENSE for details
+The code of this static website is Open Source under the MIT License ~ See [LICENSE](LICENSE) for details
 
 Logos, sayings, presented verbiage, instructions, and, help ~ All rights reserved
 
