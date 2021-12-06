@@ -24,7 +24,9 @@
   import ListTask from 'svelte-bootstrap-icons/lib/ListTask';
   import ClockHistory from 'svelte-bootstrap-icons/lib/ClockHistory';
   import ArrowDownUp from 'svelte-bootstrap-icons/lib/ArrowDownUp';
+  import BoxArrowUpRight from 'svelte-bootstrap-icons/lib/BoxArrowUpRight';
   import WifiOff from 'svelte-bootstrap-icons/lib/WifiOff';
+  import Github from 'svelte-bootstrap-icons/lib/Github';
   import People from 'svelte-bootstrap-icons/lib/People';
   import Trash from 'svelte-bootstrap-icons/lib/Trash';
   import CalendarRange from 'svelte-bootstrap-icons/lib/CalendarRange';
@@ -296,6 +298,21 @@
       {/if}
     </li>
   </ul>
+  <hr />
+  {#if $showSideNav}<span class="ms-1 fs-5">About</span>{/if}
+  <ul class="nav nav-pills flex-column mb-auto">
+    <li class="nav-item p-1 ms-1" type="link">
+      <a class="text-white" href="https://github.com/Deabute/plan-client">
+        <Github />
+        {#if $showSideNav}
+          &nbsp;
+          <span>Github</span>
+          &nbsp;
+          <BoxArrowUpRight />
+        {/if}
+      </a>
+    </li>
+  </ul>
 </div>
 
 <style>
@@ -314,5 +331,8 @@
   .not-selected:hover {
     color: var(--bs-dark);
     background-color: var(--bs-light);
+  }
+  a {
+    text-decoration: none;
   }
 </style>
