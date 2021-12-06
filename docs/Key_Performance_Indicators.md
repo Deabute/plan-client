@@ -50,6 +50,10 @@ Frequency of budget adjustment would be a good indicator of
 - App use
 - Goal setting
 
+Time over budget would be a good indicator of (zero would be the best score)
+
+- personal compliance
+
 Of the options listed appropriate rate of completion seems to be the best measure
 
 Things to understand about appropriate rate of completion
@@ -59,3 +63,8 @@ Things to understand about appropriate rate of completion
 - This measure can also be used to measure a users own success with the product
   - in this way it can be a viable part of the product
   - in this way business and use interest lines up
+
+Negatives
+
+- Hard to compile
+- Doesn't not account for going over budget in a simple way
