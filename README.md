@@ -1,5 +1,9 @@
 # Plan Beta (Working codename)
 
+Busy? Tell your time where it goes.
+
+Work hard without sacrificing the finer points of life.
+
 "Plan" is a tool for budgeting your personal time with abilities to task track with time keep.
 
 ## Problems that might lead one to use this tool
