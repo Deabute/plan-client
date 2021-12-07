@@ -27,7 +27,7 @@ Can also include
 - First offers for paid roles
 - Let us know if you have more ideas! Right now we have more time than money, but believe developers should get paid for what they do. Particularly open source developers!
 
-## Volunteer Roles
+## Open Volunteer Roles
 
 #### User Experience (UX)
 
