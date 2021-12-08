@@ -58,4 +58,13 @@ Deabute is a bootstrapped company we will open roles as revenue allows it
 
 ## Contract Roles
 
-We may have some of these open sooner than later
+#### Registered Agent in NH
+
+- Review Operating Agreement (NH LLC)
+- Receive and forward mail
+- Respond to legal request for user data
+
+#### Branding
+
+- Better Product Naming
+- Vector based Logo
