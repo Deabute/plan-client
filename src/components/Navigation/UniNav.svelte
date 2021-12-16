@@ -27,6 +27,7 @@
   import BoxArrowUpRight from 'svelte-bootstrap-icons/lib/BoxArrowUpRight';
   import WifiOff from 'svelte-bootstrap-icons/lib/WifiOff';
   import Github from 'svelte-bootstrap-icons/lib/Github';
+  import InfoCircle from 'svelte-bootstrap-icons/lib/InfoCircle';
   import People from 'svelte-bootstrap-icons/lib/People';
   import Trash from 'svelte-bootstrap-icons/lib/Trash';
   import CalendarRange from 'svelte-bootstrap-icons/lib/CalendarRange';
@@ -249,7 +250,7 @@
         </span>
       {/if}
     </li>
-    <li
+    <!-- <li
       class="nav-item p-1 ms-1"
       type="button"
       data-bs-toggle={offcanvas ? 'offcanvas' : ''}
@@ -262,7 +263,7 @@
       {#if $showSideNav}
         <span class="rounded not-selected p-1"> Budget Duration </span>
       {/if}
-    </li>
+    </li> -->
     <li
       class="nav-item p-1 ms-1"
       type="button"
@@ -307,6 +308,17 @@
         {#if $showSideNav}
           &nbsp;
           <span>Github</span>
+          &nbsp;
+          <BoxArrowUpRight />
+        {/if}
+      </a>
+    </li>
+    <li class="nav-item p-1 ms-1" type="link">
+      <a class="text-white" href="https://deabute.com/products/plan/">
+        <InfoCircle />
+        {#if $showSideNav}
+          &nbsp;
+          <span>Budgeting Time</span>
           &nbsp;
           <BoxArrowUpRight />
         {/if}

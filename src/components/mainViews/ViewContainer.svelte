@@ -59,7 +59,7 @@
   ): string => {
     const end: number = start + frame;
     return `${getDurationStamp(end - now)} to ${Math.trunc(
-      weekInMillis / frame,
+      frame / weekInMillis,
     )} week budget end`;
   };
 
