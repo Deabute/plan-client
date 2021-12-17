@@ -8,7 +8,7 @@
   import EditBar from '../components/cardInterface/EditBar.svelte';
   import RecurEditBar from '../components/cardInterface/RecurEditBar.svelte';
   import { showTopChild } from '../indexDb/viewStoreDb';
-  import DueDateTwo from '../components/cardInterface/DueDateTwo.svelte';
+  import DueDate from '../components/cardInterface/DueDate.svelte';
   // Exposed component props
   export let task: memTaskI;
 
@@ -24,7 +24,7 @@
   {#if !$moveTask}
     <EditBar {task} bind:topChildShowing />
     <RecurEditBar {task} />
-    <DueDateTwo {task} />
+    <DueDate {task} />
     <FolderBudget {task} />
     {#if topChildShowing && task.topChild && $editTask?.id !== task.id}
       <FolderTab

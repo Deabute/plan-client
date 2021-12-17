@@ -57,7 +57,7 @@
       </div>
     {/if}
   </div>
-  <DueDate {task} />
+  <DueDate {task} activtyColumn={false} />
 </div>
 
 <style>

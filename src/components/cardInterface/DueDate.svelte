@@ -2,8 +2,8 @@
 <script lang="ts">
   import { writable } from 'svelte/store';
   import type { Writable } from 'svelte/store';
-  import { onAgenda, updateTask } from '../../indexDb/taskDb';
-  import type { memTaskI } from '../../shared/interface';
+  import { onAgenda, updateTaskSafe } from '../../indexDb/taskDb';
+  import type { memTaskI, optionalTaskI } from '../../shared/interface';
   import StampEdit from '../../shared/StampEdit.svelte';
   import { loadAgenda } from '../../stores/agendaStore';
   import { dayInMillis, hourInMillis } from '../../stores/defaultData';
@@ -11,6 +11,7 @@
   import {
     editDue,
     editRecur,
+    editTask,
     moveTask,
     toggleEditDue,
   } from '../../stores/settingsStore';
@@ -24,9 +25,10 @@
   import Gear from 'svelte-bootstrap-icons/lib/Gear';
   import FolderSymlink from 'svelte-bootstrap-icons/lib/FolderSymlink';
   import { openFolder } from '../../stores/taskStore';
+  import CalendarEvent from 'svelte-bootstrap-icons/lib/CalendarEvent';
 
   export let task: memTaskI;
-  export let sub: boolean = false;
+  export let activtyColumn: boolean = true;
 
   let stampColor: string = 'black';
   let setExact = false;
@@ -59,14 +61,15 @@
   const invalidMsg: Writable<string> = writable('');
 
   const setDueDate = async () => {
-    const editedTask = {
-      ...task,
+    const editedTask: optionalTaskI = {
+      id: task.id,
       dueDate: $editedStamp.valueOf(),
     };
-    await updateTask(editedTask);
+    await updateTaskSafe(editedTask);
     addEvent('setDue', { id: editedTask.id, due: editedTask.dueDate });
-    task = editedTask;
+    task.dueDate = $editedStamp.valueOf();
     $editDue = null;
+    $editTask = null;
     loadAgenda();
   };
 
@@ -85,9 +88,6 @@
 
   const showDueDate = ({ dueDate, status }: memTaskI): string => {
     stampColor = '';
-    if (!dueDate) {
-      return sub ? 'Highest priority sub-folder' : 'folder budget';
-    }
     const stamp = getHumanReadableStamp(dueDate);
     if (status === 'todo' && $secondTick > dueDate) {
       stampColor = 'text-danger';
@@ -107,7 +107,7 @@
 </script>
 
 <div class="row text-center">
-  {#if $editDue && $editDue.id === task.id && correctStamp(task, setExact)}
+  {#if $editDue?.id === task.id && correctStamp(task, setExact)}
     {#if setExact}
       <div class="due-line col-12">
         <StampEdit {stamp} bind:editedStamp={$editedStamp} />
@@ -115,23 +115,37 @@
     {:else}
       <PeriodEdit {stamp} bind:editedStamp={$editedStamp} />
     {/if}
-  {:else}
-    <span class="col-2" type="button" on:click={openFolder(task, $moveTask)}>
-      <FolderSymlink />
-    </span>
-    <span
-      class={`col-8 ${stampColor}`}
-      type="button"
-      on:click={toggleEditDue(task)}
-    >
-      {showDueDate(task)}
-    </span>
-    <div class="col-2" type="button" on:click={toggleEditDue(task)}>
-      <Gear />
-    </div>
+  {:else if task.dueDate}
+    {#if activtyColumn && $editTask?.id === task.id}
+      <div class="col-1" type="button" on:click={toggleEditDue(task)}>
+        <CalendarEvent />
+      </div>
+      <span
+        class={`col-11 ${stampColor}`}
+        type="button"
+        on:click={toggleEditDue(task)}
+      >
+        {showDueDate(task)}
+      </span>
+    {:else}
+      <span class="col-2" type="button" on:click={openFolder(task, $moveTask)}>
+        <FolderSymlink />
+      </span>
+      <span
+        class={`col-8 ${stampColor}`}
+        type="button"
+        on:click={toggleEditDue(task)}
+      >
+        {showDueDate(task)}
+      </span>
+      <div class="col-2" type="button" on:click={toggleEditDue(task)}>
+        <Gear />
+      </div>
+    {/if}
   {/if}
 </div>
-{#if $editDue && $editDue.id === task.id}
+
+{#if $editDue?.id === task.id}
   <div class="row">
     <div class="btn-group btn-group-sm col-12" role="group">
       <button

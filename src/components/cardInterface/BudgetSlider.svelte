@@ -5,7 +5,7 @@
   import { refreshTask } from '../../stores/taskStore';
   import type { Writable } from 'svelte/store';
   import { writable } from 'svelte/store';
-  import { updateTask } from '../../indexDb/taskDb';
+  import { updateTaskSafe } from '../../indexDb/taskDb';
   import { addEvent } from '../../indexDb/eventsDb';
   import Lock from 'svelte-bootstrap-icons/lib/Lock';
   import Unlock from 'svelte-bootstrap-icons/lib/Unlock';
@@ -41,14 +41,14 @@
     fraction = $slideValue.valueOf();
     originValue = $slideValue.valueOf();
     originAssign = false;
-    await updateTask({
-      ...task,
+    await updateTaskSafe({
+      id: task.id,
       fraction,
       autoAssigned,
     });
     await addEvent('setBudget', {
       id: task.id,
-      budget: $slideValue,
+      budget: fraction,
       unlock: false,
     });
     refreshTask();
@@ -57,8 +57,8 @@
   const onLockChange = async () => {
     task.autoAssigned = !task.autoAssigned;
     autoAssigned = task.autoAssigned;
-    await updateTask({
-      ...task,
+    await updateTaskSafe({
+      id: task.id,
       autoAssigned,
     });
     await addEvent('setBudget', {
