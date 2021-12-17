@@ -111,18 +111,6 @@ const updateEffort = async (task: memTaskI, rating: number) => {
   peerBroadcast('sync-tasks', { data, done: true });
 };
 
-const updateTask = async (
-  task: memTaskI,
-  done: boolean = true,
-): Promise<taskI> => {
-  const db = await getDb();
-  const { topChild, ...baseTask } = task;
-  const data: taskI = { ...baseTask, lastModified: Date.now() };
-  await db.put('tasks', data);
-  peerBroadcast('sync-tasks', { data, done });
-  return data;
-};
-
 const updateTaskSafe = async (
   task: optionalTaskI,
   done: boolean = true,
@@ -404,7 +392,6 @@ const onAgenda = async (time: number): Promise<boolean> => {
 export {
   getTaskById,
   updateEffort,
-  updateTask,
   getSubtask,
   createActivity,
   resolvePositions,

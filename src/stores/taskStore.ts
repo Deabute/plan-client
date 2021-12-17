@@ -15,7 +15,7 @@ import {
 } from '../stores/defaultData';
 import {
   updateEffort,
-  updateTask,
+  updateTaskSafe,
   getSubtask,
   createActivity,
   incomingTasks,
@@ -295,10 +295,10 @@ const incrementEffort = async (task: memTaskI | taskI, rating: number = 10) => {
   });
 };
 
-const modifyParentBody = (newBody: string) => {
+const modifyParentBody = (body: string) => {
   taskStore.update((store) => {
-    store.lineage[0].body = newBody;
-    updateTask(store.lineage[0]);
+    store.lineage[0].body = body;
+    updateTaskSafe({ id: store.lineage[0].id, body });
     return store;
   });
 };
@@ -312,14 +312,14 @@ const modifyBody = (task: memTaskI, body: string) => {
       }
       return t;
     });
-    updateTask(task);
+    updateTaskSafe({ id: task.id, body });
     return store;
   });
 };
 
 const undoAndPlace = async (taskId: string) => {
   const task: taskI = await getTaskById(taskId);
-  await updateTask({ ...task, status: 'todo' });
+  await updateTaskSafe({ id: taskId, status: 'todo' });
   await placeFolder(
     taskId,
     {
@@ -372,12 +372,10 @@ const checkOff = (taskId: string) => {
     }
 
     if (checkTask.cadence === 'zero') {
-      checkTask.status = 'done';
-      await updateTask(checkTask);
+      await updateTaskSafe({ id: taskId, status: 'done' });
       await backfillPositions(checkTask.parentId);
     } else if (checkTask.dueDate) {
-      checkTask.dueDate = 0;
-      await updateTask(checkTask);
+      await updateTaskSafe({ id: taskId, dueDate: 0 });
     }
     await addEvent('checkOff', { task: checkTask });
 
@@ -433,7 +431,7 @@ const hideTask = (task: memTaskI) => {
     }
 
     task.status = 'hide';
-    await updateTask(task);
+    await updateTaskSafe({ id: task.id, status: 'hide' });
     await backfillPositions(task.parentId);
     addEvent('hideTask', { task });
 
