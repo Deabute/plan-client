@@ -1,7 +1,7 @@
 <!-- MoveTime.svelte ~ Copyright 2021 Paul Beaudet MIT License -->
 <script lang="ts">
   import { addEvent } from '../../indexDb/eventsDb';
-  import { updateTask } from '../../indexDb/taskDb';
+  import { updateTaskSafe } from '../../indexDb/taskDb';
   import { hourInMillis, minInMillis } from '../../stores/defaultData';
   import { cancelFund, fundSetting } from '../../stores/fundingStore';
   import { editDue, editRecur } from '../../stores/settingsStore';
@@ -45,8 +45,8 @@
     const totalMin = $fundSetting.minutes * minInMillis;
     const totalHour = $fundSetting.hours * hourInMillis;
     const fraction = totalMin + totalHour;
-    await updateTask({
-      ...$fundSetting.task,
+    await updateTaskSafe({
+      id: $fundSetting.task.id,
       autoAssigned: false,
       fraction,
     });
@@ -62,8 +62,8 @@
 
   const onLockChange = async () => {
     $fundSetting.task.autoAssigned = !$fundSetting.task.autoAssigned;
-    updateTask({
-      ...$fundSetting.task,
+    updateTaskSafe({
+      id: $fundSetting.task.id,
       autoAssigned: $fundSetting.task.autoAssigned,
     });
     addEvent('setBudget', {
