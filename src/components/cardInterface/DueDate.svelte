@@ -116,17 +116,27 @@
       <PeriodEdit {stamp} bind:editedStamp={$editedStamp} />
     {/if}
   {:else if task.dueDate}
-    {#if activtyColumn && $editTask?.id === task.id}
-      <div class="col-1" type="button" on:click={toggleEditDue(task)}>
-        <CalendarEvent />
-      </div>
-      <span
-        class={`col-11 ${stampColor}`}
-        type="button"
-        on:click={toggleEditDue(task)}
-      >
-        {showDueDate(task)}
-      </span>
+    {#if activtyColumn}
+      {#if $editTask?.id === task.id}
+        <div class="col-1" type="button" on:click={toggleEditDue(task)}>
+          <CalendarEvent />
+        </div>
+        <span
+          class={`col-11 ${stampColor}`}
+          type="button"
+          on:click={toggleEditDue(task)}
+        >
+          {showDueDate(task)}
+        </span>
+      {:else}
+        <span
+          class={`col-12 ${stampColor}`}
+          type="button"
+          on:click={toggleEditDue(task)}
+        >
+          {showDueDate(task)}
+        </span>
+      {/if}
     {:else}
       <span class="col-2" type="button" on:click={openFolder(task, $moveTask)}>
         <FolderSymlink />
