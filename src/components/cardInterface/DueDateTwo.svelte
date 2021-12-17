@@ -2,12 +2,7 @@
 <script lang="ts">
   import { writable } from 'svelte/store';
   import type { Writable } from 'svelte/store';
-  import {
-    getTaskById,
-    onAgenda,
-    updateTask,
-    updateTaskSafe,
-  } from '../../indexDb/taskDb';
+  import { onAgenda, updateTaskSafe } from '../../indexDb/taskDb';
   import type { memTaskI } from '../../shared/interface';
   import StampEdit from '../../shared/StampEdit.svelte';
   import { loadAgenda } from '../../stores/agendaStore';
@@ -27,7 +22,6 @@
   import Check from 'svelte-bootstrap-icons/lib/Check';
   import XLg from 'svelte-bootstrap-icons/lib/XLg';
   import CalendarEvent from 'svelte-bootstrap-icons/lib/CalendarEvent';
-  import { refreshTask } from '../../stores/taskStore';
 
   export let task: memTaskI;
 

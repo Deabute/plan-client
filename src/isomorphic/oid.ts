@@ -1,7 +1,7 @@
 // oid ~ Copyright 2021 Paul Beaudet MIT License
 
 // similar logic to new mongo.ObjectID() except this just returns a string
-const createOid = () => {
+const createOid = (): string => {
   const increment = Math.floor(Math.random() * 16777216).toString(16);
   const pid = Math.floor(Math.random() * 65536).toString(16);
   const machine = Math.floor(Math.random() * 16777216).toString(16);
@@ -18,12 +18,12 @@ const createOid = () => {
   );
 };
 
-const getOidStamp = (oid) => {
+const getOidStamp = (oid: string) => {
   const timestamp = oid.substr(0, 8);
   return parseInt(timestamp, 16) * 1000;
 };
 
-const generatePassword = (length = 15) => {
+const generatePassword = (length: number = 15): string => {
   let password = '';
   const str =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$';
@@ -35,8 +35,4 @@ const generatePassword = (length = 15) => {
   return password;
 };
 
-module.exports = {
-  createOid,
-  getOidStamp,
-  generatePassword,
-};
+export { createOid, getOidStamp, generatePassword };

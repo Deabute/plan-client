@@ -1,15 +1,18 @@
 <!-- BudgetSetings Copyright 2021 Paul Beaudet MIT License -->
 <script lang="ts">
-  import { budgetStore } from '../stores/budgetStore';
-  import type { AmPm } from '../shared/interface';
-  import { updateBudget } from '../indexDb/budgetDb';
+  import { budgetStore } from '../../stores/budgetStore';
+  import type { AmPm } from '../../shared/interface';
+  import { updateBudget } from '../../indexDb/budgetDb';
   import {
     defaultFrame,
     frameOptions,
     frameValues,
     get24HourFormat,
-  } from '../stores/defaultData';
-  import { showDuration, toggleSettingDialog } from '../stores/settingsStore';
+  } from '../../stores/defaultData';
+  import {
+    showDuration,
+    toggleSettingDialog,
+  } from '../../stores/settingsStore';
 
   let currentSprintEnd: number = 0;
   let sprintEndYear: number = 2021;

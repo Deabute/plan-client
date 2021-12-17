@@ -2,9 +2,9 @@
 <script lang="ts">
   import Timeline from './components/mainViews/Timeline.svelte';
   import { loadTach } from './stores/velocityStore';
-  import Messages from './components/Messages.svelte';
+  import Messages from './components/menuItems/Messages.svelte';
   import { getBudget } from './stores/budgetStore';
-  import BudgetSetings from './components/BudgetSetings.svelte';
+  import BudgetSetings from './components/menuItems/BudgetSetings.svelte';
   import { loadTask } from './stores/taskStore';
   import { getTime } from './stores/timeStore';
   import Sharing from './configuration/Sharing.svelte';

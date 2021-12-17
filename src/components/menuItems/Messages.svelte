@@ -1,6 +1,6 @@
 <!-- Messages.svelte Copyright 2021 Paul Beaudet MIT License -->
 <script lang="ts">
-  import { messageStore, clearMessages } from '../stores/messageStore';
+  import { messageStore, clearMessages } from '../../stores/messageStore';
 </script>
 
 {#if $messageStore.length}
