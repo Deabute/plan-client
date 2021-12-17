@@ -58,7 +58,9 @@ const batchSyncUp = async () => {
   syncingUp.set(false);
 };
 
-const syncUp = (action: actionsI, payload: sendPayload) => {
+const syncUp = async (action: actionsI, payload: sendPayload) => {
+  const result = await getLatestToken();
+  if (!result) return; // no tokens no sync up!
   const pkt: relayPkt = { action, payload };
   if (sizeOfObjArrayAfterAdd(syncBatch, pkt) < FRAME_LIMIT) {
     syncBatch.push(pkt);

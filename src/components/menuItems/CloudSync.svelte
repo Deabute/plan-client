@@ -54,11 +54,12 @@
 
   const requestSyncDown = async () => {
     if (anyConnected()) return;
-    $syncingDown = true;
     const cacheId = await getNextConnectionCacheId();
     if (tokenPromise === null) tokenPromise = getLatestToken();
     if (recentToken === null) recentToken = await tokenPromise;
     if (!cacheId || !recentToken) return;
+    console.log('requesting a sync down');
+    $syncingDown = true;
     wsSend('syncDown', {
       token: recentToken.token,
       cacheId,
