@@ -2,7 +2,7 @@
 
 Thank you for your interest in Deabute Plan.
 
-Until further notice the client side Plan project is
+Until further notice the client-side Plan project is
 licensed by Paul Beaudet under the MIT License.
 Currently as of Dec 2021 the Deabute Plan project
 is synonymous with Paul Beaudet and this Git Repository
@@ -23,7 +23,7 @@ and interest in and to Your Contributions.
    "You" (or "Your") shall mean the copyright owner or legal entity
    authorized by the copyright owner that is making this Agreement
    with Paul Beaudet. For legal entities, the entity making a
-   Contribution and all other entities that control, are controlled
+   Contribution and all other entities that control are controlled
    by, or are under common control with that entity are considered to
    be a single Contributor. For the purposes of this definition,
    "control" means (i) the power, direct or indirect, to cause the
@@ -60,12 +60,12 @@ and interest in and to Your Contributions.
    made, use, offer to sell, sell, import, and otherwise transfer the
    Work, where such license applies only to those patent claims
    licensable by You that are necessarily infringed by Your
-   Contribution(s) alone or by combination of Your Contribution(s)
+   Contribution(s) alone or by a combination of Your Contribution(s)
    with the Work to which such Contribution(s) was submitted. If any
    entity institutes patent litigation against You or any other entity
    (including a cross-claim or counterclaim in a lawsuit) alleging
    that your Contribution, or the Work to which you have contributed,
-   constitutes direct or contributory patent infringement, then any
+   constitutes a direct or contributory patent infringement, then any
    patent licenses granted to that entity under this Agreement for
    that Contribution or Work shall terminate as of the date such
    litigation is filed.

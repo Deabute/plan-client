@@ -2,7 +2,7 @@
 
 ## About
 
-The following is a list of our contributors. It includes experience level, roles, status and time of involvement based on status.
+The following is a list of our contributors. It includes experience level, roles, status, and time of involvement based on status.
 
 Legends - [Contributor_status_legend.md](Contributor_status_legend.md)
 
@@ -11,7 +11,7 @@ Legends - [Contributor_status_legend.md](Contributor_status_legend.md)
 ### Project Maintainers
 
 - Client
-  - Paul Beaudet(FT) Feb 2021 to Current (590 commits prior to open sourcing the project separating it from services in December)
+  - Paul Beaudet(FT) Feb 2021 to Current (590 commits before open-sourcing the project separating it from services in December)
 - Services
   - Paul Beaudet(FT) Jul 2021 to Current
 - Admin
