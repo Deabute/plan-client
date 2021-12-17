@@ -4,7 +4,7 @@ import { deleteConnection } from './connectionDB';
 import { addStamp, removeStamp } from './timelineDb';
 import { refreshTime } from '../stores/timeStore';
 import { refreshTask } from '../stores/taskStore';
-import { backfillPositions, placeFolderDb, updateTask } from './taskDb';
+import { backfillPositions, placeFolderDb, updateTaskSafe } from './taskDb';
 import { getBooleanStatus, syncingDown } from '../stores/peerStore';
 import { loadAgenda } from '../stores/agendaStore';
 import { eventsOn } from './eventsDb';
@@ -27,7 +27,10 @@ const initEventsForEvents = () => {
   });
 
   eventsOn('checkOff', async ({ data }: eventI) => {
-    await updateTask(data.task);
+    await updateTaskSafe({
+      id: data.task.id,
+      status: 'done',
+    });
     if (data.task.cadence === 'zero') {
       await backfillPositions(data.task.parentId);
     }
@@ -38,7 +41,10 @@ const initEventsForEvents = () => {
   });
 
   eventsOn('hideTask', async ({ data }: eventI) => {
-    await updateTask(data.task);
+    await updateTaskSafe({
+      id: data.task.id,
+      status: 'hide',
+    });
     await backfillPositions(data.task.parentId);
     if (!getBooleanStatus(syncingDown)) refreshTask();
   });
