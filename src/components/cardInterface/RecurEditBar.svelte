@@ -1,6 +1,6 @@
 <!-- RecurEditBar.svelte Copyright 2021 Paul Beaudet MIT Licence -->
 <script lang="ts">
-  import { updateTask } from '../../indexDb/taskDb';
+  import { updateTaskSafe } from '../../indexDb/taskDb';
   import type {
     cadenceI,
     cadenceInterval,
@@ -36,7 +36,10 @@
       ...cadence,
     });
     task.cadence = cadenceChange;
-    await updateTask(task);
+    await updateTaskSafe({
+      id: task.id,
+      cadence: cadenceChange,
+    });
     addEvent('setRecur', { id: task.id, cadenceChange });
     originCadence = { ...cadence };
     $validCadence = false;
