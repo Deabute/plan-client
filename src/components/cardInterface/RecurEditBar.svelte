@@ -30,6 +30,7 @@
   const validCadence: Writable<boolean> = writable(false);
   const interval: Writable<cadenceInterval> = writable(originCadence.interval);
   let cadence: cadenceI = { ...originCadence };
+  let skip: Writable<number> = writable(originCadence.skip.valueOf());
 
   const onCadenceChange = async () => {
     const cadenceChange: string = setCadence({
@@ -48,7 +49,12 @@
   };
 
   interval.subscribe((val) => {
-    $validCadence = val === originCadence.interval ? false : true;
+    $validCadence =
+      val !== originCadence.interval
+        ? true
+        : $skip === originCadence.skip
+        ? false
+        : true;
     cadence.interval = val;
   });
 
@@ -57,6 +63,16 @@
       cancelFund();
       $editDue = null;
     }
+  });
+
+  skip.subscribe((val) => {
+    $validCadence =
+      val !== originCadence.skip
+        ? true
+        : $interval === originCadence.interval
+        ? false
+        : true;
+    cadence.skip = val;
   });
 </script>
 
@@ -70,21 +86,32 @@
       >
         <XLg /> Cancel
       </button>
+      {#if $interval !== 'many' && $interval !== 'none'}
+        <span class="input-group-text">{`Every `}</span>
+        <input
+          type="number"
+          class="form-control"
+          maxlength="2"
+          min="1"
+          id="skip-input"
+          name="skip-input"
+          max="99"
+          bind:value={$skip}
+        />
+      {/if}
       <select
-        class="btn btn-outline-dark"
-        type="button"
+        class="form-select"
         name="interval"
         id="interval"
         bind:value={$interval}
       >
-        {#each intervalTypes as interval}
-          {#if interval === 'many' || interval === 'none'}
-            <option value={interval}>
-              {interval}
-            </option>
-          {/if}
+        {#each intervalTypes as type}
+          <option value={type}>
+            {`${type}${$skip > 1 ? 's' : ''}`}
+          </option>
         {/each}
       </select>
+
       {#if $validCadence}
         <button
           class="btn btn-outline-dark"

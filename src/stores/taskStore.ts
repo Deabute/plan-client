@@ -5,6 +5,7 @@ import type {
   memTaskI,
   taskListData,
   memStampI,
+  cadenceI,
 } from '../shared/interface';
 import {
   genesisTask,
@@ -42,6 +43,7 @@ import { giveATip } from '../components/ToolTips/tipStore';
 import { addEvent } from '../indexDb/eventsDb';
 import { cancelFund } from './fundingStore';
 import type { taskPayload } from '../connections/connectInterface';
+import { getCadence, nextOccurance } from '../components/time/CadenceFunctions';
 
 const defaultTaskArray: memTaskI[] = [];
 
@@ -374,8 +376,14 @@ const checkOff = (taskId: string) => {
     if (checkTask.cadence === 'zero') {
       await updateTaskSafe({ id: taskId, status: 'done' });
       await backfillPositions(checkTask.parentId);
-    } else if (checkTask.dueDate) {
-      await updateTaskSafe({ id: taskId, dueDate: 0 });
+    } else {
+      await updateTaskSafe({
+        id: taskId,
+        dueDate:
+          checkTask.cadence === 'many'
+            ? 0
+            : nextOccurance(checkTask.cadence, checkTask.dueDate),
+      });
     }
     await addEvent('checkOff', { task: checkTask });
 
