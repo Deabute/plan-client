@@ -61,37 +61,39 @@
 </script>
 
 {#if $editRecur && $editRecur.id === task.id}
-  <div class="btn-group btn-group-sm m-1" role="group">
-    <button
-      class="btn btn-outline-dark"
-      type="button"
-      on:click={toggleEditRecur(task)}
-    >
-      <XLg /> Cancel
-    </button>
-    <select
-      class="btn btn-outline-dark"
-      type="button"
-      name="interval"
-      id="interval"
-      bind:value={$interval}
-    >
-      {#each intervalTypes as interval}
-        {#if interval === 'many' || interval === 'none'}
-          <option value={interval}>
-            {interval}
-          </option>
-        {/if}
-      {/each}
-    </select>
-    {#if $validCadence}
+  <div class="row">
+    <div class="btn-group btn-group-sm col-12 mb-1" role="group">
       <button
         class="btn btn-outline-dark"
         type="button"
-        on:click={onCadenceChange}
+        on:click={toggleEditRecur(task)}
       >
-        <Check /> Change
+        <XLg /> Cancel
       </button>
-    {/if}
+      <select
+        class="btn btn-outline-dark"
+        type="button"
+        name="interval"
+        id="interval"
+        bind:value={$interval}
+      >
+        {#each intervalTypes as interval}
+          {#if interval === 'many' || interval === 'none'}
+            <option value={interval}>
+              {interval}
+            </option>
+          {/if}
+        {/each}
+      </select>
+      {#if $validCadence}
+        <button
+          class="btn btn-outline-dark"
+          type="button"
+          on:click={onCadenceChange}
+        >
+          <Check /> Change
+        </button>
+      {/if}
+    </div>
   </div>
 {/if}
