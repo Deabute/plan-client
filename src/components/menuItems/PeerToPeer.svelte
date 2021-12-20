@@ -1,4 +1,4 @@
-<!-- sharing Copyright 2021 Paul Beaudet MIT License -->
+<!-- PeerToPeer ~ Copyright 2021 Paul Beaudet MIT License -->
 <script lang="ts">
   import ProfileList from './ProfileList.svelte';
   import { getHumanReadableStamp } from '../time/timeConvert';
