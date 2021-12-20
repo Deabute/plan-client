@@ -104,7 +104,8 @@ const nextOccurance = (
   encodedCadence: string,
   originalDue: number = 0,
 ): number => {
-  const baseStart = originalDue ? originalDue : Date.now();
+  const now = Date.now();
+  const baseStart = originalDue ? originalDue : now;
   const cadence = getCadence(encodedCadence);
   let interval = 0;
   for (let i = 0; i < intervalTypes.length; i++) {
@@ -114,7 +115,9 @@ const nextOccurance = (
       break;
     }
   }
-  return baseStart + interval * cadence.skip;
+  const period = interval * cadence.skip;
+  const proposedDue = baseStart + period;
+  return proposedDue < now ? now + period : proposedDue;
 };
 
 const cadenceParams = {
