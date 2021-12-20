@@ -1,22 +1,25 @@
 <!-- sharing Copyright 2021 Paul Beaudet MIT License -->
 <script lang="ts">
-  import ProfileList from '../components/menuItems/ProfileList.svelte';
-  import { getHumanReadableStamp } from '../components/time/timeConvert';
-  import { getAnnouncement } from '../connections/crypto';
-  import { initConnectionSignaling } from '../connections/signaling';
-  import { wsSend } from '../connections/WebSocket';
+  import ProfileList from './ProfileList.svelte';
+  import { getHumanReadableStamp } from '../time/timeConvert';
+  import { getAnnouncement } from '../../connections/crypto';
+  import { initConnectionSignaling } from '../../connections/signaling';
+  import { wsSend } from '../../connections/WebSocket';
   import {
     checkExisting,
     deleteConnection,
     getConnectionCursor,
     initDeviceID,
     newConnection,
-  } from '../indexDb/connectionDB';
-  import { addEvent } from '../indexDb/eventsDb';
-  import { setPrimary } from '../indexDb/profilesDb';
-  import type { IDBPCursorWithValue, PlanDB } from '../shared/interface';
-  import { peerSyncEnabled } from '../stores/peerStore';
-  import { showPeerSync, toggleSettingDialog } from '../stores/settingsStore';
+  } from '../../indexDb/connectionDB';
+  import { addEvent } from '../../indexDb/eventsDb';
+  import { setPrimary } from '../../indexDb/profilesDb';
+  import type { IDBPCursorWithValue, PlanDB } from '../../shared/interface';
+  import { peerSyncEnabled } from '../../stores/peerStore';
+  import {
+    showPeerSync,
+    toggleSettingDialog,
+  } from '../../stores/settingsStore';
 
   let sharingId: string = '';
   let connectionArray = [];

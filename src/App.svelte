@@ -7,7 +7,6 @@
   import BudgetSetings from './components/menuItems/BudgetSetings.svelte';
   import { loadTask } from './stores/taskStore';
   import { getTime } from './stores/timeStore';
-  import Sharing from './configuration/Sharing.svelte';
   import { initConnectionSignaling } from './connections/signaling';
   import PeersPending from './connections/PeersPending.svelte';
   import { migrateData } from './indexDb/migrations';
@@ -23,6 +22,7 @@
   import SideNav from './components/Navigation/SideNav.svelte';
   import CloudSync from './components/menuItems/CloudSync.svelte';
   import { initEventsForEvents } from './indexDb/eventsOnEvents';
+  import PeerToPeer from './components/menuItems/PeerToPeer.svelte';
 
   // only one db store should be loaded at a time sequentialy
   // otherwise intializing data and migrations will get triggered
@@ -52,7 +52,7 @@
 </script>
 
 <Messages />
-<Sharing />
+<PeerToPeer />
 <BudgetSetings />
 <PeersPending />
 <ToolTipBar />
