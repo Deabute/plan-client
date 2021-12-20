@@ -3,7 +3,7 @@
   import type { memTaskI } from '../../shared/interface';
   import { fundSetting, openFundSettings } from '../../stores/fundingStore';
   import { taskStore, budgetAvail, openFolder } from '../../stores/taskStore';
-  import MoveTime from '../menuItems/MoveTime.svelte';
+  import MoveTime from './MoveTime.svelte';
   import BudgetSlider from './BudgetSlider.svelte';
   import UtilizateText from './UtilizateText.svelte';
   import {
