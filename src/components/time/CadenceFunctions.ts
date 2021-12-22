@@ -130,7 +130,6 @@ const nextOccurrence = (
   if (!cadence.onTime) return proposedDue;
   const date = new Date(proposedDue);
   const { hour, minute } = getTimeOfDayForDate(cadence.timeOfDay);
-  // Todo: Make sure this is before now
   date.setMinutes(minute);
   date.setHours(hour);
   return date.getTime();
