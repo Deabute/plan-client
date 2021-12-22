@@ -1,4 +1,4 @@
-//  CadenceFunctions.ts Copyright 2021 Paul Beaudet MIT Licence
+//  CadenceFunctions.ts Copyright 2021 Paul Beaudet MIT License
 
 import type {
   cadenceI,
@@ -11,6 +11,7 @@ import {
   days366,
   weekInMillis,
 } from '../../stores/defaultData';
+import { getTimeOfDayForDate } from './timeConvert';
 
 const weekTypes: weekType[] = ['Whole', 'Mon-Fri', 'Sat-Sun'];
 const weekTypeCodes: string[] = ['w', 'o', 'e'];
@@ -46,7 +47,9 @@ const getCadence = (storedString: string): cadenceI => {
     weekType: 'Whole',
     interval: 'none',
     skip: 1,
-    timeOfDay: 12,
+    timeOfDay: 0,
+    onTime: false,
+    strict: false,
   };
   if (cadenceArray[0] === 'zero') return cadence;
   if (cadenceArray[0] === 'many') {
@@ -67,10 +70,12 @@ const getCadence = (storedString: string): cadenceI => {
   }
   cadence.skip = Number(cadenceArray[2]);
   cadence.timeOfDay = Number(cadenceArray[3]);
+  cadence.onTime = cadenceArray[4] === '1' ? true : false;
+  cadence.strict = cadenceArray[5] === '1' ? true : false;
   return cadence;
 };
 
-// Creates a particularly formated CSV to flaten property to a string for storage.
+// Creates a particularly formatted CSV to flatten property to a string for storage.
 const setCadence = (setObj: cadenceI): string => {
   // no figuring needed for no recurrence case for none or many
   if (setObj.interval === 'none') return 'zero';
@@ -90,17 +95,21 @@ const setCadence = (setObj: cadenceI): string => {
         // default to whole when when not provided
         encodeCadence += 'w,';
       }
-      // encode inverval type on position 2
+      // encode interval type on position 2
       encodeCadence += intervalTypeCodes[i] + ',';
       break;
     }
   }
   // encode skip and time of day on positions 3 and 4
-  encodeCadence += String(setObj.skip) + ',' + String(setObj.timeOfDay);
+  encodeCadence += String(setObj.skip) + ',' + String(setObj.timeOfDay) + ',';
+  // encode onTime and strict on positions 5 and 6 as a 1 or 0 / true or false
+  encodeCadence += setObj.onTime ? '1,' : '0,';
+  encodeCadence += setObj.strict ? '1' : '0';
   return encodeCadence;
 };
 
-const nextOccurance = (
+// Get the next occurrence after a task is checked off
+const nextOccurrence = (
   encodedCadence: string,
   originalDue: number = 0,
 ): number => {
@@ -116,8 +125,15 @@ const nextOccurance = (
     }
   }
   const period = interval * cadence.skip;
-  const proposedDue = baseStart + period;
-  return proposedDue < now ? now + period : proposedDue;
+  let proposedDue = baseStart + period;
+  proposedDue = proposedDue < now ? now + period : proposedDue;
+  if (!cadence.onTime) return proposedDue;
+  const date = new Date(proposedDue);
+  const { hour, minute } = getTimeOfDayForDate(cadence.timeOfDay);
+  // Todo: Make sure this is before now
+  date.setMinutes(minute);
+  date.setHours(hour);
+  return date.getTime();
 };
 
 const cadenceParams = {
@@ -142,5 +158,5 @@ export {
   intervalTypes,
   intervalMillis,
   cadenceParams,
-  nextOccurance,
+  nextOccurrence,
 };

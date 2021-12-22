@@ -13,6 +13,13 @@ const get12Hour = (h: number): number => {
   return h ? h : 12;
 };
 
+const getMeridianHour = (hour: number): { hour: number; meridian: AmPm } => {
+  return {
+    hour: get12Hour(hour),
+    meridian: hour > 11 ? 'PM' : 'AM',
+  };
+};
+
 const get24Hour = (hour12: number, meridiem: AmPm): number => {
   if (meridiem === 'AM') {
     if (hour12 === 12) hour12 = 0;
@@ -59,10 +66,68 @@ const getDurationStamp = (millis: number): string => {
   }`;
 };
 
+const getMillisFromDayStart = (
+  hour12: number,
+  minutes: number,
+  meridian: AmPm,
+): number => {
+  const hours = get24Hour(hour12, meridian);
+  const boiledDownMinutes = minutes * minInMillis;
+  const boiledDownHours = hours * hourInMillis;
+  const totalMillis = boiledDownHours
+    ? boiledDownHours + boiledDownMinutes
+    : boiledDownMinutes;
+  return totalMillis;
+};
+
+interface timeOfDay {
+  hour: number;
+  minutes: number;
+  meridian: AmPm;
+}
+
+const getTimeOfDay = (millis: number): timeOfDay => {
+  const returnObj: timeOfDay = {
+    hour: 12,
+    minutes: 0,
+    meridian: 'AM',
+  };
+  if (millis === 0) return returnObj;
+  let hours24 = millis >= hourInMillis ? Math.trunc(millis / hourInMillis) : 0;
+  let remainder = millis >= hourInMillis ? millis % hourInMillis : millis;
+  const { hour, meridian } = getMeridianHour(hours24);
+  returnObj.hour = hour;
+  returnObj.meridian = meridian;
+  if (remainder >= minInMillis)
+    returnObj.minutes = Math.trunc(remainder / minInMillis);
+  return returnObj;
+};
+
+const getTimeOfDayForDate = (
+  millis: number,
+): { hour: number; minute: number } => {
+  const returnObj = {
+    hour: 0,
+    minute: 0,
+  };
+  if (millis === 0) return returnObj;
+  returnObj.hour =
+    millis >= hourInMillis ? Math.trunc(millis / hourInMillis) : 0;
+  const remainder = millis >= hourInMillis ? millis % hourInMillis : millis;
+  if (remainder >= minInMillis) {
+    returnObj.minute = Math.trunc(remainder / minInMillis);
+  }
+  return returnObj;
+};
+
 export {
   get12Hour,
   get24Hour,
   daysInMonth,
   getHumanReadableStamp,
   getDurationStamp,
+  getMillisFromDayStart,
+  getTimeOfDay,
+  getMeridianHour,
+  getTimeOfDayForDate,
 };

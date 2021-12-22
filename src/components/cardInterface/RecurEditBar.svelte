@@ -1,13 +1,7 @@
 <!-- RecurEditBar.svelte Copyright 2021 Paul Beaudet MIT Licence -->
 <script lang="ts">
   import { updateTaskSafe } from '../../indexDb/taskDb';
-  import type {
-    cadenceI,
-    cadenceInterval,
-    memTaskI,
-  } from '../../shared/interface';
-  import { writable } from 'svelte/store';
-  import type { Writable } from 'svelte/store';
+  import type { cadenceI, memTaskI } from '../../shared/interface';
   import {
     setCadence,
     intervalTypes,
@@ -23,18 +17,22 @@
   import { addEvent } from '../../indexDb/eventsDb';
   import Check from 'svelte-bootstrap-icons/lib/Check';
   import XLg from 'svelte-bootstrap-icons/lib/XLg';
+  import { getMillisFromDayStart, getTimeOfDay } from '../time/timeConvert';
+  import { writable } from 'svelte/store';
+  import type { Writable } from 'svelte/store';
 
   export let task: memTaskI;
 
   let originCadence: cadenceI = getCadence(task.cadence);
-  const validCadence: Writable<boolean> = writable(false);
-  const interval: Writable<cadenceInterval> = writable(originCadence.interval);
-  let cadence: cadenceI = { ...originCadence };
-  let skip: Writable<number> = writable(originCadence.skip.valueOf());
+  let validCadence: boolean = false;
+  let cadence: Writable<cadenceI> = writable({ ...originCadence });
+  let { hour, minutes, meridian } = getTimeOfDay(originCadence.timeOfDay);
+  // convert back to millis in day when hour / minute / meridian is changed
+  $: $cadence.timeOfDay = getMillisFromDayStart(hour, minutes, meridian);
 
   const onCadenceChange = async () => {
     const cadenceChange: string = setCadence({
-      ...cadence,
+      ...$cadence,
     });
     task.cadence = cadenceChange;
     await updateTaskSafe({
@@ -42,21 +40,11 @@
       cadence: cadenceChange,
     });
     addEvent('setRecur', { id: task.id, cadenceChange });
-    originCadence = { ...cadence };
-    $validCadence = false;
+    originCadence = { ...$cadence };
+    validCadence = false;
     $editRecur = null;
     $editTask = null;
   };
-
-  interval.subscribe((val) => {
-    $validCadence =
-      val !== originCadence.interval
-        ? true
-        : $skip === originCadence.skip
-        ? false
-        : true;
-    cadence.interval = val;
-  });
 
   editRecur.subscribe((edit) => {
     if (edit) {
@@ -65,28 +53,30 @@
     }
   });
 
-  skip.subscribe((val) => {
-    $validCadence =
-      val !== originCadence.skip
-        ? true
-        : $interval === originCadence.interval
+  cadence.subscribe((change) => {
+    validCadence =
+      change.timeOfDay === originCadence.timeOfDay &&
+      change.skip === originCadence.skip &&
+      change.interval === originCadence.interval &&
+      change.onTime === originCadence.onTime
         ? false
         : true;
-    cadence.skip = val;
+
+    if (hour > 12 || hour < 1) validCadence = false;
+    if (minutes > 59 || minutes < 0) validCadence = false;
+
+    if (change.onTime === true) {
+      if (change.interval === 'many' || change.interval === 'none') {
+        $cadence.onTime = false;
+      }
+    }
   });
 </script>
 
 {#if $editRecur && $editRecur.id === task.id}
   <div class="row">
-    <div class="btn-group btn-group-sm col-12 mb-1" role="group">
-      <button
-        class="btn btn-outline-dark"
-        type="button"
-        on:click={toggleEditRecur(task)}
-      >
-        <XLg /> Cancel
-      </button>
-      {#if $interval !== 'many' && $interval !== 'none'}
+    <div class="input-group input-group-sm col-12" role="group">
+      {#if $cadence.interval !== 'many' && $cadence.interval !== 'none'}
         <span class="input-group-text">{`Every `}</span>
         <input
           type="number"
@@ -96,23 +86,79 @@
           id="skip-input"
           name="skip-input"
           max="99"
-          bind:value={$skip}
+          bind:value={$cadence.skip}
         />
       {/if}
       <select
         class="form-select"
         name="interval"
         id="interval"
-        bind:value={$interval}
+        bind:value={$cadence.interval}
       >
         {#each intervalTypes as type}
           <option value={type}>
-            {`${type}${$skip > 1 ? 's' : ''}`}
+            {`${type}${
+              $cadence.skip > 1 && type !== 'many' && type !== 'none' ? 's' : ''
+            }`}
           </option>
         {/each}
       </select>
-
-      {#if $validCadence}
+      {#if $cadence.interval !== 'many' && $cadence.interval !== 'none'}
+        <div class="input-group-text">
+          <input
+            id="timeSetter"
+            type="checkbox"
+            class="form-check-input mt-0"
+            bind:checked={$cadence.onTime}
+          />
+          <label for="timeSetter">&nbsp; at set time </label>
+        </div>
+      {/if}
+    </div>
+  </div>
+  {#if $cadence.onTime}
+    <div class="row">
+      <div class="btn-group btn-group-sm col-12">
+        <input
+          id="recur-hour"
+          class="form-control"
+          type="number"
+          maxlength="2"
+          max="12"
+          min="1"
+          bind:value={hour}
+        />
+        <input
+          id="recur-mins"
+          class="form-control"
+          type="number"
+          maxlength="2"
+          max="59"
+          min="0"
+          bind:value={minutes}
+        />
+        <select
+          class="form-select"
+          name="meridian"
+          id="meridian"
+          bind:value={meridian}
+        >
+          <option value="AM">AM</option>
+          <option value="PM">PM</option>
+        </select>
+      </div>
+    </div>
+  {/if}
+  <div class="row">
+    <div class="btn-group btn-group-sm col-12" role="group">
+      <button
+        class="btn btn-outline-dark"
+        type="button"
+        on:click={toggleEditRecur(task)}
+      >
+        <XLg /> Cancel
+      </button>
+      {#if validCadence}
         <button
           class="btn btn-outline-dark"
           type="button"

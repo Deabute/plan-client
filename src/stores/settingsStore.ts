@@ -82,6 +82,10 @@ const editToggle = (task: memTaskI = null) => {
   };
 };
 
+editTask.subscribe(() => {
+  editRecur.set(null);
+});
+
 export {
   pendingPeers,
   selectedUtilizationOption,

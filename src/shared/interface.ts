@@ -310,6 +310,9 @@ interface cadenceI {
   interval: cadenceInterval;
   skip: number; // every x intervals (defaults to one, cant be zero)
   timeOfDay: number; // time of day per occurrence
+  onTime: boolean; // Determines if time of day is adhered to
+  strict: boolean; // can only be done at this time vs loosely this cadence
+  // e.g. sleep strictly happens at your bed time, but mow the lawn loosely happens once a week
 }
 
 interface taskLines {

@@ -2,6 +2,7 @@
 <script lang="ts">
   import type { memTaskI } from '../../shared/interface';
   import {
+    editRecur,
     editTask,
     moveTask,
     toggleEditDue,
@@ -28,7 +29,7 @@
   };
 </script>
 
-{#if $editTask?.id === task.id}
+{#if $editTask?.id === task.id && !$editRecur}
   <div class="row">
     <div class="btn-group btn-group-sm col-12" role="group">
       <div

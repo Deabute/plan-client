@@ -5,7 +5,6 @@ import type {
   memTaskI,
   taskListData,
   memStampI,
-  cadenceI,
 } from '../shared/interface';
 import {
   genesisTask,
@@ -43,7 +42,7 @@ import { giveATip } from '../components/ToolTips/tipStore';
 import { addEvent } from '../indexDb/eventsDb';
 import { cancelFund } from './fundingStore';
 import type { taskPayload } from '../connections/connectInterface';
-import { getCadence, nextOccurance } from '../components/time/CadenceFunctions';
+import { nextOccurrence } from '../components/time/CadenceFunctions';
 
 const defaultTaskArray: memTaskI[] = [];
 
@@ -382,9 +381,10 @@ const checkOff = (taskId: string) => {
         dueDate:
           checkTask.cadence === 'many'
             ? 0
-            : nextOccurance(checkTask.cadence, checkTask.dueDate),
+            : nextOccurrence(checkTask.cadence, checkTask.dueDate),
       });
     }
+    // TODO: bellow mark peer as done where it might be just set to next
     await addEvent('checkOff', { task: checkTask });
 
     timeStore.update((timeline) => {
