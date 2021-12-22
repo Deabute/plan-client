@@ -58,7 +58,7 @@
   {#if $moveTask}
     {#if !topChildMode && $moveTask?.id !== task.id}
       <div
-        class="col-2"
+        class="col-1"
         type="button"
         on:click={openFolder(task, $moveTask, false)}
       >
@@ -68,7 +68,7 @@
       <div class="col-1" />
     {/if}
     <span
-      class="col-8"
+      class="col-10"
       type="button"
       on:click={openFolder(task, $moveTask, false)}
     >
@@ -76,12 +76,12 @@
     </span>
   {:else}
     {#if !topChildMode && !recording($timeStore.now.taskId, topChildShowing)}
-      <div class="col-2 text-danger" type="button" on:click={record}>
+      <div class="col-1 text-danger" type="button" on:click={record}>
         <RecordBtn />
         {`${topChildShowing ? ' ↓' : ''}`}
       </div>
     {:else}
-      <div class="col-2" />
+      <div class="col-1" />
     {/if}
     {#if topChildMode}
       <span
@@ -93,7 +93,7 @@
     {:else}
       <span
         id={`folder-${task.id}`}
-        class={`text-center col-8`}
+        class="text-center col-10"
         role="textbox"
         contenteditable
         on:input={onNameChange}
@@ -104,7 +104,7 @@
 
     {#if !topChildMode}
       <div
-        class="text-success col-2"
+        class="text-success col-1"
         type="button"
         on:click={checkOff(task.id)}
       >

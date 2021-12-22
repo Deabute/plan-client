@@ -19,7 +19,7 @@
   });
 </script>
 
-<div class="pb-1 border-bottom container-fluid" id={task.id}>
+<div class="pb-1 border-bottom" id={task.id}>
   <FolderTab {task} bind:topChildShowing />
   {#if !$moveTask}
     <EditBar {task} bind:topChildShowing />

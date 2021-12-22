@@ -79,69 +79,69 @@
   };
 </script>
 
-<div class="text-center m-1">
-  <div class="input-group input-group-sm">
-    <span class="input-group-text">
-      <slot />
-    </span>
-    <input
-      class="three-char-wide form-control"
-      type="number"
-      maxlength="3"
-      min="0"
-      max={$fundSetting.totalHour}
-      id="move-hour"
-      name="move-hour"
-      bind:value={$fundSetting.hours}
-      aria-describedby="MoveHour"
-    />
-    <label for="move-hour" class="input-group-text" id="MoveHour">
-      {`hour${$fundSetting.hours > 1 ? 's' : ''}`}
-    </label>
-    <input
-      class="two-char-wide form-control"
-      type="number"
-      maxlength="2"
-      min="0"
-      max={$fundSetting.totalMin}
-      id="move-minute"
-      name="move-minute"
-      bind:value={$fundSetting.minutes}
-      aria-describedby="MoveMinute"
-    />
-    <label for="move-minute" class="input-group-text" id="MoveMinute">
-      {`min${$fundSetting.minutes > 1 ? 's' : ''}`}
-    </label>
-  </div>
-  <div class="btn-group btn-group-sm" role="group">
-    <button
-      class="btn btn-outline-dark text-danger"
-      type="button"
-      on:click={cancelFund}
-    >
-      <XLg /> Cancel
-    </button>
-    <button
-      class="btn btn-outline-dark text-warning"
-      type="button"
-      on:click={onLockChange}
-    >
-      {#if lock}
-        <Unlock /> Auto
-      {:else}
-        <Lock /> Lock
-      {/if}
-    </button>
-    {#if validFunds}
-      <button
-        class="btn btn-outline-dark text-success"
-        type="button"
-        on:click={fundBudget}
-      >
-        <Check /> Change
-      </button>
-    {:else}
-      <span class="text-danger">Invalid</span>
-    {/if}
-  </div>
+<!-- <div class="text-center m-1"> -->
+<div class="text-center input-group input-group-sm">
+  <span class="input-group-text">
+    <slot />
+  </span>
+  <input
+    class="three-char-wide form-control"
+    type="number"
+    maxlength="3"
+    min="0"
+    max={$fundSetting.totalHour}
+    id="move-hour"
+    name="move-hour"
+    bind:value={$fundSetting.hours}
+    aria-describedby="MoveHour"
+  />
+  <label for="move-hour" class="input-group-text" id="MoveHour">
+    {`hour${$fundSetting.hours > 1 ? 's' : ''}`}
+  </label>
+  <input
+    class="two-char-wide form-control"
+    type="number"
+    maxlength="2"
+    min="0"
+    max={$fundSetting.totalMin}
+    id="move-minute"
+    name="move-minute"
+    bind:value={$fundSetting.minutes}
+    aria-describedby="MoveMinute"
+  />
+  <label for="move-minute" class="input-group-text" id="MoveMinute">
+    {`min${$fundSetting.minutes > 1 ? 's' : ''}`}
+  </label>
 </div>
+<div class="btn-group btn-group-sm text-center" role="group">
+  <button
+    class="btn btn-outline-dark text-danger"
+    type="button"
+    on:click={cancelFund}
+  >
+    <XLg /> Cancel
+  </button>
+  <button
+    class="btn btn-outline-dark text-warning"
+    type="button"
+    on:click={onLockChange}
+  >
+    {#if lock}
+      <Unlock /> Auto
+    {:else}
+      <Lock /> Lock
+    {/if}
+  </button>
+  {#if validFunds}
+    <button
+      class="btn btn-outline-dark text-success"
+      type="button"
+      on:click={fundBudget}
+    >
+      <Check /> Change
+    </button>
+  {:else}
+    <span class="text-danger">Invalid</span>
+  {/if}
+</div>
+<!-- </div> -->
