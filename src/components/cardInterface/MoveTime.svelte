@@ -12,7 +12,6 @@
   import Unlock from 'svelte-bootstrap-icons/lib/Unlock';
 
   let validFunds: boolean = false;
-  let lock: boolean = false;
 
   // figure out if enough time exist for this change to be made
   fundSetting.subscribe((setting) => {
@@ -22,7 +21,6 @@
     }
     editDue.set(null);
     editRecur.set(null);
-    lock = setting.task.autoAssigned ? false : true;
     if (setting.minutes > 59) {
       validFunds = false;
       return;
@@ -33,7 +31,12 @@
     // figure if user is asking for more than original funding
     let ask = setting.minutes * minInMillis;
     ask += setting.hours * hourInMillis;
-    // if asking more that orginally had set ask to difference
+    if (ask === setting.task.fraction) {
+      // if nothing has changed, nothing needs to be set
+      validFunds = false;
+      return;
+    }
+    // if asking more than orginally had set ask to difference
     ask = ask > setting.task.fraction ? ask - setting.task.fraction : 0;
     // if that funding is more than available set validFunds to false
     validFunds = availMillis >= ask ? true : false;
@@ -79,13 +82,15 @@
   };
 </script>
 
-<!-- <div class="text-center m-1"> -->
-<div class="text-center input-group input-group-sm">
+<div class="text-center input-group input-group-sm" role="group">
+  <button class="btn btn-outline-dark" type="button" on:click={cancelFund}>
+    <XLg />
+  </button>
   <span class="input-group-text">
     <slot />
   </span>
   <input
-    class="three-char-wide form-control"
+    class="form-control"
     type="number"
     maxlength="3"
     min="0"
@@ -99,7 +104,7 @@
     {`hour${$fundSetting.hours > 1 ? 's' : ''}`}
   </label>
   <input
-    class="two-char-wide form-control"
+    class="form-control"
     type="number"
     maxlength="2"
     min="0"
@@ -112,36 +117,20 @@
   <label for="move-minute" class="input-group-text" id="MoveMinute">
     {`min${$fundSetting.minutes > 1 ? 's' : ''}`}
   </label>
-</div>
-<div class="btn-group btn-group-sm text-center" role="group">
-  <button
-    class="btn btn-outline-dark text-danger"
-    type="button"
-    on:click={cancelFund}
-  >
-    <XLg /> Cancel
-  </button>
-  <button
-    class="btn btn-outline-dark text-warning"
-    type="button"
-    on:click={onLockChange}
-  >
-    {#if lock}
-      <Unlock /> Auto
+  <div class="col-1 text-warning" type="button" on:click={onLockChange}>
+    {#if $fundSetting.task.autoAssigned}
+      <Unlock />
     {:else}
-      <Lock /> Lock
+      <Lock />
     {/if}
-  </button>
+  </div>
   {#if validFunds}
     <button
       class="btn btn-outline-dark text-success"
       type="button"
       on:click={fundBudget}
     >
-      <Check /> Change
+      <Check />
     </button>
-  {:else}
-    <span class="text-danger">Invalid</span>
   {/if}
 </div>
-<!-- </div> -->
