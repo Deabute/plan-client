@@ -80,10 +80,16 @@
     }
     cancelFund();
   };
+
+  const cancelDebounce = () => {
+    setTimeout(() => {
+      cancelFund();
+    }, 160);
+  };
 </script>
 
 <div class="text-center input-group input-group-sm" role="group">
-  <button class="btn btn-outline-dark" type="button" on:click={cancelFund}>
+  <button class="btn btn-outline-dark" type="button" on:click={cancelDebounce}>
     <XLg />
   </button>
   <span class="input-group-text">

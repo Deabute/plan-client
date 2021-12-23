@@ -1,17 +1,8 @@
 <!-- FolderBudget.svelte Copyright 2021 Paul Beaudet MIT License -->
 <script lang="ts">
   import type { memTaskI } from '../../shared/interface';
-  import {
-    cancelFund,
-    fundSetting,
-    openFundSettings,
-  } from '../../stores/fundingStore';
-  import {
-    taskStore,
-    budgetAvail,
-    openFolder,
-    refreshTask,
-  } from '../../stores/taskStore';
+  import { fundSetting, openFundSettings } from '../../stores/fundingStore';
+  import { taskStore, budgetAvail, openFolder } from '../../stores/taskStore';
   import MoveTime from './MoveTime.svelte';
   import BudgetSlider from './BudgetSlider.svelte';
   import UtilizateText from './UtilizateText.svelte';
@@ -24,8 +15,6 @@
   import HourglassSplit from 'svelte-bootstrap-icons/lib/HourglassSplit';
   import Gear from 'svelte-bootstrap-icons/lib/Gear';
   import FolderSymlink from 'svelte-bootstrap-icons/lib/FolderSymlink';
-  import { addEvent } from '../../indexDb/eventsDb';
-  import { updateTaskSafe } from '../../indexDb/taskDb';
 
   export let task: memTaskI;
 
@@ -77,13 +66,6 @@
     >
       <FolderSymlink />
     </div>
-    <!-- <div class="col-1" type="button" on:click={openExactFunding}>
-      {#if $fundSetting.task?.id === task.id}
-        <XLg />
-      {:else}
-        <HourglassSplit />
-      {/if}
-    </div> -->
     <div class="col-10" type="button" on:click={openExactFunding}>
       {#if $fundSetting.task?.id === task.id}
         <MoveTime>
@@ -93,13 +75,6 @@
         <UtilizateText {task} {fraction} />
       {/if}
     </div>
-    <!-- <div class="col-1 text-warning" type="button" on:click={onLockChange}>
-      {#if autoAssigned}
-        <Unlock />
-      {:else}
-        <Lock />
-      {/if}
-    </div> -->
     <div class="col-1" type="button" on:click={editToggle(task)}>
       <Gear />
     </div>
