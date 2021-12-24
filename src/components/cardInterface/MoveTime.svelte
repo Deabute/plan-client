@@ -7,11 +7,19 @@
   import { editDue, editRecur } from '../../stores/settingsStore';
   import { refreshTask } from '../../stores/taskStore';
   import Check from 'svelte-bootstrap-icons/lib/Check';
-  import XLg from 'svelte-bootstrap-icons/lib/XLg';
-  import Lock from 'svelte-bootstrap-icons/lib/Lock';
-  import Unlock from 'svelte-bootstrap-icons/lib/Unlock';
+  import { hourAndMinutesObj } from '../time/timeConvert';
 
+  export let fraction: number;
   let validFunds: boolean = false;
+
+  $: getNewFrac(fraction);
+
+  const getNewFrac = (frac: number) => {
+    const { hour, minute, remainder } = hourAndMinutesObj(frac);
+    $fundSetting.hours = hour;
+    $fundSetting.minutes = minute;
+    $fundSetting.remainder = remainder;
+  };
 
   // figure out if enough time exist for this change to be made
   fundSetting.subscribe((setting) => {
@@ -40,6 +48,12 @@
     ask = ask > setting.task.fraction ? ask - setting.task.fraction : 0;
     // if that funding is more than available set validFunds to false
     validFunds = availMillis >= ask ? true : false;
+    if (validFunds) {
+      fraction =
+        setting.minutes * minInMillis +
+        setting.hours * hourInMillis +
+        setting.remainder;
+    }
   });
 
   // evenly pull from unlocked budgets to fund users requirement for this budget
@@ -62,36 +76,9 @@
     cancelFund();
     refreshTask();
   };
-
-  const onLockChange = async () => {
-    $fundSetting.task.autoAssigned = !$fundSetting.task.autoAssigned;
-    updateTaskSafe({
-      id: $fundSetting.task.id,
-      autoAssigned: $fundSetting.task.autoAssigned,
-    });
-    addEvent('setBudget', {
-      id: $fundSetting.task.id,
-      budget: 0,
-      unlock: $fundSetting.task.autoAssigned,
-    });
-    // given autoAssigned togged to true refresh assignment to distrubute new funds
-    if ($fundSetting.task.autoAssigned) {
-      await refreshTask();
-    }
-    cancelFund();
-  };
-
-  const cancelDebounce = () => {
-    setTimeout(() => {
-      cancelFund();
-    }, 160);
-  };
 </script>
 
 <div class="text-center input-group input-group-sm" role="group">
-  <button class="btn btn-outline-dark" type="button" on:click={cancelDebounce}>
-    <XLg />
-  </button>
   <span class="input-group-text">
     <slot />
   </span>
@@ -123,16 +110,9 @@
   <label for="move-minute" class="input-group-text" id="MoveMinute">
     {`min${$fundSetting.minutes > 1 ? 's' : ''}`}
   </label>
-  <div class="col-1 text-warning" type="button" on:click={onLockChange}>
-    {#if $fundSetting.task.autoAssigned}
-      <Unlock />
-    {:else}
-      <Lock />
-    {/if}
-  </div>
   {#if validFunds}
     <button
-      class="btn btn-outline-dark text-success"
+      class="btn btn-outline-secondary text-success"
       type="button"
       on:click={fundBudget}
     >
@@ -140,3 +120,9 @@
     </button>
   {/if}
 </div>
+
+<style>
+  .form-control {
+    min-width: 54px;
+  }
+</style>

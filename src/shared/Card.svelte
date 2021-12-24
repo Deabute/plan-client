@@ -5,7 +5,6 @@
   import FolderBudget from '../components/cardInterface/FolderBudget.svelte';
   import { editTask, moveTask } from '../stores/settingsStore';
   import MoveTaskOptions from '../components/cardInterface/MoveTaskOptions.svelte';
-  import EditBar from '../components/cardInterface/EditBar.svelte';
   import RecurEditBar from '../components/cardInterface/RecurEditBar.svelte';
   import { showTopChild } from '../indexDb/viewStoreDb';
   import DueDate from '../components/cardInterface/DueDate.svelte';
@@ -19,13 +18,12 @@
   });
 </script>
 
-<div class="pb-1 border-bottom" id={task.id}>
+<div class="pb-1 border-bottom container-fluid border-end" id={task.id}>
   <FolderTab {task} bind:topChildShowing />
   {#if !$moveTask}
-    <EditBar {task} bind:topChildShowing />
+    <FolderBudget {task} bind:topChildShowing />
     <RecurEditBar {task} />
     <DueDate {task} />
-    <FolderBudget {task} />
     {#if topChildShowing && task.topChild && $editTask?.id !== task.id}
       <FolderTab
         task={task.topChild}

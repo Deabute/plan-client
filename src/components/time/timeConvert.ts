@@ -120,6 +120,23 @@ const getTimeOfDayForDate = (
   return returnObj;
 };
 
+const hourAndMinutesObj = (
+  totalMillis: number,
+): { hour: number; minute: number; remainder: number } => {
+  const hour =
+    totalMillis >= hourInMillis ? Math.trunc(totalMillis / hourInMillis) : 0;
+  let remainder =
+    totalMillis >= hourInMillis ? totalMillis % hourInMillis : totalMillis;
+  const minute =
+    remainder >= minInMillis ? Math.trunc(remainder / minInMillis) : 0;
+  remainder = remainder >= minInMillis ? remainder % minInMillis : remainder;
+  return {
+    hour,
+    minute,
+    remainder,
+  };
+};
+
 export {
   get12Hour,
   get24Hour,
@@ -130,4 +147,5 @@ export {
   getTimeOfDay,
   getMeridianHour,
   getTimeOfDayForDate,
+  hourAndMinutesObj,
 };

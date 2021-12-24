@@ -9,6 +9,8 @@
   import { addEvent } from '../../indexDb/eventsDb';
   import Lock from 'svelte-bootstrap-icons/lib/Lock';
   import Unlock from 'svelte-bootstrap-icons/lib/Unlock';
+  import { cancelFund } from '../../stores/fundingStore';
+  import XLg from 'svelte-bootstrap-icons/lib/XLg';
 
   export let autoAssigned: boolean;
   export let fraction: number;
@@ -19,7 +21,8 @@
 
   let originValue: number = fraction.valueOf();
   let originAssign: boolean = autoAssigned.valueOf();
-  let slideValue: Writable<number> = writable(fraction.valueOf());
+  let slideValue: Writable<number> = writable(fraction);
+  $: $slideValue = fraction; // responsively keep slide value up to date
 
   let lagTimerId: null | ReturnType<typeof setTimeout> = null;
   slideValue.subscribe((value) => {
@@ -67,32 +70,66 @@
       unlock: autoAssigned,
     });
     // given autoAssigned togged to true refresh assignment to distrubute new funds
-    refreshTask();
+    if (autoAssigned) await refreshTask();
   };
 </script>
 
-<div class="row">
-  <div class="col-1 text-warning" type="button" on:click={onLockChange}>
-    {#if autoAssigned}
-      <Unlock />
-    {:else}
-      <Lock />
-    {/if}
-  </div>
-  <div class="col-11">
-    <input
-      on:mouseup={onUpEvent}
-      on:touchend={onUpEvent}
-      type="range"
-      class="form-range"
-      id=""
-      aria-describedby={`budget ${task.body}`}
-      min="0"
-      max={maxToDrawFrom}
-      bind:value={$slideValue}
-      step={minInMillis}
-      aria-label="Set Budget Slider"
-      disabled={availableFunds || originValue ? false : true}
-    />
-  </div>
+<div class="col-1 text-danger" type="button" on:click={cancelFund}>
+  <XLg />
 </div>
+<div class="col-10">
+  <input
+    on:mouseup={onUpEvent}
+    on:touchend={onUpEvent}
+    type="range"
+    class="form-range slider"
+    id="budget-slider"
+    aria-describedby={`budget ${task.body}`}
+    min="0"
+    max={maxToDrawFrom}
+    bind:value={$slideValue}
+    step={minInMillis}
+    aria-label="Set Budget Slider"
+    disabled={availableFunds || originValue ? false : true}
+  />
+</div>
+<div class="col-1 text-warning" type="button" on:click={onLockChange}>
+  {#if autoAssigned}
+    <Unlock />
+  {:else}
+    <Lock />
+  {/if}
+</div>
+
+<style>
+  .slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 25px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: 0.2s;
+    transition: opacity 0.2s;
+  }
+
+  .slider:hover {
+    opacity: 1;
+  }
+
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    background: #2c9162;
+    cursor: pointer;
+  }
+
+  .slider::-moz-range-thumb {
+    width: 25px;
+    height: 25px;
+    background: #2c9162;
+    cursor: pointer;
+  }
+</style>

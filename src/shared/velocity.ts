@@ -1,5 +1,6 @@
 // velocity.ts Copyright Paul Beaudet 2021 MIT License
 
+import { hourAndMinutesObj } from '../components/time/timeConvert';
 import {
   dayInMillis,
   hourInMillis,
@@ -80,25 +81,6 @@ const getHourAndMinutes = (totalMillis: number): string => {
   return returnString;
 };
 
-const hourAndMinutesObj = (
-  totalMillis: number,
-): { hour: number; minute: number } => {
-  const hour =
-    totalMillis >= hourInMillis ? Math.trunc(totalMillis / hourInMillis) : 0;
-  const remainingMillis =
-    totalMillis >= hourInMillis ? totalMillis % hourInMillis : totalMillis;
-  const minute =
-    remainingMillis >= minInMillis
-      ? Math.trunc(remainingMillis / minInMillis)
-      : 0;
-  // there may be remaining millis from here but its not enough for
-  // users to ask for => remaining < 60000
-  return {
-    hour,
-    minute,
-  };
-};
-
 const justHoursOrMinutes = (millis: number): string => {
   const { hour, minute } = hourAndMinutesObj(millis);
   if (hour === 0 && minute === 0) return '0';
@@ -122,6 +104,5 @@ export {
   getEstimate,
   getHourAndMinutes,
   getHours,
-  hourAndMinutesObj,
   justHoursOrMinutes,
 };

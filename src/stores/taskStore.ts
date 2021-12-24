@@ -64,8 +64,7 @@ const allocateTimeAmongChildren = async ({
     lineage[0].id === genesisTask.id ? -1 : lineage[0].fraction;
   if (amount === -1) {
     const budget = await getCurrentBudget();
-    if (budget === null) amount = 0;
-    amount = budget.frame;
+    amount = budget === null ? 0 : budget.frame;
   }
   const tach = await getCurrentTach();
   if (tach === null || amount === 0) {
