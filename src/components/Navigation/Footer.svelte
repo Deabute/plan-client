@@ -16,11 +16,11 @@
   import UniNav from './UniNav.svelte';
 </script>
 
-<div class="container-sm fixed-bottom bg-dark d-block d-sm-none">
+<div class="container-sm fixed-bottom d-block d-sm-none">
   {#if $showAddFolder}
     <AddFolder />
   {/if}
-  <ul class="nav nav-tabs row pt-1">
+  <ul class="nav nav-tabs bg-dark row pt-1">
     <li class="nav-item col-2">
       <button
         class={`row nav-link text-white`}
