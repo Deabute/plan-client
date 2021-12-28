@@ -319,7 +319,7 @@
         <InfoCircle />
         {#if $showSideNav}
           &nbsp;
-          <span>Budgeting Time</span>
+          <span>Budgeting</span>
           &nbsp;
           <BoxArrowUpRight />
         {/if}
