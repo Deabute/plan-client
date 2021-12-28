@@ -9,6 +9,9 @@
     showTimelineMobile,
   } from '../../indexDb/viewStoreDb';
   import ViewContainer from './ViewContainer.svelte';
+  import ArrowDown from 'svelte-bootstrap-icons/lib/ArrowDown';
+  import type { memTaskI } from '../../shared/interface';
+  import { nextRecording } from '../../stores/taskStore';
 
   export let isMobile: boolean = false;
 
@@ -44,6 +47,14 @@
       });
     }
   };
+
+  let nextTaskBody: string = 'Loading';
+  timeStore.subscribe(async ({ now }) => {
+    const nextTask: memTaskI = await nextRecording(now.taskId);
+    nextTaskBody = nextTask
+      ? nextTask.body
+      : 'Make some more folders or this is the only one that can be worked on';
+  });
 </script>
 
 <ViewContainer
@@ -54,7 +65,16 @@
   {isMobile}
 >
   <svelte:fragment slot="staticHeader">
-    <Timestamp timestamp={$timeStore.now} inProgress={true} />
+    <div class="border-bottom border-dark">
+      <div class="pb-1 border-bottom">
+        <div class="row mb-1 text-center">
+          <div class="col-2 text-success align-self-end">Next</div>
+          <div class="col-8">{nextTaskBody}</div>
+          <div class="col-2 text-success align-self-end"><ArrowDown /></div>
+        </div>
+      </div>
+      <Timestamp timestamp={$timeStore.now} inProgress={true} />
+    </div>
   </svelte:fragment>
   <svelte:fragment slot="items">
     {#each $timeStore.history as timestamp (timestamp.start)}

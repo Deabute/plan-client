@@ -84,6 +84,67 @@ const getSubtask = async (
   };
 };
 
+const getSiblingTaskById = async (taskId: string): Promise<taskListData> => {
+  const transaction = (await getDb()).transaction(['tasks']);
+  const tasksDb = transaction.objectStore('tasks');
+  const tasksIndex = tasksDb.index('priority');
+  const task = await tasksDb.get(taskId);
+  const taskListData: taskListData = {
+    tasks: [],
+    lineage: [],
+    budgetEnd: 0,
+  };
+  if (!task) return taskListData;
+  // & highest priority greatest grandchildren
+  let position = 0;
+  let cursor = await tasksIndex.openCursor(
+    getPriorityIndexRange(task.parentId),
+  );
+  while (cursor) {
+    let child: taskI = cursor.value;
+    let grandCursor = await tasksIndex.openCursor(
+      getPriorityIndexRange(child.id),
+    );
+    // loop down to the greatest grandchild
+    while (grandCursor) {
+      child = grandCursor.value;
+      grandCursor = await tasksIndex.openCursor(
+        getPriorityIndexRange(child.id),
+      );
+    }
+    taskListData.tasks.push({
+      ...cursor.value,
+      // make sure position is in one by one order
+      position,
+      // set highest priority grandchild task if one exist
+      topChild: cursor.value.id === child.id ? null : child,
+    });
+    cursor = await cursor.continue();
+    position++;
+  }
+  // Figure out direct parent in lineage hierarchy
+  let parent: taskI =
+    task.parentId === genId.todo
+      ? genesisTask
+      : await tasksDb.get(task.parentId);
+  if (!parent) return taskListData;
+  // set direct parent
+  taskListData.lineage = [{ ...parent }];
+  // compile parents and parents of parent ect.
+  while (parent && parent.parentId !== genId.todo) {
+    parent = await tasksDb.get(parent.parentId);
+    taskListData.lineage = parent
+      ? [...taskListData.lineage, parent]
+      : [...taskListData.lineage];
+  }
+  // return list with genesis as top level task if not top level
+  taskListData.lineage =
+    taskListData.lineage[0].id === genId.todo
+      ? taskListData.lineage
+      : [...taskListData.lineage, genesisTask];
+  return taskListData;
+};
+
 const getTaskById = async (taskId: memTaskI | string): Promise<taskI> => {
   if (typeof taskId !== 'string') {
     const { topChild, ...baseTask } = taskId;
@@ -404,4 +465,5 @@ export {
   decedentOfWhich,
   onAgenda,
   updateTaskSafe,
+  getSiblingTaskById,
 };

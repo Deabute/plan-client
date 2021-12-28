@@ -23,6 +23,7 @@ import {
   backfillPositions,
   getTaskById,
   decedentOfWhich,
+  getSiblingTaskById,
 } from '../indexDb/taskDb';
 import { getCurrentBudget } from '../indexDb/budgetDb';
 import { peerBroadcast, onEvent } from '../connections/dataChannels';
@@ -330,15 +331,13 @@ const undoAndPlace = async (taskId: string) => {
   );
 };
 
-const nextRecording = async (removal: memTaskI): Promise<taskI | null> => {
-  const store: taskListData = await getSubtask(removal, true);
-  const currentParent = store.lineage[0];
-  let nextRecording = currentParent;
+const nextRecording = async (taskId: string): Promise<taskI | null> => {
+  const store: taskListData = await getSiblingTaskById(taskId);
   for (let i = 0; i < store.tasks.length; i++) {
-    if (store.tasks[i].id !== removal.id) {
+    if (store.tasks[i].id !== taskId) {
       // this will likely skip over higher priority task with top child
       if (store.tasks[i].topChild) {
-        if (store.tasks[i].topChild.id !== removal.id) {
+        if (store.tasks[i].topChild.id !== taskId) {
           return store.tasks[i].topChild;
         }
       } else {
@@ -348,8 +347,11 @@ const nextRecording = async (removal: memTaskI): Promise<taskI | null> => {
   }
   // given there are no more task in this list and its top level
   // send null to make completion impossible
-  if (currentParent.id === genesisTask.id) return null;
-  return nextRecording;
+  if (store.lineage.length === 0 || store.lineage[0].id === genesisTask.id) {
+    return null;
+  }
+  // Record parent if no siblings exist
+  return store.lineage[0];
 };
 
 // returns a click event, holds task id in closure
@@ -364,7 +366,7 @@ const checkOff = (taskId: string) => {
     let currentRunningTask = now.taskId === taskId ? true : false;
     let nextRecord = checkTask;
     if (currentRunningTask) {
-      nextRecord = await nextRecording(checkTask);
+      nextRecord = await nextRecording(checkTask.id);
       if (!nextRecord) {
         giveATip('lastTask');
         return;
@@ -430,7 +432,7 @@ const hideTask = (task: memTaskI) => {
     let currentRunningTask = now.taskId === task.id ? true : false;
     let nextRecord: memTaskI;
     if (currentRunningTask) {
-      nextRecord = await nextRecording(task);
+      nextRecord = await nextRecording(task.id);
       if (!nextRecord) {
         giveATip('lastTask');
         return;
@@ -497,4 +499,5 @@ export {
   checkOff,
   hideTask,
   openFolder,
+  nextRecording,
 };
