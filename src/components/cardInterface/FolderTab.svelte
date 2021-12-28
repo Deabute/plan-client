@@ -1,7 +1,7 @@
 <!-- FolderTab.svelte Copyright 2021 Paul Beaudet MIT License -->
 <script lang="ts">
   import type { memTaskI } from '../../shared/interface';
-  import { editTask, moveTask } from '../../stores/settingsStore';
+  import { moveTask } from '../../stores/settingsStore';
   import { modifyBody, checkOff, openFolder } from '../../stores/taskStore';
   import RecordBtn from 'svelte-bootstrap-icons/lib/RecordBtn';
   import Check from 'svelte-bootstrap-icons/lib/Check';
@@ -74,43 +74,35 @@
     >
       {task.body}
     </span>
+  {:else if topChildMode}
+    <span
+      id={`topTask-${task.id}`}
+      class="text-center col-12"
+      on:click={openFolder(task, $moveTask)}
+      role="button"
+    >
+      {task.body}
+    </span>
   {:else}
-    {#if !topChildMode && !recording($timeStore.now.taskId, topChildShowing)}
+    {#if !recording($timeStore.now.taskId, topChildShowing)}
       <div class="col-1 text-danger" type="button" on:click={record}>
         <RecordBtn />
-        {`${topChildShowing ? ' ↓' : ''}`}
       </div>
     {:else}
       <div class="col-1" />
     {/if}
-    {#if topChildMode}
-      <span
-        id={`topTask-${task.id}`}
-        class="text-center col-12"
-        on:click={openFolder(task, $moveTask)}
-        role="button">{task.body}</span
-      >
-    {:else}
-      <span
-        id={`folder-${task.id}`}
-        class="text-center col-10"
-        role="textbox"
-        contenteditable
-        on:input={onNameChange}
-      >
-        {task.body}
-      </span>
-    {/if}
-
-    {#if !topChildMode}
-      <div
-        class="text-success col-1"
-        type="button"
-        on:click={checkOff(task.id)}
-      >
-        <Check />
-      </div>
-    {/if}
+    <span
+      id={`folder-${task.id}`}
+      class="text-center col-10"
+      role="textbox"
+      contenteditable
+      on:input={onNameChange}
+    >
+      {task.body}
+    </span>
+    <div class="text-success col-1" type="button" on:click={checkOff(task.id)}>
+      <Check />
+    </div>
   {/if}
   {#if showUpdate}
     <button class="btn btn-outline-dark" on:click={onRename}> update </button>
