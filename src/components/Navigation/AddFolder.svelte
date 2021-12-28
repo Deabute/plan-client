@@ -22,6 +22,7 @@
 </script>
 
 <div class={`input-group my-1`}>
+  <button class="btn btn-dark" id="add-button" on:click={addTask}> Add </button>
   <input
     class="form-control border-dark"
     type="text"
@@ -30,7 +31,6 @@
     use:onFocus
     aria-label="Input to title and create folders"
   />
-  <button class="btn btn-dark" id="add-button" on:click={addTask}> Add </button>
 </div>
 
 <svelte:window on:keydown={onKeyEvent} />
