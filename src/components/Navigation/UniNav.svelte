@@ -15,7 +15,10 @@
   import {
     activitiesColumnName,
     agendaColumnName,
+    DAYS_SHORT,
+    MONTH_SHORT,
     timelineColumnName,
+    weekInMillis,
   } from '../../stores/defaultData';
   import Folder from 'svelte-bootstrap-icons/lib/Folder';
   import Stopwatch from 'svelte-bootstrap-icons/lib/Stopwatch';
@@ -30,7 +33,7 @@
   import InfoCircle from 'svelte-bootstrap-icons/lib/InfoCircle';
   import People from 'svelte-bootstrap-icons/lib/People';
   import Trash from 'svelte-bootstrap-icons/lib/Trash';
-  import CalendarRange from 'svelte-bootstrap-icons/lib/CalendarRange';
+  // import CalendarRange from 'svelte-bootstrap-icons/lib/CalendarRange';
   import Cloud from 'svelte-bootstrap-icons/lib/Cloud';
   import CloudArrowUp from 'svelte-bootstrap-icons/lib/CloudArrowUp';
   import HourglassSplit from 'svelte-bootstrap-icons/lib/HourglassSplit';
@@ -43,6 +46,9 @@
   } from '../../stores/peerStore';
   import type { peersI } from '../../connections/connectInterface';
   import { connectionStatus, syncStatus } from '../../stores/statusStore';
+  import { get12Hour } from '../time/timeConvert';
+  import { budgetStore } from '../../stores/budgetStore';
+  import type { budgetI } from '../../shared/interface';
 
   export let mobile: boolean = false;
   export let offcanvas: boolean = false;
@@ -71,6 +77,16 @@
       }
     }
     return '';
+  };
+
+  const getSprintEndDate = ({ start, frame }: budgetI) => {
+    const endDate = new Date(start + frame);
+    let hour = endDate.getHours();
+    const meridium = hour > 11 ? 'PM' : 'AM';
+    hour = get12Hour(hour);
+    return `End: ${DAYS_SHORT[endDate.getDay()]} ${
+      MONTH_SHORT[endDate.getMonth()]
+    } ${endDate.getDate()}, ${hour}${meridium}`;
   };
 </script>
 
@@ -325,6 +341,15 @@
       </a>
     </li>
   </ul>
+
+  {#if $showSideNav}
+    <div class="ms-1 fixed-bottom">
+      <div class="fs-6">
+        {`Durration: ${Math.trunc($budgetStore.frame / weekInMillis)} weeks`}
+      </div>
+      <div class="fs-6">{getSprintEndDate($budgetStore)}</div>
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -346,5 +371,8 @@
   }
   a {
     text-decoration: none;
+  }
+  .fixed-bottom {
+    width: fit-content;
   }
 </style>

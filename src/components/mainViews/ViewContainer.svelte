@@ -2,21 +2,9 @@
 <script lang="ts">
   import {
     activitiesColumnName,
-    agendaColumnName,
-    DAYS_SHORT,
-    MONTH_SHORT,
     timelineColumnName,
-    weekInMillis,
   } from '../../stores/defaultData';
   import { showSideNav } from '../../indexDb/viewStoreDb';
-  import {
-    get12Hour,
-    getDurationStamp,
-    getHumanReadableStamp,
-  } from '../time/timeConvert';
-  import { minuteTick, secondTick } from '../../stores/timeStore';
-  import { budgetStore } from '../../stores/budgetStore';
-  import type { budgetI } from '../../shared/interface';
   import { taskStore } from '../../stores/taskStore';
 
   export let isMobile: boolean = false;
@@ -52,30 +40,6 @@
       return name === 'SideNav' ? '1' : '11';
     }
   };
-
-  const getFullUtilization = (
-    now: number,
-    { start, frame }: budgetI,
-  ): string => {
-    const end: number = start + frame;
-    return `${getDurationStamp(end - now)} to ${Math.trunc(
-      frame / weekInMillis,
-    )} week budget end`;
-  };
-
-  const getPeriodRange = ({ start, frame }: budgetI): string => {
-    const endDate = new Date(start + frame);
-    const startDate = new Date(start);
-    let hour = endDate.getHours();
-    const meridium = hour > 11 ? 'PM' : 'AM';
-    hour = get12Hour(hour);
-
-    return `${
-      MONTH_SHORT[startDate.getMonth()]
-    } ${startDate.getDate()} through ${DAYS_SHORT[endDate.getDay()]} ${
-      MONTH_SHORT[endDate.getMonth()]
-    } ${endDate.getDate()}, ${hour}${meridium}`;
-  };
 </script>
 
 <div
@@ -96,15 +60,6 @@
           {id === activitiesColumnName && $taskStore.lineage[0].parentId !== '0'
             ? `Folder: ${$taskStore.lineage[0].body}`
             : id}
-        </div>
-        <div class="small">
-          {#if id === agendaColumnName}
-            {`Now: ${getHumanReadableStamp($minuteTick)}`}
-          {:else if id === activitiesColumnName}
-            {`Budget: ${getPeriodRange($budgetStore)}`}
-          {:else if id === timelineColumnName}
-            {getFullUtilization($secondTick, $budgetStore)}
-          {/if}
         </div>
       </div>
     </div>
