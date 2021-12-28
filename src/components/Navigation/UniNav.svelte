@@ -33,7 +33,6 @@
   import InfoCircle from 'svelte-bootstrap-icons/lib/InfoCircle';
   import People from 'svelte-bootstrap-icons/lib/People';
   import Trash from 'svelte-bootstrap-icons/lib/Trash';
-  // import CalendarRange from 'svelte-bootstrap-icons/lib/CalendarRange';
   import Cloud from 'svelte-bootstrap-icons/lib/Cloud';
   import CloudArrowUp from 'svelte-bootstrap-icons/lib/CloudArrowUp';
   import HourglassSplit from 'svelte-bootstrap-icons/lib/HourglassSplit';
@@ -266,20 +265,6 @@
         </span>
       {/if}
     </li>
-    <!-- <li
-      class="nav-item p-1 ms-1"
-      type="button"
-      data-bs-toggle={offcanvas ? 'offcanvas' : ''}
-      data-bs-target={offcanvas ? '#mobileMenu' : ''}
-      on:click={toggleSettingDialog('duration')}
-      aria-expanded="false"
-      aria-controls="budgetSettings"
-    >
-      <CalendarRange />
-      {#if $showSideNav}
-        <span class="rounded not-selected p-1"> Budget Duration </span>
-      {/if}
-    </li> -->
     <li
       class="nav-item p-1 ms-1"
       type="button"
