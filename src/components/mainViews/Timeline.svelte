@@ -73,8 +73,6 @@
         {`${timelineColumnName}`}
       </span>
     </span>
-    <!-- &nbsp; -->
-    <!-- {timelineColumnName} -->
   </svelte:fragment>
   <svelte:fragment slot="staticHeader">
     <div class="border-bottom border-dark">
