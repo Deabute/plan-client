@@ -81,7 +81,7 @@
       <div class="pb-1 border-bottom">
         <div class="row mb-1 text-center">
           <div class="col-2 text-success align-self-end">Next</div>
-          <div class="col-8">{nextTaskBody}</div>
+          <div class="col-8 text-secondary">{nextTaskBody}</div>
           <div class="col-2 text-success align-self-end"><ArrowDown /></div>
         </div>
       </div>
