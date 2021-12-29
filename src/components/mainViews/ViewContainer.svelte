@@ -1,12 +1,5 @@
 <!-- ViewContainer.svelte Copyright 2021 Paul Beaudet MIT Licence -->
 <script lang="ts">
-  import {
-    activitiesColumnName,
-    timelineColumnName,
-  } from '../../stores/defaultData';
-  import { showSideNav } from '../../indexDb/viewStoreDb';
-  import { taskStore } from '../../stores/taskStore';
-
   export let isMobile: boolean = false;
   export let desktopView: boolean;
   export let mobileView: boolean;
@@ -25,41 +18,21 @@
       return dView ? ' border-end d-block' : ' d-none';
     }
   };
-
-  const getLgDiv = (name: string, showSideNav: boolean): string => {
-    if (name === 'SideNav') return showSideNav ? '2' : '1';
-    if (name === activitiesColumnName) return '4';
-    if (!showSideNav && name === timelineColumnName) return '4';
-    return '3';
-  };
-
-  const getMdDiv = (name: string, showSideNav: boolean): string => {
-    if (showSideNav) {
-      return name === 'SideNav' ? '4' : '8';
-    } else {
-      return name === 'SideNav' ? '1' : '11';
-    }
-  };
 </script>
 
 <div
   {id}
-  class={`${classPass} d-flex flex-column col-sm-${getMdDiv(
-    id,
-    $showSideNav,
-  )} col-lg-${getLgDiv(id, $showSideNav)}${getViewClassContainer(
+  class={`${classPass} d-flex flex-column col-sm ${getViewClassContainer(
     isMobile,
     mobileView,
     desktopView,
   )}`}
 >
-  {#if id !== 'SideNav'}
-    <div class="d-none d-sm-block card-header container mb-1">
-      <div class="row text-center">
-        <slot name="headerText" />
-      </div>
+  <div class="d-none d-sm-block card-header mb-1">
+    <div class="row text-center">
+      <slot name="headerText" />
     </div>
-  {/if}
+  </div>
   <slot name="staticHeader" />
   <div class={`scroll`} on:scroll={scrollHandler}>
     <slot name="items" />

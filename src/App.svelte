@@ -59,16 +59,26 @@
 <Utilized />
 <DeleteData />
 <CloudSync />
-<div class="d-none d-sm-block">
-  <main class={`desktopMode`}>
+<div class="d-none d-lg-block">
+  <main class="scroll-container desktopMode">
     <SideNav />
     <TaskList />
     <Timeline />
     <Agenda />
   </main>
 </div>
+<div class="d-none d-sm-block d-lg-none">
+  <main class="scroll-container desktopMode">
+    <SideNav mobile={true} />
+    <TaskList isMobile={true} />
+    <Timeline isMobile={true} />
+    <Agenda isMobile={true} />
+  </main>
+</div>
 <div class="d-block d-sm-none">
-  <main class={`addFolder${$showAddFolder ? 'Showing' : 'Hidden'}`}>
+  <main
+    class={`scroll-container addFolder${$showAddFolder ? 'Showing' : 'Hidden'}`}
+  >
     <TaskList isMobile={true} />
     <Timeline isMobile={true} />
     <Agenda isMobile={true} />
@@ -77,7 +87,7 @@
 <Footer />
 
 <style>
-  main {
+  .scroll-container {
     display: flex;
     flex-wrap: nowrap;
     overflow: hidden;
