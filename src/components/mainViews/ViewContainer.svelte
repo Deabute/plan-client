@@ -56,11 +56,7 @@
   {#if id !== 'SideNav'}
     <div class="d-none d-sm-block card-header container mb-1">
       <div class="row text-center">
-        <div>
-          {id === activitiesColumnName && $taskStore.lineage[0].parentId !== '0'
-            ? `Folder: ${$taskStore.lineage[0].body}`
-            : id}
-        </div>
+        <slot name="headerText" />
       </div>
     </div>
   {/if}

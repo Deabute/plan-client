@@ -12,6 +12,7 @@
   import ArrowDown from 'svelte-bootstrap-icons/lib/ArrowDown';
   import type { memTaskI } from '../../shared/interface';
   import { nextRecording } from '../../stores/taskStore';
+  import Stopwatch from 'svelte-bootstrap-icons/lib/Stopwatch';
 
   export let isMobile: boolean = false;
 
@@ -64,6 +65,17 @@
   {scrollHandler}
   {isMobile}
 >
+  <svelte:fragment slot="headerText">
+    <span>
+      <Stopwatch />
+      <span class="header">
+        &nbsp;
+        {`${timelineColumnName}`}
+      </span>
+    </span>
+    <!-- &nbsp; -->
+    <!-- {timelineColumnName} -->
+  </svelte:fragment>
   <svelte:fragment slot="staticHeader">
     <div class="border-bottom border-dark">
       <div class="pb-1 border-bottom">
@@ -82,3 +94,9 @@
     {/each}
   </svelte:fragment>
 </ViewContainer>
+
+<style>
+  .header {
+    vertical-align: text-top;
+  }
+</style>

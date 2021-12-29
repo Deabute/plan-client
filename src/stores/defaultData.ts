@@ -7,7 +7,6 @@ import type {
   columnIds,
   velocityI,
   allStoreTypes,
-  sigObject,
   AmPm,
 } from '../shared/interface';
 import { createOid } from '../isomorphic/oid';
@@ -24,9 +23,12 @@ const genId: { [key: string]: columnIds } = {
   time: '3',
 };
 
-const activitiesColumnName: string = 'Top Tasks Folder';
-const timelineColumnName: string = 'Recorded Tasks';
-const agendaColumnName: string = 'Tasks By Due Date';
+const activitiesColumnName: string = 'Plan';
+const timelineColumnName: string = 'Track';
+const agendaColumnName: string = 'Do';
+// const peopleColumnName: string = 'People';
+// const projectColumnName: string = 'Project';
+// const reviewColumnNome: string = "review";
 
 const genesisTask: taskI = {
   id: genId.todo,
@@ -127,30 +129,6 @@ const defaultNow = {
   body: 'Loading',
   effort: 9,
   done: false,
-};
-
-const taskPropSig: string[] = [
-  'id',
-  'parentId',
-  'body',
-  'position',
-  'effort',
-  'rating',
-  'description',
-  'status',
-  'priority',
-  'fraction',
-  'cadence',
-  'lastModified',
-  'timeCreated',
-];
-
-// property signatures of store objects
-const propSigs: sigObject = {
-  tasks: [...taskPropSig],
-  timeline: ['id', 'taskId', 'start', 'type'],
-  tach: ['id', 'millis', 'recorded'],
-  budget: ['id', 'start', 'frame'],
 };
 
 const newTach = (millis: number): velocityI => {
@@ -411,7 +389,6 @@ export {
   defaultFrame,
   frameOptions,
   frameValues,
-  propSigs,
   dayInMillis,
   hourInMillis,
   minInMillis,

@@ -284,13 +284,6 @@ type ratingsType = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 type actionTypes = 'done' | 'record' | 'remove';
 type AmPm = 'AM' | 'PM';
 
-interface sigObject {
-  tasks: string[];
-  timeline: string[];
-  tach: string[];
-  budget: string[];
-}
-
 interface nextRecordingReturn {
   nextTask: memTaskI;
   add: boolean;
@@ -367,7 +360,6 @@ export type {
   velocityI,
   budgetI,
   allStoreTypes,
-  sigObject,
   moveProfileI,
   AmPm,
   cadenceI,

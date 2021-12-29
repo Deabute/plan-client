@@ -15,6 +15,7 @@
   import AddFolder from '../Navigation/AddFolder.svelte';
   import BudgetAlerts from '../Folder/BudgetAlerts.svelte';
   import ViewContainer from './ViewContainer.svelte';
+  import Folder from 'svelte-bootstrap-icons/lib/Folder';
 
   export let isMobile: boolean = false;
 
@@ -36,6 +37,19 @@
   id={activitiesColumnName}
   {isMobile}
 >
+  <svelte:fragment slot="headerText">
+    <span>
+      <Folder />
+      <span class="header">
+        &nbsp;
+        {#if $taskStore.lineage[0].parentId !== '0'}
+          {`Plan: ${$taskStore.lineage[0].body}`}
+        {:else}
+          {activitiesColumnName}
+        {/if}
+      </span>
+    </span>
+  </svelte:fragment>
   <svelte:fragment slot="staticHeader">
     <div class="d-none d-sm-block">
       <AddFolder />
@@ -55,3 +69,9 @@
     {/each}
   </svelte:fragment>
 </ViewContainer>
+
+<style>
+  .header {
+    vertical-align: text-top;
+  }
+</style>

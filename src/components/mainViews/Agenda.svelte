@@ -9,6 +9,7 @@
   import { agendaColumnName } from '../../stores/defaultData';
   import AgendaItem from '../AgendaComponents/AgendaItem.svelte';
   import ViewContainer from './ViewContainer.svelte';
+  import CalendarEvent from 'svelte-bootstrap-icons/lib/CalendarEvent';
 
   export let isMobile: boolean = false;
 
@@ -53,6 +54,15 @@
   {scrollHandler}
   {isMobile}
 >
+  <svelte:fragment slot="headerText">
+    <span>
+      <CalendarEvent />
+      <span class="header">
+        &nbsp;
+        {agendaColumnName}
+      </span>
+    </span>
+  </svelte:fragment>
   <svelte:fragment slot="items">
     {#each $agendaStore as task (task.id)}
       <AgendaItem {task} />
@@ -61,3 +71,9 @@
     {/each}
   </svelte:fragment>
 </ViewContainer>
+
+<style>
+  .header {
+    vertical-align: text-top;
+  }
+</style>

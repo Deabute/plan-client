@@ -95,9 +95,9 @@
     }
     if (status === 'todo' && $secondTick + dayInMillis > dueDate) {
       stampColor = 'text-success';
-      return `Due soon ${stamp}`;
+      return `Do soon ${stamp}`;
     }
-    return `Due ${stamp}`;
+    return `Do by ${stamp}`;
   };
 
   const removeDueDate = () => {
