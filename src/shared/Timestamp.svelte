@@ -150,7 +150,7 @@
         <FolderSymlink />
       </div>
       <span class="col-6" on:click={toggleEdit}>
-        {getHumanReadableStamp(timestamp.start)}
+        {getHumanReadableStamp(timestamp.start, false)}
       </span>
       <span class={`col-2${inProgress ? ' text-danger' : ''}`}>
         {inProgress ? $nowTimeStamp : getDurationStamp(timestamp.duration)}

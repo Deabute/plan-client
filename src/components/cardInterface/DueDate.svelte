@@ -88,7 +88,7 @@
 
   const showDueDate = ({ dueDate, status }: memTaskI): string => {
     stampColor = '';
-    const stamp = getHumanReadableStamp(dueDate);
+    const stamp = getHumanReadableStamp(dueDate, false);
     if (status === 'todo' && $secondTick > dueDate) {
       stampColor = 'text-danger';
       return `Late! ${stamp}`;
