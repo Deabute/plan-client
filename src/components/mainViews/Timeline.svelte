@@ -10,9 +10,8 @@
   } from '../../indexDb/viewStoreDb';
   import ViewContainer from './ViewContainer.svelte';
   import ArrowDown from 'svelte-bootstrap-icons/lib/ArrowDown';
-  import type { memTaskI } from '../../shared/interface';
-  import { nextRecording } from '../../stores/taskStore';
   import Stopwatch from 'svelte-bootstrap-icons/lib/Stopwatch';
+  import { nextUp } from '../../stores/taskStore';
 
   export let isMobile: boolean = false;
 
@@ -50,8 +49,7 @@
   };
 
   let nextTaskBody: string = 'Loading';
-  timeStore.subscribe(async ({ now }) => {
-    const nextTask: memTaskI = await nextRecording(now.taskId);
+  nextUp.subscribe(async (nextTask) => {
     nextTaskBody = nextTask
       ? nextTask.body
       : 'Make some more folders or this is the only one that can be worked on';

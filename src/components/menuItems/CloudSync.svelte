@@ -13,7 +13,7 @@
     showCloudSync,
     toggleSettingDialog,
   } from '../../stores/settingsStore';
-  import { refreshTime, secondTick } from '../../stores/timeStore';
+  import { refreshTime, secondTick, timeStore } from '../../stores/timeStore';
   import ProfileList from './ProfileList.svelte';
   import {
     handleDataSync,
@@ -142,7 +142,7 @@
     $syncingDown = false;
     refreshTask();
     refreshTime(false);
-    loadAgenda();
+    loadAgenda($timeStore.now);
   });
 
   newProfile.subscribe(async (isNew) => {

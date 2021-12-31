@@ -1,5 +1,5 @@
 // taskStore.ts Copyright 2021 Paul Beaudet MIT License
-import { Writable, writable } from 'svelte/store';
+import { get, Writable, writable } from 'svelte/store';
 import type {
   taskI,
   memTaskI,
@@ -24,6 +24,7 @@ import {
   getTaskById,
   decedentOfWhich,
   getSiblingTaskById,
+  nextOnAgenda,
 } from '../indexDb/taskDb';
 import { getCurrentBudget } from '../indexDb/budgetDb';
 import { peerBroadcast, onEvent } from '../connections/dataChannels';
@@ -331,7 +332,12 @@ const undoAndPlace = async (taskId: string) => {
   );
 };
 
+// next task to be used after running task is marked off
+const nextUp: Writable<taskI | null> = writable(null);
+
 const nextRecording = async (taskId: string): Promise<taskI | null> => {
+  const potentialAgendaItem = await nextOnAgenda(taskId);
+  if (potentialAgendaItem) return potentialAgendaItem;
   const store: taskListData = await getSiblingTaskById(taskId);
   for (let i = 0; i < store.tasks.length; i++) {
     if (store.tasks[i].id !== taskId) {
@@ -348,6 +354,7 @@ const nextRecording = async (taskId: string): Promise<taskI | null> => {
   // given there are no more task in this list and its top level
   // send null to make completion impossible
   if (store.lineage.length === 0 || store.lineage[0].id === genesisTask.id) {
+    giveATip('lastTask');
     return null;
   }
   // Record parent if no siblings exist
@@ -358,19 +365,13 @@ const nextRecording = async (taskId: string): Promise<taskI | null> => {
 const checkOff = (taskId: string) => {
   return async () => {
     const checkTask: taskI = await getTaskById(taskId);
-    let now: memStampI | null = null;
-    timeStore.update((store) => {
-      now = store.now;
-      return store;
-    });
+    let now = get(timeStore).now;
     let currentRunningTask = now.taskId === taskId ? true : false;
     let nextRecord = checkTask;
     if (currentRunningTask) {
       nextRecord = await nextRecording(checkTask.id);
-      if (!nextRecord) {
-        giveATip('lastTask');
-        return;
-      }
+      nextUp.set(nextRecord);
+      if (!nextRecord) return;
     }
 
     if (checkTask.cadence === 'zero') {
@@ -433,10 +434,8 @@ const hideTask = (task: memTaskI) => {
     let nextRecord: memTaskI;
     if (currentRunningTask) {
       nextRecord = await nextRecording(task.id);
-      if (!nextRecord) {
-        giveATip('lastTask');
-        return;
-      }
+      nextUp.set(nextRecord);
+      if (!nextRecord) return;
     }
 
     task.status = 'hide';
@@ -500,4 +499,5 @@ export {
   hideTask,
   openFolder,
   nextRecording,
+  nextUp,
 };

@@ -2,13 +2,14 @@
 import type { eventI } from '../shared/interface';
 import { deleteConnection } from './connectionDB';
 import { addStamp, removeStamp } from './timelineDb';
-import { refreshTime } from '../stores/timeStore';
+import { refreshTime, timeStore } from '../stores/timeStore';
 import { refreshTask } from '../stores/taskStore';
 import { backfillPositions, placeFolderDb, updateTaskSafe } from './taskDb';
 import { getBooleanStatus, syncingDown } from '../stores/peerStore';
 import { loadAgenda } from '../stores/agendaStore';
 import { eventsOn } from './eventsDb';
 import { nextOccurrence } from '../components/time/CadenceFunctions';
+import { get } from 'svelte/store';
 
 const initEventsForEvents = () => {
   eventsOn('removeConnection', async ({ data }: eventI) => {
@@ -42,7 +43,8 @@ const initEventsForEvents = () => {
     }
     if (!getBooleanStatus(syncingDown)) {
       refreshTask();
-      loadAgenda();
+      refreshTime();
+      loadAgenda(get(timeStore).now);
     }
   });
 
@@ -52,7 +54,11 @@ const initEventsForEvents = () => {
       status: 'hide',
     });
     await backfillPositions(data.task.parentId);
-    if (!getBooleanStatus(syncingDown)) refreshTask();
+    if (!getBooleanStatus(syncingDown)) {
+      refreshTask();
+      refreshTime();
+      loadAgenda(get(timeStore).now);
+    }
   });
 
   eventsOn('moveTask', async ({ data }: eventI) => {

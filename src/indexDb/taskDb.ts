@@ -6,6 +6,7 @@ import {
   fibonacciScale,
   getPriorityIndexRange,
   shownStamps,
+  minInMillis,
 } from '../stores/defaultData';
 import type {
   memTaskI,
@@ -450,6 +451,24 @@ const onAgenda = async (time: number): Promise<boolean> => {
   return result ? true : false;
 };
 
+const nextOnAgenda = async (taskId: string): Promise<taskI | null> => {
+  const db = await getDb();
+  const now = Date.now();
+  const spread = minInMillis * 30;
+  const taskIndex = db
+    .transaction('tasks')
+    .objectStore('tasks')
+    .index('byDueDate');
+  const range = IDBKeyRange.bound(now - spread, now + spread);
+  let cursor = await taskIndex.openCursor(range);
+  while (cursor) {
+    const { status, id } = cursor.value;
+    if (status === 'todo' && id !== taskId) return cursor.value;
+    cursor = await cursor.continue();
+  }
+  return null;
+};
+
 export {
   getTaskById,
   updateEffort,
@@ -466,4 +485,5 @@ export {
   onAgenda,
   updateTaskSafe,
   getSiblingTaskById,
+  nextOnAgenda,
 };

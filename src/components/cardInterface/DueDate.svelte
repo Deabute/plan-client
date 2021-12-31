@@ -15,7 +15,7 @@
     moveTask,
     toggleEditDue,
   } from '../../stores/settingsStore';
-  import { secondTick } from '../../stores/timeStore';
+  import { secondTick, timeStore } from '../../stores/timeStore';
   import { getHumanReadableStamp } from '../time/timeConvert';
   import PeriodEdit from '../time/PeriodEdit.svelte';
   import { addEvent } from '../../indexDb/eventsDb';
@@ -70,7 +70,7 @@
     task.dueDate = $editedStamp.valueOf();
     $editDue = null;
     $editTask = null;
-    loadAgenda();
+    loadAgenda($timeStore.now);
   };
 
   editedStamp.subscribe(async (newStamp) => {

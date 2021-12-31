@@ -6,7 +6,7 @@
   import { getBudget } from './stores/budgetStore';
   import BudgetSetings from './components/menuItems/BudgetSetings.svelte';
   import { loadTask } from './stores/taskStore';
-  import { getTime } from './stores/timeStore';
+  import { getTime, timeStore } from './stores/timeStore';
   import { initConnectionSignaling } from './connections/signaling';
   import PeersPending from './connections/PeersPending.svelte';
   import { migrateData } from './indexDb/migrations';
@@ -39,7 +39,7 @@
       // const renderParent = false;
       const listOfTask = await loadTask(task, false);
       await getTime(listOfTask);
-      await loadAgenda();
+      await loadAgenda($timeStore.now);
       loadViewSettings();
       // start p2p data sync if opt in
       initEventsForEvents();

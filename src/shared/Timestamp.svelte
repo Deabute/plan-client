@@ -91,7 +91,7 @@
   const getUndid = async () => {
     await undoAndPlace(timestamp.taskId);
     timestamp.done = false;
-    loadAgenda();
+    loadAgenda($timeStore.now);
   };
 
   const complete = async () => {
