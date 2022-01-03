@@ -369,7 +369,7 @@ const checkOff = (taskId: string) => {
     let currentRunningTask = now.taskId === taskId ? true : false;
     let nextRecord = checkTask;
     if (currentRunningTask) {
-      nextRecord = await nextRecording(checkTask.id);
+      nextRecord = await nextRecording(taskId);
       nextUp.set(nextRecord);
       if (!nextRecord) return;
     }

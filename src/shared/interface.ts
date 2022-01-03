@@ -284,11 +284,6 @@ type ratingsType = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 type actionTypes = 'done' | 'record' | 'remove';
 type AmPm = 'AM' | 'PM';
 
-interface nextRecordingReturn {
-  nextTask: memTaskI;
-  add: boolean;
-}
-
 interface moveProfileI {
   forward: boolean;
   moveItem: string;
@@ -356,7 +351,6 @@ export type {
   columnIds,
   actionTypes,
   timeLineData,
-  nextRecordingReturn,
   velocityI,
   budgetI,
   allStoreTypes,

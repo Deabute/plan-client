@@ -8,7 +8,7 @@ const agendaStore: Writable<taskI[]> = writable([]);
 
 const loadAgenda = async (currentStamp: timestampI | null = null) => {
   if (currentStamp) nextUp.set(await nextRecording(currentStamp.taskId));
-  const agenda: taskI[] = await getAgendaDb(0);
+  const agenda: taskI[] = await getAgendaDb();
   agendaStore.set(agenda);
 };
 

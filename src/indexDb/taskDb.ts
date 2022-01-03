@@ -340,7 +340,7 @@ const incomingTasks = async ({
   return done;
 };
 
-const getAgendaDb = async (topOfAgenda: number = 0): Promise<taskI[]> => {
+const getAgendaDb = async (): Promise<taskI[]> => {
   const db = await getDb();
   const taskIndex = db
     .transaction('tasks')
@@ -350,15 +350,6 @@ const getAgendaDb = async (topOfAgenda: number = 0): Promise<taskI[]> => {
   const now = Date.now();
   let entries = shownStamps;
   let pastDue = 5;
-  if (topOfAgenda) {
-    let cursor = await taskIndex.openCursor(IDBKeyRange.bound(1, topOfAgenda));
-    while (cursor && entries) {
-      agenda.push(cursor.value);
-      entries--;
-      cursor = await cursor.continue();
-    }
-    return agenda;
-  }
   let cursor = await taskIndex.openCursor(IDBKeyRange.bound(1, now), 'prev');
   while (cursor && pastDue) {
     agenda.push(cursor.value);
@@ -367,13 +358,33 @@ const getAgendaDb = async (topOfAgenda: number = 0): Promise<taskI[]> => {
     cursor = await cursor.continue();
   }
   agenda = agenda.reverse();
-  cursor = await taskIndex.openCursor(IDBKeyRange.bound(now, Infinity));
+  cursor = await taskIndex.openCursor(
+    IDBKeyRange.bound(now, Infinity, false, false),
+  );
   while (cursor && entries) {
     agenda.push(cursor.value);
     entries--;
     cursor = await cursor.continue();
   }
   return agenda;
+};
+
+const nextOnAgenda = async (taskId: string): Promise<taskI | null> => {
+  const db = await getDb();
+  const now = Date.now();
+  const spread = minInMillis * 30;
+  const taskIndex = db
+    .transaction('tasks')
+    .objectStore('tasks')
+    .index('byDueDate');
+  const range = IDBKeyRange.bound(now - spread, now + spread);
+  let cursor = await taskIndex.openCursor(range);
+  while (cursor) {
+    const { status, id } = cursor.value;
+    if (status === 'todo' && id !== taskId) return cursor.value;
+    cursor = await cursor.continue();
+  }
+  return null;
 };
 
 const pageAgenda = async (
@@ -449,24 +460,6 @@ const onAgenda = async (time: number): Promise<boolean> => {
   const db = await getDb();
   const result = await db.getFromIndex('tasks', 'byDueDate', time);
   return result ? true : false;
-};
-
-const nextOnAgenda = async (taskId: string): Promise<taskI | null> => {
-  const db = await getDb();
-  const now = Date.now();
-  const spread = minInMillis * 30;
-  const taskIndex = db
-    .transaction('tasks')
-    .objectStore('tasks')
-    .index('byDueDate');
-  const range = IDBKeyRange.bound(now - spread, now + spread);
-  let cursor = await taskIndex.openCursor(range);
-  while (cursor) {
-    const { status, id } = cursor.value;
-    if (status === 'todo' && id !== taskId) return cursor.value;
-    cursor = await cursor.continue();
-  }
-  return null;
 };
 
 export {
