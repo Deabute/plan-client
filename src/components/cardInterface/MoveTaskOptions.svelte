@@ -4,6 +4,7 @@
   import { editTask, moveTask } from '../../stores/settingsStore';
   import { placeFolder, taskStore } from '../../stores/taskStore';
   import ArrowBarDown from 'svelte-bootstrap-icons/lib/ArrowBarDown';
+  import { reloadNextTask } from '../../stores/agendaStore';
   // Exposed component props
   export let task: memTaskI;
   // answer "in folder?" or "after folder?"
@@ -11,11 +12,11 @@
 
   const moveToHere = () => {
     placeFolder($moveTask.id, task, after);
+    reloadNextTask();
     $editTask = null;
   };
 
   const position = after ? task.position : -1;
-  // const parentId = after ? task.parentId : task.id;
 
   let currentParent = $taskStore.lineage[0];
   taskStore.subscribe((store) => {

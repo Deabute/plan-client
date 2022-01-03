@@ -9,6 +9,13 @@ const addStamp = async (stamp: timestampI) => {
   db.add('timeline', stamp);
 };
 
+const getRecordingId = async (): Promise<string | null> => {
+  const db = await getDb();
+  const timeStore = db.transaction('timeline').store.index('timeOrder');
+  let cursor = await timeStore.openCursor(null, 'prev');
+  return cursor ? cursor.value.taskId : null;
+};
+
 const getStamps = async (end: number = 0): Promise<timeLineData> => {
   const db = await getDb();
   const timeStore = db.transaction('timeline').store.index('timeOrder');
@@ -223,4 +230,5 @@ export {
   removeStamp,
   getUtilization,
   page,
+  getRecordingId,
 };

@@ -142,7 +142,7 @@
     $syncingDown = false;
     refreshTask();
     refreshTime(false);
-    loadAgenda($timeStore.now);
+    loadAgenda();
   });
 
   newProfile.subscribe(async (isNew) => {

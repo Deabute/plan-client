@@ -5,7 +5,7 @@
   import { onAgenda, updateTaskSafe } from '../../indexDb/taskDb';
   import type { memTaskI, optionalTaskI } from '../../shared/interface';
   import StampEdit from '../../shared/StampEdit.svelte';
-  import { loadAgenda } from '../../stores/agendaStore';
+  import { loadAgenda, reloadNextTask } from '../../stores/agendaStore';
   import { dayInMillis, hourInMillis } from '../../stores/defaultData';
   import { cancelFund } from '../../stores/fundingStore';
   import {
@@ -15,7 +15,7 @@
     moveTask,
     toggleEditDue,
   } from '../../stores/settingsStore';
-  import { secondTick, timeStore } from '../../stores/timeStore';
+  import { secondTick } from '../../stores/timeStore';
   import { getHumanReadableStamp } from '../time/timeConvert';
   import PeriodEdit from '../time/PeriodEdit.svelte';
   import { addEvent } from '../../indexDb/eventsDb';
@@ -70,7 +70,8 @@
     task.dueDate = $editedStamp.valueOf();
     $editDue = null;
     $editTask = null;
-    loadAgenda($timeStore.now);
+    loadAgenda();
+    reloadNextTask();
   };
 
   editedStamp.subscribe(async (newStamp) => {

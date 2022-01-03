@@ -6,23 +6,23 @@ import {
   getSiblingTaskById,
   nextOnAgenda,
 } from '../indexDb/taskDb';
-import type { taskI, taskListData, timestampI } from '../shared/interface';
+import { getRecordingId } from '../indexDb/timelineDb';
+import type { taskI, taskListData } from '../shared/interface';
 import { genesisTask } from './defaultData';
 
 const agendaStore: Writable<taskI[]> = writable([]);
 
-// next task to be used after running task is marked off
-const nextUp: Writable<taskI | null> = writable(null);
-
-const nextRecording = async (taskId: string): Promise<taskI | null> => {
-  const potentialAgendaItem = await nextOnAgenda(taskId);
+const nextRecording = async (recId: string = ''): Promise<taskI | null> => {
+  if (!recId) recId = await getRecordingId();
+  if (!recId) return null;
+  const potentialAgendaItem = await nextOnAgenda(recId);
   if (potentialAgendaItem) return potentialAgendaItem;
-  const store: taskListData = await getSiblingTaskById(taskId);
+  const store: taskListData = await getSiblingTaskById(recId);
   for (let i = 0; i < store.tasks.length; i++) {
-    if (store.tasks[i].id !== taskId) {
+    if (store.tasks[i].id !== recId) {
       // this will likely skip over higher priority task with top child
       if (store.tasks[i].topChild) {
-        if (store.tasks[i].topChild.id !== taskId) {
+        if (store.tasks[i].topChild.id !== recId) {
           return store.tasks[i].topChild;
         }
       } else {
@@ -32,7 +32,11 @@ const nextRecording = async (taskId: string): Promise<taskI | null> => {
   }
   // given there are no more task in this list and its top level
   // send null to make completion impossible
-  if (store.lineage.length === 0 || store.lineage[0].id === genesisTask.id) {
+  if (
+    store.lineage.length === 0 ||
+    store.lineage[0].id === genesisTask.id ||
+    store.lineage[0].id === recId
+  ) {
     giveATip('lastTask');
     return null;
   }
@@ -40,10 +44,21 @@ const nextRecording = async (taskId: string): Promise<taskI | null> => {
   return store.lineage[0];
 };
 
-const loadAgenda = async (currentStamp: timestampI | null = null) => {
-  if (currentStamp) nextUp.set(await nextRecording(currentStamp.taskId));
+// next task to be used after running task is marked off
+const nextUp: Writable<taskI | null> = writable(null);
+nextRecording().then((next) => {
+  nextUp.set(next);
+});
+
+const loadAgenda = async () => {
   const agenda: taskI[] = await getAgendaDb();
   agendaStore.set(agenda);
 };
 
-export { loadAgenda, agendaStore, nextRecording, nextUp };
+const reloadNextTask = async (taskId: string = ''): Promise<taskI | null> => {
+  const next = await nextRecording(taskId);
+  nextUp.set(next);
+  return next;
+};
+
+export { loadAgenda, agendaStore, nextUp, reloadNextTask, nextRecording };

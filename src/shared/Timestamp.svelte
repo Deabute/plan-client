@@ -19,7 +19,7 @@
   import StampEdit from './StampEdit.svelte';
   import { canUndo, getTaskById } from '../indexDb/taskDb';
   import { undoAndPlace, checkOff, openFolder } from '../stores/taskStore';
-  import { loadAgenda } from '../stores/agendaStore';
+  import { loadAgenda, reloadNextTask } from '../stores/agendaStore';
   import Gear from 'svelte-bootstrap-icons/lib/Gear';
   import Check from 'svelte-bootstrap-icons/lib/Check';
   import Trash from 'svelte-bootstrap-icons/lib/Trash';
@@ -91,7 +91,8 @@
   const getUndid = async () => {
     await undoAndPlace(timestamp.taskId);
     timestamp.done = false;
-    loadAgenda($timeStore.now);
+    reloadNextTask();
+    loadAgenda();
   };
 
   const complete = async () => {
@@ -183,13 +184,15 @@
             invalid
           {/if}
         </button>
-        <button
-          class="btn btn-outline-dark text-danger"
-          type="button"
-          on:click={deleteStamp}
-        >
-          <Trash /> Delete
-        </button>
+        {#if !inProgress}
+          <button
+            class="btn btn-outline-dark text-danger"
+            type="button"
+            on:click={deleteStamp}
+          >
+            <Trash /> Delete
+          </button>
+        {/if}
       </div>
     </div>
   {/if}

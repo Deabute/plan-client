@@ -1,11 +1,6 @@
 // taskStore.ts Copyright 2021 Paul Beaudet MIT License
 import { get, Writable, writable } from 'svelte/store';
-import type {
-  taskI,
-  memTaskI,
-  taskListData,
-  memStampI,
-} from '../shared/interface';
+import type { taskI, memTaskI, taskListData } from '../shared/interface';
 import {
   genesisTask,
   fibonacciScale,
@@ -30,7 +25,7 @@ import { createOid } from '../isomorphic/oid';
 import { getCurrentTach } from '../indexDb/tachDb';
 import { editTask, moveTask } from './settingsStore';
 import { getDb } from '../indexDb/dbCore';
-import { loadAgenda, nextRecording, nextUp } from './agendaStore';
+import { loadAgenda, nextRecording, reloadNextTask } from './agendaStore';
 import {
   newTimeStamp,
   recordingTaskParent,
@@ -335,12 +330,8 @@ const checkOff = (taskId: string) => {
     const checkTask: taskI = await getTaskById(taskId);
     let now = get(timeStore).now;
     let currentRunningTask = now.taskId === taskId ? true : false;
-    let nextRecord = checkTask;
-    if (currentRunningTask) {
-      nextRecord = await nextRecording(taskId);
-      nextUp.set(nextRecord);
-      if (!nextRecord) return;
-    }
+    let nextRecord = await nextRecording(taskId);
+    if (currentRunningTask && !nextRecord) return;
 
     if (checkTask.cadence === 'zero') {
       await updateTaskSafe({ id: taskId, status: 'done' });
@@ -385,6 +376,7 @@ const checkOff = (taskId: string) => {
     if (checkTask.cadence === 'zero' && currentRunningTask) {
       await recalculateTach();
     }
+    await reloadNextTask();
     await refreshTask();
     await loadAgenda();
   };
@@ -393,18 +385,10 @@ const checkOff = (taskId: string) => {
 // returns a click event, holds task id in closure
 const hideTask = (task: memTaskI) => {
   return async () => {
-    let now: memStampI | null = null;
-    timeStore.update((store) => {
-      now = store.now;
-      return store;
-    });
+    let now = get(timeStore).now;
     let currentRunningTask = now.taskId === task.id ? true : false;
-    let nextRecord: memTaskI;
-    if (currentRunningTask) {
-      nextRecord = await nextRecording(task.id);
-      nextUp.set(nextRecord);
-      if (!nextRecord) return;
-    }
+    let nextRecord = await nextRecording(task.id);
+    if (currentRunningTask && !nextRecord) return;
 
     task.status = 'hide';
     await updateTaskSafe({ id: task.id, status: 'hide' });
@@ -435,6 +419,7 @@ const hideTask = (task: memTaskI) => {
       return timeline;
     });
     await recalculateTach();
+    await reloadNextTask();
     await refreshTask();
     await loadAgenda();
   };
