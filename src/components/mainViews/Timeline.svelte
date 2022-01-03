@@ -11,7 +11,7 @@
   import ViewContainer from './ViewContainer.svelte';
   import ArrowDown from 'svelte-bootstrap-icons/lib/ArrowDown';
   import Stopwatch from 'svelte-bootstrap-icons/lib/Stopwatch';
-  import { nextUp } from '../../stores/taskStore';
+  import { nextUp } from '../../stores/agendaStore';
 
   export let isMobile: boolean = false;
 

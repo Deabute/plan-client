@@ -23,8 +23,6 @@ import {
   backfillPositions,
   getTaskById,
   decedentOfWhich,
-  getSiblingTaskById,
-  nextOnAgenda,
 } from '../indexDb/taskDb';
 import { getCurrentBudget } from '../indexDb/budgetDb';
 import { peerBroadcast, onEvent } from '../connections/dataChannels';
@@ -32,7 +30,7 @@ import { createOid } from '../isomorphic/oid';
 import { getCurrentTach } from '../indexDb/tachDb';
 import { editTask, moveTask } from './settingsStore';
 import { getDb } from '../indexDb/dbCore';
-import { loadAgenda } from './agendaStore';
+import { loadAgenda, nextRecording, nextUp } from './agendaStore';
 import {
   newTimeStamp,
   recordingTaskParent,
@@ -40,7 +38,6 @@ import {
   timeStore,
 } from './timeStore';
 import { recalculateTach } from './velocityStore';
-import { giveATip } from '../components/ToolTips/tipStore';
 import { addEvent } from '../indexDb/eventsDb';
 import { cancelFund } from './fundingStore';
 import type { taskPayload } from '../connections/connectInterface';
@@ -332,35 +329,6 @@ const undoAndPlace = async (taskId: string) => {
   );
 };
 
-// next task to be used after running task is marked off
-const nextUp: Writable<taskI | null> = writable(null);
-
-const nextRecording = async (taskId: string): Promise<taskI | null> => {
-  const potentialAgendaItem = await nextOnAgenda(taskId);
-  if (potentialAgendaItem) return potentialAgendaItem;
-  const store: taskListData = await getSiblingTaskById(taskId);
-  for (let i = 0; i < store.tasks.length; i++) {
-    if (store.tasks[i].id !== taskId) {
-      // this will likely skip over higher priority task with top child
-      if (store.tasks[i].topChild) {
-        if (store.tasks[i].topChild.id !== taskId) {
-          return store.tasks[i].topChild;
-        }
-      } else {
-        return store.tasks[i];
-      }
-    }
-  }
-  // given there are no more task in this list and its top level
-  // send null to make completion impossible
-  if (store.lineage.length === 0 || store.lineage[0].id === genesisTask.id) {
-    giveATip('lastTask');
-    return null;
-  }
-  // Record parent if no siblings exist
-  return store.lineage[0];
-};
-
 // returns a click event, holds task id in closure
 const checkOff = (taskId: string) => {
   return async () => {
@@ -498,6 +466,4 @@ export {
   checkOff,
   hideTask,
   openFolder,
-  nextRecording,
-  nextUp,
 };
