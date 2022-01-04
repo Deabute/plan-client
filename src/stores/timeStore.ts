@@ -15,6 +15,7 @@ import type {
 import { defaultNow, minInMillis } from '../stores/defaultData';
 import { getDurationStamp } from '../components/time/timeConvert';
 import { addEvent } from '../indexDb/eventsDb';
+import { reloadNextTask } from './agendaStore';
 
 const defaultHistory: memStampI[] = [];
 const timeStore: Writable<timeLineData> = writable({
@@ -45,6 +46,7 @@ const recordingTaskParent: Writable<string | null> = writable(null);
 
 let secondUnsubscriber: Unsubscriber = null;
 timeStore.subscribe(({ now }) => {
+  reloadNextTask();
   if (secondUnsubscriber) secondUnsubscriber();
   secondUnsubscriber = secondTick.subscribe((currentTime) => {
     const duration = currentTime - now.start;

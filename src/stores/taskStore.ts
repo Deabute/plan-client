@@ -25,7 +25,7 @@ import { createOid } from '../isomorphic/oid';
 import { getCurrentTach } from '../indexDb/tachDb';
 import { editTask, moveTask } from './settingsStore';
 import { getDb } from '../indexDb/dbCore';
-import { loadAgenda, nextRecording, reloadNextTask } from './agendaStore';
+import { loadAgenda, nextRecording } from './agendaStore';
 import {
   newTimeStamp,
   recordingTaskParent,
@@ -149,11 +149,8 @@ const loadTask = async (
   taskStore.update((oldList) => {
     // figure what sibling utilization timer is associated with
     if (oldList.lineage[0].id !== taskList.lineage[0].id) {
-      let nowId = '';
-      timeStore.update((store) => {
-        nowId = store.now.taskId;
-        return store;
-      });
+      // its also possible to use getRecordingId outside the update function
+      let nowId = get(timeStore).now.taskId;
       decedentOfWhich(nowId, taskList.lineage[0].id).then((value) => {
         recordingTaskParent.set(value);
       });
@@ -376,7 +373,6 @@ const checkOff = (taskId: string) => {
     if (checkTask.cadence === 'zero' && currentRunningTask) {
       await recalculateTach();
     }
-    await reloadNextTask();
     await refreshTask();
     await loadAgenda();
   };
@@ -419,7 +415,6 @@ const hideTask = (task: memTaskI) => {
       return timeline;
     });
     await recalculateTach();
-    await reloadNextTask();
     await refreshTask();
     await loadAgenda();
   };

@@ -43,6 +43,8 @@
 
   const record = () => {
     const { topChild, ...baseTask } = task;
+    // Note: This is if topChild is showing not if it exist
+    // The later is handled internally to record time
     recordTime(topChildShowing ? topChild : baseTask);
   };
 

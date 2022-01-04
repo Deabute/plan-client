@@ -13,8 +13,6 @@
   import { moveTask } from '../../stores/settingsStore';
   import { checkOff, undoAndPlace, openFolder } from '../../stores/taskStore';
   import Recycle from 'svelte-bootstrap-icons/lib/Recycle';
-  import { reloadNextTask } from '../../stores/agendaStore';
-
   export let task: taskI;
 
   const record = () => {
@@ -24,7 +22,6 @@
   const getUndid = async () => {
     await undoAndPlace(task.id);
     task.status = 'todo';
-    reloadNextTask();
     refreshTime();
   };
 </script>
