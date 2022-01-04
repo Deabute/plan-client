@@ -12,6 +12,8 @@
   import ArrowDown from 'svelte-bootstrap-icons/lib/ArrowDown';
   import Stopwatch from 'svelte-bootstrap-icons/lib/Stopwatch';
   import { nextUp } from '../../stores/agendaStore';
+  import { openFolder } from '../../stores/taskStore';
+  import { moveTask } from '../../stores/settingsStore';
 
   export let isMobile: boolean = false;
 
@@ -74,7 +76,11 @@
   </svelte:fragment>
   <svelte:fragment slot="staticHeader">
     <div class="border-bottom border-dark">
-      <div class="pb-1 border-bottom">
+      <div
+        type="button"
+        on:click={openFolder($nextUp, $moveTask)}
+        class="pb-1 border-bottom"
+      >
         <div class="row mb-1 text-center">
           <div class="col-2 text-success align-self-end">Next</div>
           <div class="col-8 text-secondary">{nextTaskBody}</div>
