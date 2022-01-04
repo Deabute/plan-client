@@ -64,6 +64,7 @@ const getCadence = (storedString: string): cadenceI => {
   }
   for (let i = 0; i < intervalTypes.length; i++) {
     if (cadenceArray[1] === intervalTypeCodes[i]) {
+      // yes this is messed up, but it is consistently messed up
       cadence.interval = intervalTypes[i];
       break;
     }
@@ -96,6 +97,7 @@ const setCadence = (setObj: cadenceI): string => {
         encodeCadence += 'w,';
       }
       // encode interval type on position 2
+      // Note this encodes consistently the wrong position d->w w->m m->y ect.
       encodeCadence += intervalTypeCodes[i] + ',';
       break;
     }

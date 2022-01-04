@@ -249,9 +249,10 @@ const arrayOfDefaults: defaultObj[] = [
     fraction: hourInMillis * 40,
     cadence: 'many',
     children: [
-      { body: 'Planning', cadence: 'many' },
+      { body: 'Planning', cadence: 'w,w,1,0,0,0' },
       {
         body: 'Check how my time was utilized this week',
+        cadence: 'w,m,1,0,0,0',
         due: Date.now() + weekInMillis,
       },
     ],
@@ -260,34 +261,46 @@ const arrayOfDefaults: defaultObj[] = [
     body: 'Eat',
     cadence: 'many',
     children: [
-      { body: 'Breakfast', cadence: 'many' },
-      { body: 'Lunch', cadence: 'many' },
-      { body: 'Dinner', cadence: 'many' },
+      { body: 'Breakfast', cadence: 'w,w,1,0,0,0' },
+      { body: 'Lunch', cadence: 'w,w,1,0,0,0' },
+      { body: 'Dinner', cadence: 'w,w,1,0,0,0' },
     ],
   },
-  { body: 'Sleep', fraction: hourInMillis * 8 * 7, cadence: 'many' },
+  { body: 'Sleep', fraction: hourInMillis * 8 * 7, cadence: 'w,w,1,0,0,0' },
   {
     body: 'Chores',
-    children: [{ body: 'Cleaning' }, { body: 'Take out Trash' }],
+    children: [
+      { body: 'Cleaning', cadence: 'many' },
+      { body: 'Take out Trash' },
+    ],
   },
   {
     body: 'Beginner Tips (Click open on this folder)',
     children: [
       {
-        body: 'The goal is tell your time what to do, Set a budget for your week by clicking Time when editing a folder',
+        body: 'The goal is tell your time what to do',
+      },
+      {
+        body: 'Set a budget for your week by clicking the time slider under the task name',
+      },
+      {
+        body: 'Set an agenda for your day by giving "do" times to your task with the "when" editor',
       },
       { body: 'To remove a task folder, click edit then click done' },
       {
         body: 'Views (Open me!)',
         children: [
           {
-            body: 'Click "View" in the top bar and select another type to see your data in a different light',
+            body: 'Under "View" in the side bar and select another type to see your data in a different light',
           },
           {
-            body: `"${timelineColumnName}" shows the task being recorded and previous recordings`,
+            body: `"${activitiesColumnName}" shows tasks organized into a folder directory structure`,
           },
           {
-            body: `"${agendaColumnName}" shows tasks that have been marked as due`,
+            body: `"${timelineColumnName}" shows the tasks being recorded and previous recordings`,
+          },
+          {
+            body: `"${agendaColumnName}" shows tasks that have been marked to be done`,
             due: Date.now() + hourInMillis * 2,
           },
         ],
@@ -297,10 +310,10 @@ const arrayOfDefaults: defaultObj[] = [
         children: [
           { body: '"None" represents a one off task' },
           {
-            body: '"Many" represents a repeating task, due dates are cleared when they are completed',
+            body: '"Many" represents a repeating task, do dates are cleared when they are completed',
           },
           {
-            body: 'Task cadence like "once a week", will also be possible in the future, where due dates will be reassigned based on the cadence',
+            body: 'Day, Week Month, and Year give options to set cadence every number of those',
           },
         ],
       },
@@ -321,14 +334,14 @@ const arrayOfDefaults: defaultObj[] = [
             body: "Device A should now ask if its okay to connect to Device B's id",
           },
           {
-            body: 'Check to be sure at least the last hand full of chars match',
+            body: 'Check to be sure at least the last hand full of characters match in the ID',
           },
           { body: "Don't accept connect request from unknown device ids" },
           {
             body: 'Keep in mind with peer sync both instances of the app need to be up at the same time to sync',
           },
           {
-            body: 'The paid subscription product will sync in way only one device needs to be on at a time',
+            body: 'Cloud sync is our paid subscription service for convenient syncing',
           },
         ],
       },
