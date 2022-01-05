@@ -7,8 +7,7 @@
     "dev": "./dev_start.sh",
     "old-start": "sirv public",
     "validate": "svelte-check",
-    "dev-install": "./dev-install.sh",
-    "cypress": "npx cypress open"
+    "dev-install": "./dev-install.sh"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^20.0.0",
@@ -16,7 +15,6 @@
     "@rollup/plugin-replace": "^3.0.0",
     "@rollup/plugin-typescript": "^8.2.5",
     "@tsconfig/svelte": "^2.0.1",
-    "cypress": "^8.5.0",
     "eslint": "^7.32.0",
     "eslint-plugin-cypress": "^2.12.1",
     "eslint-plugin-svelte3": "^3.2.1",
