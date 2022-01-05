@@ -137,6 +137,18 @@ const hourAndMinutesObj = (
   };
 };
 
+const hoursOrMinutesString = (millis: number): string => {
+  const { hour, minute } = hourAndMinutesObj(millis);
+  if (hour === 0 && minute === 0) return '0';
+  return `${hour ? `${hour} Hour${hour > 1 ? 's' : ''}` : ''}${
+    minute
+      ? `${hour ? ' ' : ''}${
+          minute ? `${minute} Min${minute > 1 ? 's' : ''}` : ''
+        }`
+      : ''
+  }`;
+};
+
 export {
   get12Hour,
   get24Hour,
@@ -148,4 +160,5 @@ export {
   getMeridianHour,
   getTimeOfDayForDate,
   hourAndMinutesObj,
+  hoursOrMinutesString,
 };

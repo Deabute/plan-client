@@ -1,15 +1,15 @@
 <!-- BudgetAlerts.svelte Copyright 2021 Paul Beaudet MIT Licence -->
 <script lang="ts">
   import { overBudget, toAllocate } from '../../stores/taskStore';
-  import { justHoursOrMinutes } from '../../shared/velocity';
+  import { hoursOrMinutesString } from '../time/timeConvert';
 </script>
 
 {#if $overBudget || $toAllocate}
   <div class="small text-center alert alert-danger">
     {#if $overBudget}
-      {`${justHoursOrMinutes(Math.abs($overBudget))} over-budget`}
+      {`${hoursOrMinutesString(Math.abs($overBudget))} over-budget`}
     {:else if $toAllocate}
-      {`${justHoursOrMinutes($toAllocate)} unallocated`}
+      {`${hoursOrMinutesString($toAllocate)} unallocated`}
     {/if}
   </div>
 {/if}

@@ -36,7 +36,7 @@
   let editedStamp: Writable<number> = writable(timestamp.start.valueOf());
 
   const makeEdit = async () => {
-    const { body, effort, duration, done, ...stamp } = timestamp;
+    const { body, duration, done, ...stamp } = timestamp;
     const newTimestamp: timestampI = {
       ...stamp,
       start: $editedStamp.valueOf(),

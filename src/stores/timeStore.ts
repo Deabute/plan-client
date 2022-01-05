@@ -56,7 +56,7 @@ secondTick.subscribe((currentTime) => {
   }
 });
 
-const newTimeStamp = ({ id, body, effort }: taskI): memStampI => {
+const newTimeStamp = ({ id, body }: taskI): memStampI => {
   const now = Date.now();
   const stamp: timestampI = {
     id: createOid(),
@@ -71,7 +71,6 @@ const newTimeStamp = ({ id, body, effort }: taskI): memStampI => {
     ...stamp,
     duration: 0,
     body,
-    effort,
     done: false,
   };
   // peerBroadcast('record', { data: inMemStamp });

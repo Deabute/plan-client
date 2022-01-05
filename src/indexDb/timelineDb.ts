@@ -2,7 +2,7 @@
 import { getDb } from './dbCore';
 import type { timestampI, memStampI, timeLineData } from '../shared/interface';
 import { shownStamps } from '../stores/defaultData';
-import { justHoursOrMinutes } from '../shared/velocity';
+import { hoursOrMinutesString } from '../components/time/timeConvert';
 
 const addStamp = async (stamp: timestampI) => {
   const db = await getDb();
@@ -44,21 +44,19 @@ const getStamps = async (end: number = 0): Promise<timeLineData> => {
   let history: memStampI[] = await Promise.all(
     rawStamps.map(async (stamp) => {
       let task = await db.get('tasks', stamp.taskId);
-      const { body, effort, status } = task;
+      const { body, status } = task;
       return {
         ...stamp,
         duration: 0,
         body,
         done: status !== 'todo' ? true : false,
-        effort, // might need to calculate this in future
       };
     }),
   );
-  const { body, effort, status } = await db.get('tasks', nowVal.taskId);
+  const { body, status } = await db.get('tasks', nowVal.taskId);
   const now: memStampI = {
     ...nowVal,
     body,
-    effort,
     duration: currentTime - nowVal.start,
     done: status !== 'todo' ? true : false,
   };
@@ -178,12 +176,11 @@ const page = async (
   let cursor = await timeIndex.openCursor(range, pageDown ? 'prev' : 'next');
   while (increment && cursor) {
     const task = await taskStore.get(cursor.value.taskId);
-    const { body, effort } = task;
+    const { body } = task;
     const nextItem = {
       ...cursor.value,
       done: task.status !== 'todo' ? true : false,
       body,
-      effort,
       duration: pageDown
         ? start - cursor.value.start
         : cursor.value.start - start,
@@ -217,7 +214,7 @@ const getUtilization = async (
   end: number = 0,
 ): Promise<string> => {
   const millis = await compileUtilizedMillis(parentId, start, end);
-  if (millis) return justHoursOrMinutes(millis);
+  if (millis) return hoursOrMinutesString(millis);
   return '0';
 };
 

@@ -111,6 +111,7 @@ interface pskI {
 // in memory data for task
 // topChild: determined greatest priority grandchild
 interface memTaskI extends taskI {
+  // utilized: number;
   topChild?: taskI | null;
 }
 
@@ -125,7 +126,6 @@ interface timestampI {
 interface memStampI extends timestampI {
   duration: number | null; // Note of current or past duration (for moving)
   body: string; // Place holder for associated task body
-  effort: number; // place holder to estimate percent complete
   done: boolean; // placeholder to note completion status
 }
 
@@ -251,7 +251,6 @@ interface PlanDB extends DBSchema {
 interface taskListData {
   tasks: memTaskI[];
   lineage: taskI[];
-  budgetEnd: number | null;
 }
 
 interface timeLineData {

@@ -16,9 +16,7 @@ const tachStore: Writable<number> = writable(startingVelocity);
 const loadTach = async () => {
   const storedVelocity = await getCurrentTach();
   const useTach = storedVelocity ? storedVelocity.millis : startingVelocity;
-  tachStore.update((tach) => {
-    return useTach;
-  });
+  tachStore.set(useTach);
   if (!storedVelocity) {
     // should be used in case we have a blank slate.
     await saveTach(newTach(useTach));
@@ -27,9 +25,7 @@ const loadTach = async () => {
 
 const recalculateTach = async () => {
   const currentTach = await getAverageTach();
-  tachStore.update((tach) => {
-    return currentTach;
-  });
+  tachStore.set(currentTach);
 };
 
 onEvent('sync-tach', async (packet: { data: velocityI; done: boolean }) => {

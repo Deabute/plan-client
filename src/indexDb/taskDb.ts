@@ -3,7 +3,6 @@ import { getDb } from './dbCore';
 import {
   genId,
   genesisTask,
-  fibonacciScale,
   getPriorityIndexRange,
   shownStamps,
   minInMillis,
@@ -29,15 +28,11 @@ const getSubtask = async (
   const tasksDb = transaction.objectStore('tasks');
   const tasksIndex = tasksDb.index('priority');
   await viewsDb.put({ name: 'parentTask', showing: idToCompare });
-  // effort to add up among siblings
-  let effort = 0;
-  // get all tasks with valid efforts levels
   // & highest priority greatest grandchildren
   const tasks: memTaskI[] = [];
   let position = 0;
   let cursor = await tasksIndex.openCursor(getPriorityIndexRange(idToCompare));
   while (cursor) {
-    effort += cursor.value.effort;
     let child: taskI = cursor.value;
     let grandCursor = await tasksIndex.openCursor(
       getPriorityIndexRange(child.id),
@@ -66,11 +61,10 @@ const getSubtask = async (
       parent = genesisTask;
     } else {
       parent = await tasksDb.get(refParent.parentId);
-      effort = effort ? effort : 1;
     }
   }
   // set direct parent
-  let lineage: taskI[] = [{ ...parent, effort }];
+  let lineage: taskI[] = [{ ...parent }];
   // compile parents and parents of parent ect.
   while (parent && parent.parentId !== genId.todo) {
     parent = await tasksDb.get(parent.parentId);
@@ -81,7 +75,6 @@ const getSubtask = async (
   return {
     tasks,
     lineage,
-    budgetEnd: 0,
   };
 };
 
@@ -93,7 +86,6 @@ const getSiblingTaskById = async (taskId: string): Promise<taskListData> => {
   const taskListData: taskListData = {
     tasks: [],
     lineage: [],
-    budgetEnd: 0,
   };
   if (!task) return taskListData;
   // & highest priority greatest grandchildren
@@ -148,6 +140,7 @@ const getSiblingTaskById = async (taskId: string): Promise<taskListData> => {
 
 const getTaskById = async (taskId: memTaskI | string): Promise<taskI> => {
   if (typeof taskId !== 'string') {
+    // const { topChild, utilized, ...baseTask } = taskId;
     const { topChild, ...baseTask } = taskId;
     return baseTask;
   }
@@ -158,19 +151,6 @@ const getTaskById = async (taskId: memTaskI | string): Promise<taskI> => {
   } else {
     console.error(new Error('No task exist with this ID'));
   }
-};
-
-const updateEffort = async (task: memTaskI, rating: number) => {
-  const db = await getDb();
-  const { topChild, ...storeTask } = task;
-  const data = {
-    ...storeTask,
-    rating,
-    effort: fibonacciScale[rating],
-    lastModified: Date.now(),
-  };
-  await db.put('tasks', data);
-  peerBroadcast('sync-tasks', { data, done: true });
 };
 
 const updateTaskSafe = async (
@@ -464,7 +444,6 @@ const onAgenda = async (time: number): Promise<boolean> => {
 
 export {
   getTaskById,
-  updateEffort,
   getSubtask,
   createActivity,
   resolvePositions,

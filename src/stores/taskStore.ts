@@ -3,13 +3,11 @@ import { get, Writable, writable } from 'svelte/store';
 import type { taskI, memTaskI, taskListData } from '../shared/interface';
 import {
   genesisTask,
-  fibonacciScale,
   createDefaultTask,
   getColdStartData,
   shownStamps,
 } from '../stores/defaultData';
 import {
-  updateEffort,
   updateTaskSafe,
   getSubtask,
   createActivity,
@@ -33,7 +31,7 @@ import {
   timeStore,
 } from './timeStore';
 import { recalculateTach } from './velocityStore';
-import { addEvent, getFrequency } from '../indexDb/eventsDb';
+import { addEvent } from '../indexDb/eventsDb';
 import { cancelFund } from './fundingStore';
 import type { taskPayload } from '../connections/connectInterface';
 import { nextOccurrence } from '../components/time/CadenceFunctions';
@@ -241,51 +239,6 @@ const placeFolder = async (
   });
 };
 
-const incrementEffort = async (task: memTaskI | taskI, rating: number = 10) => {
-  if (rating === task.rating) {
-    return; // no reason to run
-  }
-  // if default or invalid increment current task rating
-  rating = rating > 9 ? task.rating + 1 : rating;
-  // if increment overflow flip back to zero
-  rating = rating > 9 ? 0 : rating;
-  // update effort in storage for task in question
-  await updateEffort(task, rating);
-
-  taskStore.update((store) => {
-    store.tasks = store.tasks.map((storeTask) => {
-      if (task.id === storeTask.id) {
-        return {
-          ...storeTask,
-          rating,
-          effort: fibonacciScale[rating],
-        };
-      }
-      if (storeTask.topChild && storeTask.topChild.id === task.id) {
-        return {
-          ...storeTask,
-          topChild: {
-            ...storeTask.topChild,
-            rating,
-            effort: fibonacciScale[rating],
-          },
-        };
-      }
-      return storeTask;
-    });
-    store.lineage = store.lineage.map((storeAncestor) => {
-      return {
-        ...storeAncestor,
-        // add effort after subtracting new rating from old
-        effort:
-          storeAncestor.effort +
-          (fibonacciScale[rating] - fibonacciScale[task.rating]),
-      };
-    });
-    return store;
-  });
-};
-
 const modifyParentBody = (body: string) => {
   taskStore.update((store) => {
     store.lineage[0].body = body;
@@ -438,7 +391,6 @@ export {
   loadTask,
   refreshTask,
   newActivity,
-  incrementEffort,
   modifyParentBody,
   placeFolder,
   undoAndPlace,
