@@ -14,7 +14,7 @@ import { createOid } from '../isomorphic/oid';
 // - budgeting -
 const frameOptions: number[] = [1, 2, 3, 4]; // Represented in weeks
 const frameValues: number[] = [604800000, 1209600000, 1814400000, 2419200000];
-const defaultFrame: number = frameValues[2]; // 1 Week in Milliseconds
+const defaultFrame: number = frameValues[1]; // 1 Week in Milliseconds
 
 // IDs of columns
 const genId: { [key: string]: columnIds } = {
