@@ -1,13 +1,11 @@
 // defaultData.ts Copyright Paul Beaudet 2021 MIT License
 
 import type {
-  indexOptions,
   taskStores,
   taskI,
   columnIds,
   velocityI,
   allStoreTypes,
-  AmPm,
 } from '../shared/interface';
 import { createOid } from '../isomorphic/oid';
 
@@ -64,12 +62,6 @@ const allStores: Array<allStoreTypes> = [
   'connect',
   'profiles',
   'psks',
-];
-const indexes: indexOptions[] = [
-  'priority',
-  'timeOrder',
-  'tachOrder',
-  'budgetOrder',
 ];
 
 // Effort point weight scale
@@ -220,10 +212,6 @@ const utilizationOptions: string[] = [
   'This Week',
   'Last Week',
 ];
-
-const btnClass4 = 'col-3 btn-sm btn-outline-dark';
-const btnClass3 = 'col-4 btn-sm btn-outline-dark';
-const btnClass2 = 'col-6 btn-sm btn-outline-dark';
 
 interface defaultObj {
   body: string;
@@ -385,7 +373,6 @@ export {
   startingVelocity,
   fibonacciScale,
   stores,
-  indexes,
   timelineParent,
   genId,
   days,
@@ -412,9 +399,6 @@ export {
   MONTH,
   MONTH_SHORT,
   utilizationOptions,
-  btnClass2,
-  btnClass3,
-  btnClass4,
   timelineColumnName,
   agendaColumnName,
   activitiesColumnName,
