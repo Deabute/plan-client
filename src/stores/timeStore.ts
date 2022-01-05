@@ -12,7 +12,7 @@ import type {
   taskI,
   timestampI,
 } from '../shared/interface';
-import { defaultNow, minInMillis } from '../stores/defaultData';
+import { defaultNow } from '../stores/defaultData';
 import { getDurationStamp } from '../components/time/timeConvert';
 import { addEvent } from '../indexDb/eventsDb';
 import { reloadNextTask } from './agendaStore';
@@ -31,14 +31,6 @@ setTimeout(() => {
     secondTick.set(Date.now());
   }, 1000);
 }, tillNextSecond);
-
-const minuteTick: Writable<number> = writable(now);
-const tillNextMinute = 60 - new Date().getSeconds();
-setTimeout(() => {
-  setInterval(() => {
-    minuteTick.set(Date.now());
-  }, minInMillis);
-}, tillNextMinute * 1000);
 
 const nowTimeStamp: Writable<string> = writable('00:00:00');
 const nowDurationStamp: Writable<number> = writable(0);
@@ -177,7 +169,6 @@ export {
   recordTime,
   refreshTime,
   secondTick,
-  minuteTick,
   nowTimeStamp,
   recordingTaskParent,
   nowDurationStamp,
