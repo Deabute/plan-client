@@ -156,11 +156,6 @@ const getPriorityIndexRange = (parentId: string): IDBKeyRange => {
   return IDBKeyRange.bound(lowerBound, upperBound);
 };
 
-const get24HourFormat = (hour: number, meridiem: AmPm): number => {
-  const hour24format: number = meridiem === 'AM' && hour === 12 ? 0 : hour;
-  return meridiem === 'PM' && hour24format !== 12 ? hour + 12 : hour24format;
-};
-
 const KEY_PAIR_CONFIG: EcKeyGenParams = {
   name: 'ECDSA',
   namedCurve: 'P-384',
@@ -408,7 +403,6 @@ export {
   weekInMillis,
   INACTIVE_MILLIS,
   getPriorityIndexRange,
-  get24HourFormat,
   FIVE_MIN,
   MAX_CHILDREN,
   KEY_PAIR_CONFIG,

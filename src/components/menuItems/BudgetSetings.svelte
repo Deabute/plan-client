@@ -7,12 +7,12 @@
     defaultFrame,
     frameOptions,
     frameValues,
-    get24HourFormat,
   } from '../../stores/defaultData';
   import {
     showDuration,
     toggleSettingDialog,
   } from '../../stores/settingsStore';
+  import { get24Hour } from '../time/timeConvert';
 
   let currentSprintEnd: number = 0;
   let sprintEndYear: number = 2021;
@@ -96,7 +96,7 @@
         oMonth === 12 && month === 1 ? yearOrigin + 1 : sprintEndYear;
       sprintEndYear =
         oMonth === 1 && month === 12 ? yearOrigin - 1 : sprintEndYear;
-      const hour24format: number = get24HourFormat(hour, meridiem);
+      const hour24format: number = get24Hour(hour, meridiem);
       newSprintEnd = new Date(
         sprintEndYear,
         month - 1,
