@@ -33,7 +33,7 @@ import {
   timeStore,
 } from './timeStore';
 import { recalculateTach } from './velocityStore';
-import { addEvent } from '../indexDb/eventsDb';
+import { addEvent, getFrequency } from '../indexDb/eventsDb';
 import { cancelFund } from './fundingStore';
 import type { taskPayload } from '../connections/connectInterface';
 import { nextOccurrence } from '../components/time/CadenceFunctions';
@@ -342,7 +342,7 @@ const checkOff = (taskId: string) => {
             : nextOccurrence(checkTask.cadence, checkTask.dueDate),
       });
     }
-    // TODO: bellow mark peer as done where it might be just set to next
+    // TODO: below mark peer as done where it might be just set to next
     await addEvent('checkOff', { task: checkTask });
 
     timeStore.update((timeline) => {

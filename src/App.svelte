@@ -1,4 +1,4 @@
-<!-- App.svelt Copyright 2021 Paul Beaudet MIT Licence -->
+<!-- App.svelte Copyright 2021 Paul Beaudet MIT Licence -->
 <script lang="ts">
   import Timeline from './components/mainViews/Timeline.svelte';
   import { loadTach } from './stores/velocityStore';

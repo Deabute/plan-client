@@ -53,4 +53,25 @@ const incomingEvents = async (event: eventI) => {
   }
 };
 
-export { addEvent, eventsOn };
+const getFrequency = async (taskId: string): Promise<number> => {
+  const db = await getDb();
+  const eventOrder = db
+    .transaction('events')
+    .objectStore('events')
+    .index('eventOrder');
+  let cursor = await eventOrder.openCursor(null, 'prev');
+  let count = 0;
+  while (cursor) {
+    if (
+      cursor.value.action === 'checkOff' &&
+      cursor.value.data.task.id === taskId
+    ) {
+      count++;
+    }
+    cursor = await cursor.continue();
+  }
+  console.log(count);
+  return count;
+};
+
+export { addEvent, eventsOn, getFrequency };
