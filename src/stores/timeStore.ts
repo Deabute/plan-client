@@ -12,7 +12,7 @@ import type {
   taskI,
   timestampI,
 } from '../shared/interface';
-import { defaultNow } from '../stores/defaultData';
+import { defaultNow, minInMillis } from '../stores/defaultData';
 import { getDurationStamp } from '../components/time/timeConvert';
 import { addEvent } from '../indexDb/eventsDb';
 import { reloadNextTask } from './agendaStore';
@@ -45,6 +45,15 @@ timeStore.subscribe(({ now }) => {
     nowDurationStamp.set(duration);
     nowTimeStamp.set(getDurationStamp(duration));
   });
+});
+
+let lastNextUpdate: number = now;
+secondTick.subscribe((currentTime) => {
+  const sinceLastUpdate = currentTime - lastNextUpdate;
+  if (sinceLastUpdate >= minInMillis) {
+    lastNextUpdate = currentTime;
+    reloadNextTask();
+  }
 });
 
 const newTimeStamp = ({ id, body, effort }: taskI): memStampI => {
