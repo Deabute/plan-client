@@ -4,10 +4,8 @@ import type {
   taskStores,
   taskI,
   columnIds,
-  velocityI,
   allStoreTypes,
 } from '../shared/interface';
-import { createOid } from '../isomorphic/oid';
 
 // - budgeting -
 const frameOptions: number[] = [1, 2, 3, 4]; // Represented in weeks
@@ -57,30 +55,11 @@ const allStores: Array<allStoreTypes> = [
   'events',
   'tasks',
   'timeline',
-  'tach',
   'budget',
   'connect',
   'profiles',
   'psks',
 ];
-
-// Effort point weight scale
-// -0: Will not do, Maybe available is shared categories
-// -1: Most basic unit, no problem
-// -2: Easy but incrementally tougher than a one
-// -3 (3): Also incrementally tougher than a 2
-// -4 (5): Known difficulty, significantly tougher than a 3
-// -5 (8): Known unknowns, significantly tougher than a 4
-// -6 (13): Unknown Unknowns; approachable - could be hard could be easy, have no idea
-// -7 (21): unknown unknowns; scary - I'm not completely avoiding this...
-// ...cont.. but it puts me off. About 2x tougher than a 6
-// -8 (34): Here be dragons
-// -9 (55 but actually 0): There is no spoon! physics lies! everything is a conspiracy!
-// 0 and 9 are practically the same multiplier-wise, meaning wise they read as follows
-// 9 not doing because thought to be impossible
-// 0 not doing because the desire is not there
-// These are the multipliers for the 10 point effort scale
-const fibonacciScale: number[] = [0, 1, 2, 3, 5, 8, 13, 21, 34, 0];
 
 // Velocity is calculated in milliseconds
 // This default value serves as a base starting point
@@ -121,14 +100,6 @@ const defaultNow = {
   body: 'Loading',
   effort: 9,
   done: false,
-};
-
-const newTach = (millis: number): velocityI => {
-  return {
-    id: createOid(),
-    millis,
-    recorded: Date.now(),
-  };
 };
 
 const shownStamps: number = 22;
@@ -371,14 +342,12 @@ const getColdStartData = (): taskI[] => {
 export {
   genesisTask,
   startingVelocity,
-  fibonacciScale,
   stores,
   timelineParent,
   genId,
   days,
   createDefaultTask,
   defaultNow,
-  newTach,
   allStores,
   shownStamps,
   defaultFrame,

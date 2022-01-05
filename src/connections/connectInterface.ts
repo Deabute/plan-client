@@ -21,7 +21,6 @@ type actionsI =
   | 'task'
   | 'sync-tasks'
   | 'sync-budget'
-  | 'sync-tach'
   | 'sync-timeline'
   | 'sync-connect'
   | 'sync-events'
@@ -31,8 +30,7 @@ type actionsI =
   | 'record'
   | 'check-off'
   | 'finish-sync'
-  | 'ack'
-  | 'tach';
+  | 'ack';
 
 interface msgPayload {
   msg: string;

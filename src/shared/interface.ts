@@ -264,7 +264,6 @@ type timeStore = 'timeline';
 type allStoreTypes =
   | taskStores
   | timeStore
-  | 'tach'
   | 'budget'
   | 'connect'
   | 'events'
@@ -273,7 +272,6 @@ type allStoreTypes =
 // TODO add views?
 type indexOptions =
   | 'timeOrder'
-  | 'tachOrder'
   | 'budgetOrder'
   | 'byParent'
   | 'priority'
@@ -314,7 +312,6 @@ type allDataTypes =
   | taskI
   | connectionI
   | budgetI
-  | velocityI
   | timestampI
   | profileI
   | shareI

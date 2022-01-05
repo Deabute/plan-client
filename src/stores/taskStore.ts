@@ -6,6 +6,7 @@ import {
   createDefaultTask,
   getColdStartData,
   shownStamps,
+  startingVelocity,
 } from '../stores/defaultData';
 import {
   updateTaskSafe,
@@ -20,7 +21,6 @@ import {
 import { getCurrentBudget } from '../indexDb/budgetDb';
 import { peerBroadcast, onEvent } from '../connections/dataChannels';
 import { createOid } from '../isomorphic/oid';
-import { getCurrentTach } from '../indexDb/tachDb';
 import { editTask, moveTask } from './settingsStore';
 import { getDb } from '../indexDb/dbCore';
 import { loadAgenda, nextRecording } from './agendaStore';
@@ -30,7 +30,6 @@ import {
   refreshTime,
   timeStore,
 } from './timeStore';
-import { recalculateTach } from './velocityStore';
 import { addEvent } from '../indexDb/eventsDb';
 import { cancelFund } from './fundingStore';
 import type { taskPayload } from '../connections/connectInterface';
@@ -54,12 +53,12 @@ const allocateTimeAmongChildren = async ({
 }: taskListData): Promise<memTaskI[]> => {
   let amount: number =
     lineage[0].id === genesisTask.id ? -1 : lineage[0].fraction;
+  // Get the full budget if this is the top folder
   if (amount === -1) {
     const budget = await getCurrentBudget();
     amount = budget === null ? 0 : budget.frame;
   }
-  const tach = await getCurrentTach();
-  if (tach === null || amount === 0) {
+  if (amount === 0) {
     budgetAvail.set(0);
     return tasks;
   }
@@ -93,13 +92,13 @@ const allocateTimeAmongChildren = async ({
   toAllocate.set(0);
 
   let remainder: number = 0;
-  if (timeToAllocate <= tach.millis) {
+  if (timeToAllocate <= startingVelocity) {
     // remainder can be a positive number between 0 and velocity
     remainder = timeToAllocate > 0 ? timeToAllocate : 0;
   } else if (siblingsToDivideAmong > 0) {
     // increase size of allocation and reduce task to affect if it is smaller than velocity
     budgetToShare = Math.trunc(timeToAllocate / siblingsToDivideAmong);
-    while (budgetToShare <= tach.millis) {
+    while (budgetToShare <= startingVelocity) {
       siblingsToDivideAmong--;
       budgetToShare = Math.trunc(timeToAllocate / siblingsToDivideAmong);
     }
@@ -323,9 +322,6 @@ const checkOff = (taskId: string) => {
       }
       return timeline;
     });
-    if (checkTask.cadence === 'zero' && currentRunningTask) {
-      await recalculateTach();
-    }
     await refreshTask();
     await loadAgenda();
   };
@@ -367,7 +363,6 @@ const hideTask = (task: memTaskI) => {
       }
       return timeline;
     });
-    await recalculateTach();
     await refreshTask();
     await loadAgenda();
   };

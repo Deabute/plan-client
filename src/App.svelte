@@ -1,7 +1,6 @@
 <!-- App.svelte Copyright 2021 Paul Beaudet MIT Licence -->
 <script lang="ts">
   import Timeline from './components/mainViews/Timeline.svelte';
-  import { loadTach } from './stores/velocityStore';
   import Messages from './components/menuItems/Messages.svelte';
   import { getBudget } from './stores/budgetStore';
   import BudgetSetings from './components/menuItems/BudgetSetings.svelte';
@@ -33,7 +32,6 @@
     try {
       await migrateData();
       await getBudget();
-      await loadTach();
       const task = await getParentView();
       // const task = genesisTask;
       // const renderParent = false;

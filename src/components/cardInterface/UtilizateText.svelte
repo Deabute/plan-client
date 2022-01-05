@@ -68,6 +68,7 @@
     ) {
       setActiveFolder();
     } else {
+      console.log(`${task.id} - ${range.start}/${range.end}`);
       const millis = await compileUtilizedMillis(
         task.id,
         range.start,
