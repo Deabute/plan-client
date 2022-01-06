@@ -6,13 +6,17 @@ import { addStamp, getStamps } from '../indexDb/timelineDb';
 import { createOid } from '../isomorphic/oid';
 import type {
   memTaskI,
-  taskListData,
   timeLineData,
   memStampI,
   taskI,
   timestampI,
 } from '../shared/interface';
-import { defaultNow, minInMillis } from '../stores/defaultData';
+import {
+  arrayOfDefaults,
+  defaultNow,
+  genesisTask,
+  minInMillis,
+} from '../stores/defaultData';
 import { getDurationStamp } from '../components/time/timeConvert';
 import { addEvent } from '../indexDb/eventsDb';
 import { reloadNextTask } from './agendaStore';
@@ -77,23 +81,16 @@ const newTimeStamp = ({ id, body }: taskI): memStampI => {
   return inMemStamp;
 };
 
-const getTime = async (taskStore: taskListData) => {
+const getTime = async () => {
   // get current running and ran task
-  const { history, now } = await getStamps();
-  timeStore.update((time) => {
-    if (history.length) {
-      return {
-        now,
-        history,
-      };
-    }
-    // if there isn't one create one
-    // Start recording highest priority task
-    const task = taskStore.tasks[0]?.topChild
-      ? taskStore.tasks[0].topChild
-      : taskStore.tasks[0];
-    time.now = newTimeStamp(task);
-    return time;
+  let { history, now } = await getStamps();
+  if (!now) {
+    const { body } = arrayOfDefaults[0];
+    now = newTimeStamp({ ...genesisTask, id: body.slice(0, 24), body });
+  }
+  timeStore.set({
+    now,
+    history,
   });
 };
 
@@ -105,9 +102,6 @@ const refreshTime = async (sticky: boolean = true) => {
       return time;
     });
   }
-  //  else {
-  //   end = Date.now() + 1000;
-  // }
   const { history, now } = await getStamps(end);
   timeStore.update((time) => {
     if (!history.length) return time;

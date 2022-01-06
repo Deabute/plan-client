@@ -5,6 +5,7 @@ import type {
   taskI,
   columnIds,
   allStoreTypes,
+  memStampI,
 } from '../shared/interface';
 
 // - budgeting -
@@ -88,18 +89,6 @@ const createDefaultTask = (): taskI => {
     dueDate: 0,
     autoAssigned: true,
   };
-};
-
-const defaultNow = {
-  id: '0',
-  taskId: '0',
-  start: Date.now(),
-  type: 'habit',
-  lastModified: Date.now(),
-  duration: null,
-  body: 'Loading',
-  effort: 9,
-  done: false,
 };
 
 const shownStamps: number = 22;
@@ -339,6 +328,17 @@ const getColdStartData = (): taskI[] => {
   return taskArray;
 };
 
+const defaultNow: memStampI = {
+  id: '0',
+  taskId: '0',
+  start: Date.now(),
+  type: 'habit',
+  lastModified: Date.now(),
+  duration: null,
+  body: 'Loading',
+  done: false,
+};
+
 export {
   genesisTask,
   startingVelocity,
@@ -374,4 +374,5 @@ export {
   getColdStartData,
   days31,
   days366,
+  arrayOfDefaults,
 };

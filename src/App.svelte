@@ -33,10 +33,8 @@
       await migrateData();
       await getBudget();
       const task = await getParentView();
-      // const task = genesisTask;
-      // const renderParent = false;
-      const listOfTask = await loadTask(task, false);
-      await getTime(listOfTask);
+      await loadTask(task, false);
+      await getTime();
       await loadAgenda();
       loadViewSettings();
       // start p2p data sync if opt in

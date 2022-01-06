@@ -7,6 +7,7 @@ import {
   getColdStartData,
   shownStamps,
   startingVelocity,
+  defaultFrame,
 } from '../stores/defaultData';
 import {
   updateTaskSafe,
@@ -50,26 +51,22 @@ const budgetAvail: Writable<number> = writable(0);
 const allocateTimeAmongChildren = async ({
   tasks,
   lineage,
-}: taskListData): Promise<memTaskI[]> => {
-  let amount: number =
-    lineage[0].id === genesisTask.id ? -1 : lineage[0].fraction;
+}: taskListData): Promise<taskListData> => {
+  const { id, fraction } = lineage[0];
+  let amount: number = id === genesisTask.id ? -1 : fraction;
   // Get the full budget if this is the top folder
   if (amount === -1) {
     const budget = await getCurrentBudget();
-    amount = budget === null ? 0 : budget.frame;
-  }
-  if (amount === 0) {
-    budgetAvail.set(0);
-    return tasks;
+    amount = budget === null ? defaultFrame : budget.frame;
   }
   let siblingsToDivideAmong: number = 0;
   let budgetToShare: number = 0;
   let timeToAllocate: number = amount.valueOf();
-  tasks.forEach(({ autoAssigned, fraction }) => {
-    if (autoAssigned) {
+  tasks.forEach((task) => {
+    if (task.autoAssigned) {
       siblingsToDivideAmong++;
     } else {
-      timeToAllocate -= fraction;
+      timeToAllocate -= task.fraction;
     }
   });
 
@@ -77,7 +74,7 @@ const allocateTimeAmongChildren = async ({
   if (timeToAllocate < 0) {
     overBudget.set(timeToAllocate);
     budgetAvail.set(0); // a task needs to be unlocked in this case
-    return tasks;
+    return { tasks, lineage };
   }
   overBudget.set(0);
 
@@ -87,7 +84,7 @@ const allocateTimeAmongChildren = async ({
   // More time is available then there are clients to give to
   if (siblingsToDivideAmong === 0 && timeToAllocate) {
     toAllocate.set(timeToAllocate);
-    return tasks;
+    return { tasks, lineage };
   }
   toAllocate.set(0);
 
@@ -106,21 +103,26 @@ const allocateTimeAmongChildren = async ({
   } // other wise siblingsToDivideAmong, allocation, and remainder can remain zero
 
   let getsRemainder = true; // first valid result gets remainder
-  return tasks.map((task) => {
-    let fraction = getsRemainder ? budgetToShare + remainder : budgetToShare;
-    if (task.autoAssigned) {
-      // Stop handing out shares, once we run out of siblings to divide among
-      fraction = siblingsToDivideAmong <= 0 ? 0 : fraction;
-      siblingsToDivideAmong--;
-      getsRemainder = false;
-    } else {
-      fraction = task.fraction;
-    }
-    return {
-      ...task,
-      fraction,
-    };
-  });
+  return {
+    tasks: tasks.map((task) => {
+      let fraction = getsRemainder ? budgetToShare + remainder : budgetToShare;
+      if (task.autoAssigned) {
+        // Stop handing out shares, once we run out of siblings to divide among
+        fraction = siblingsToDivideAmong <= 0 ? 0 : fraction;
+        siblingsToDivideAmong--;
+        getsRemainder = false;
+        if (fraction !== task.fraction)
+          updateTaskSafe({ id: task.id, fraction });
+      } else {
+        fraction = task.fraction;
+      }
+      return {
+        ...task,
+        fraction,
+      };
+    }),
+    lineage,
+  };
 };
 
 // renderParent true -> uses parentId prop to make list of task with that parentId
@@ -128,7 +130,7 @@ const allocateTimeAmongChildren = async ({
 const loadTask = async (
   refTask: taskI = genesisTask,
   renderParent: boolean = true,
-): Promise<taskListData> => {
+) => {
   let taskList = await getSubtask(refTask, renderParent);
   // Create a default task if this is the first load or the last task was completed
   if (!taskList.tasks.length) {
@@ -142,7 +144,7 @@ const loadTask = async (
     }
   }
 
-  taskList.tasks = await allocateTimeAmongChildren(taskList);
+  taskList = await allocateTimeAmongChildren(taskList);
   taskStore.update((oldList) => {
     // figure what sibling utilization timer is associated with
     if (oldList.lineage[0].id !== taskList.lineage[0].id) {
@@ -154,7 +156,6 @@ const loadTask = async (
     }
     return taskList;
   });
-  return taskList;
 };
 
 const refreshTask = async (currentParent: taskI | null = null) => {
