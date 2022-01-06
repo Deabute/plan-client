@@ -236,20 +236,6 @@
   {#if $showSideNav}<span class="ms-1 fs-5">Settings</span>{/if}
   <ul class="nav nav-pills flex-column mb-auto">
     <li
-      class="nav-item p-1 ms-1"
-      type="button"
-      data-bs-toggle={offcanvas ? 'offcanvas' : ''}
-      data-bs-target={offcanvas ? '#mobileMenu' : ''}
-      on:click={toggleSettingDialog('history')}
-      aria-expanded="false"
-      aria-controls="history"
-    >
-      <ClockHistory />
-      {#if $showSideNav}
-        <span class="rounded not-selected p-1"> History </span>
-      {/if}
-    </li>
-    <li
       class={`nav-item p-1 ms-1 ${getSyncStatus($rtcPeers)}`}
       type="button"
       data-bs-toggle={offcanvas ? 'offcanvas' : ''}
@@ -266,6 +252,36 @@
       {/if}
     </li>
     <li
+      class={`nav-item p-1 ms-1${
+        $syncingUp || $syncingDown ? ' text-warning' : ''
+      }`}
+      type="button"
+      data-bs-toggle={offcanvas ? 'offcanvas' : ''}
+      data-bs-target={offcanvas ? '#mobileMenu' : ''}
+      on:click={toggleSettingDialog('cloudSync')}
+      aria-expanded="false"
+      aria-controls="freshStart"
+    >
+      <Cloud />
+      {#if $showSideNav}
+        <span class={`rounded not-selected p-1`}> Cloud Sync </span>
+      {/if}
+    </li>
+    <!-- <li
+      class="nav-item p-1 ms-1"
+      type="button"
+      data-bs-toggle={offcanvas ? 'offcanvas' : ''}
+      data-bs-target={offcanvas ? '#mobileMenu' : ''}
+      on:click={toggleSettingDialog('history')}
+      aria-expanded="false"
+      aria-controls="history"
+    >
+      <ClockHistory />
+      {#if $showSideNav}
+        <span class="rounded not-selected p-1"> History </span>
+      {/if}
+    </li> -->
+    <li
       class="nav-item p-1 ms-1"
       type="button"
       data-bs-toggle={offcanvas ? 'offcanvas' : ''}
@@ -277,26 +293,6 @@
       <Trash />
       {#if $showSideNav}
         <span class="rounded not-selected p-1"> Fresh Start </span>
-      {/if}
-    </li>
-    <li
-      class="nav-item p-1 ms-1"
-      type="button"
-      data-bs-toggle={offcanvas ? 'offcanvas' : ''}
-      data-bs-target={offcanvas ? '#mobileMenu' : ''}
-      on:click={toggleSettingDialog('cloudSync')}
-      aria-expanded="false"
-      aria-controls="freshStart"
-    >
-      <Cloud />
-      {#if $showSideNav}
-        <span
-          class={`rounded not-selected p-1${
-            $syncingUp || $syncingDown ? ' text-warning' : ''
-          }`}
-        >
-          Cloud Sync
-        </span>
       {/if}
     </li>
   </ul>
