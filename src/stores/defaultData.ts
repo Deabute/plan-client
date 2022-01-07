@@ -32,8 +32,8 @@ const genesisTask: taskI = {
   parentId: '0',
   body: activitiesColumnName,
   position: 0,
-  effort: 0,
-  rating: 0,
+  effort: 1,
+  rating: 1,
   description: '',
   status: 'todo',
   priority: 0,
@@ -43,6 +43,8 @@ const genesisTask: taskI = {
   timeCreated: 0,
   dueDate: 0,
   autoAssigned: true,
+  count: 0,
+  utilization: 0,
 };
 
 const timelineParent: taskI = {
@@ -69,27 +71,6 @@ const allStores: Array<allStoreTypes> = [
 const startingVelocity: number = 1800000;
 
 const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
-
-const createDefaultTask = (): taskI => {
-  return {
-    position: 0,
-    parentId: genesisTask.id,
-    id: '',
-    body: 'Plan',
-    effort: 1,
-    rating: 1,
-    description: 'default task',
-    status: 'todo',
-    priority: 0,
-    fraction: 0,
-    // cadence: 'w,d,1,8',
-    cadence: 'zero',
-    lastModified: 1,
-    timeCreated: 1,
-    dueDate: 0,
-    autoAssigned: true,
-  };
-};
 
 const shownStamps: number = 22;
 const days366: number = 31622400000;
@@ -302,14 +283,10 @@ const getColdStartData = (): taskI[] => {
     defaultArray.forEach((task, position) => {
       const id = task.body.slice(0, 24);
       taskArray.push({
+        ...genesisTask,
         id,
         parentId,
-        description: '',
-        priority: 0,
-        status: 'todo',
         position,
-        rating: 1,
-        effort: 1,
         fraction: task?.fraction ? task.fraction : 0,
         dueDate: task?.due ? task.due : 0,
         body: task.body,
@@ -346,7 +323,6 @@ export {
   timelineParent,
   genId,
   days,
-  createDefaultTask,
   defaultNow,
   allStores,
   shownStamps,

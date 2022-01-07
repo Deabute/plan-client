@@ -1,6 +1,7 @@
 // migrations.ts copyright 2021 Paul Beaudet MIT License
 
 import { getDb, lastDbVersion } from './dbCore';
+import { migrateUtilizedMillis } from './timelineDb';
 
 const migrateData = async () => {
   // call db first to make sure lastDbVersion is set properly
@@ -33,6 +34,10 @@ const migrateData = async () => {
       tCursor = await tCursor.continue();
     }
   }
+  // version 16 getUtilizedMillis should add temp values to start off from
+  // if (lastDbVersion > 16) {
+  //   await migrateUtilizedMillis();
+  // }
 };
 
 export { migrateData };

@@ -152,6 +152,50 @@ const compileUtilizedMillis = async (
   return totalUtilization;
 };
 
+// Don't calculate first time stamp (w/e till now)
+// don't run this function if its already be run once - Check
+// Subsequent runs will double utilization - Runs only once for migration
+// a zeroing run would be needed for accurate subsequent runs
+// How will this work on transitioning to each sprint?
+const migrateUtilizedMillis = async () => {
+  const end = Date.now();
+  const db = await getDb();
+  const transaction = db.transaction(
+    ['timeline', 'tasks', 'budget'],
+    'readwrite',
+  );
+  const timeIndex = transaction.objectStore('timeline').index('timeOrder');
+  const taskStore = transaction.objectStore('tasks');
+  const budgetIndex = transaction.objectStore('budget').index('budgetOrder');
+  let bCursor = await budgetIndex.openCursor(null, 'prev');
+  if (!bCursor) return;
+  const { start } = bCursor.value;
+  const range = IDBKeyRange.bound(0, end);
+  let cursor = await timeIndex.openCursor(range, 'prev');
+  if (!cursor) return; // no time stamps to compile
+  let lastStart = cursor.value.start;
+  let lastStamp = false;
+  cursor = await cursor.continue(); // skip to first complete time stamp
+  while (cursor && !lastStamp) {
+    if (cursor.value.start <= start) lastStamp = true;
+    let task = await taskStore.get(cursor.value.taskId);
+    // updates task in question and all of its Ancestors
+    updateAncestors: while (task) {
+      const startToSubtract = lastStamp ? start : cursor.value.start;
+      const increment = lastStart - startToSubtract;
+      await taskStore.put({
+        ...task,
+        utilization: task.utilization + increment,
+      });
+      if (task.parentId === '1') break updateAncestors;
+      task = await taskStore.get(task.parentId);
+    }
+
+    lastStart = cursor.value.start;
+    cursor = await cursor.continue();
+  }
+};
+
 // one function for page up and page down
 const page = async (
   current: timeLineData,
@@ -208,16 +252,6 @@ const removeStamp = async (id: string) => {
   await db.delete('timeline', id);
 };
 
-const getUtilization = async (
-  parentId: string,
-  start: number,
-  end: number = 0,
-): Promise<string> => {
-  const millis = await compileUtilizedMillis(parentId, start, end);
-  if (millis) return hoursOrMinutesString(millis);
-  return '0';
-};
-
 export {
   addStamp,
   getStamps,
@@ -225,7 +259,7 @@ export {
   editStamp,
   compileUtilizedMillis,
   removeStamp,
-  getUtilization,
   page,
   getRecordingId,
+  migrateUtilizedMillis,
 };

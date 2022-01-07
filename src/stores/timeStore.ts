@@ -77,7 +77,6 @@ const newTimeStamp = ({ id, body }: taskI): memStampI => {
     body,
     done: false,
   };
-  // peerBroadcast('record', { data: inMemStamp });
   return inMemStamp;
 };
 

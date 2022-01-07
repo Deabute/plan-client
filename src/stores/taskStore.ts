@@ -3,7 +3,6 @@ import { get, Writable, writable } from 'svelte/store';
 import type { taskI, memTaskI, taskListData } from '../shared/interface';
 import {
   genesisTask,
-  createDefaultTask,
   getColdStartData,
   shownStamps,
   startingVelocity,
@@ -196,11 +195,11 @@ const newActivity = async (
       ? lineage[0].cadence
       : 'zero';
   const newTask: taskI = {
-    ...createDefaultTask(),
+    ...genesisTask,
     id: taskId,
     parentId: lineage[0].id,
     body,
-    description: '',
+    fraction: 0,
     cadence,
     lastModified: currentTimestamp,
     timeCreated: currentTimestamp,
