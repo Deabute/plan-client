@@ -12,7 +12,7 @@
   export let task: memTaskI;
   export let fraction: number | null = null;
 
-  const { utilization } = task;
+  const utilization = task?.utilization ? task.utilization : 0;
   let utilizationNumber: number = utilization;
   let utilizationText: string = getDurationStamp(utilization);
 
