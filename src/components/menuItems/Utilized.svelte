@@ -44,7 +44,6 @@
     return date;
   };
 
-  // TODO: This should just a subscription to selectedutizationOption
   selectedUtilizationOption.subscribe(async (option) => {
     let start = 0;
     let end = 0;
