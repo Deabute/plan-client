@@ -1,4 +1,4 @@
-<!-- UtilizateText.svelte Copyright 2021 Paul Beaudet MIT License -->
+<!-- UtilizedText Copyright 2021 Paul Beaudet MIT License -->
 <script lang="ts">
   import type { Unsubscriber } from 'svelte/store';
   import type { memTaskI } from '../../shared/interface';
@@ -12,6 +12,7 @@
   export let task: memTaskI;
   export let fraction: number | null = null;
 
+  // this turnary can be removed on a full migration
   const utilization = task?.utilization ? task.utilization : 0;
   let utilizationNumber: number = utilization;
   let utilizationText: string = getDurationStamp(utilization);

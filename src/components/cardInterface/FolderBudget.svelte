@@ -9,7 +9,7 @@
   import { budgetAvail, openFolder } from '../../stores/taskStore';
   import MoveTime from './MoveTime.svelte';
   import BudgetSlider from './BudgetSlider.svelte';
-  import UtilizateText from './UtilizateText.svelte';
+  import UtilizedText from './UtilizedText.svelte';
   import {
     editRecur,
     editTask,
@@ -43,7 +43,7 @@
   {#if $fundSetting.task?.id === task.id}
     <div class="col-10">
       <MoveTime bind:fraction>
-        <UtilizateText {task} />
+        <UtilizedText {task} />
       </MoveTime>
     </div>
     <div class="col-1" type="button" on:click={editInsteadOfFund}>
@@ -66,7 +66,7 @@
         type="button"
         on:click={openFundSettings(task, $budgetAvail)}
       >
-        <UtilizateText {task} {fraction} />&nbsp;
+        <UtilizedText {task} {fraction} />&nbsp;
         <Sliders />
       </div>
     {/if}
