@@ -2,7 +2,6 @@
 import { getDb } from './dbCore';
 import type { timestampI, memStampI, timeLineData } from '../shared/interface';
 import { shownStamps } from '../stores/defaultData';
-import { hoursOrMinutesString } from '../components/time/timeConvert';
 
 const addStamp = async (stamp: timestampI) => {
   const db = await getDb();
@@ -151,6 +150,26 @@ const incomingTimeline = async ({
 //   return totalUtilization;
 // };
 
+const changeUtilization = async (
+  increment: boolean,
+  tasks: any, // wish it was easier to understand this type
+  duration: number,
+  originTaskId: string,
+) => {
+  let task = await tasks.get(originTaskId);
+  while (task) {
+    let utilization = task?.utilization ? task.utilization : 0;
+    if (increment) {
+      utilization += duration;
+    } else {
+      utilization -= duration;
+    }
+    await tasks.put({ ...task, utilization });
+    if (task.parentId === '1') break;
+    task = await tasks.get(task.parentId);
+  }
+};
+
 // Don't calculate first time stamp (w/e till now)
 // don't run this function if its already be run once - Check
 // Subsequent runs will double utilization - Runs only once for migration
@@ -166,7 +185,7 @@ const migrateUtilizedMillis = async () => {
     'readwrite',
   );
   const timeIndex = transaction.objectStore('timeline').index('timeOrder');
-  const taskStore = transaction.objectStore('tasks');
+  const tasks = transaction.objectStore('tasks');
   const budgetIndex = transaction.objectStore('budget').index('budgetOrder');
   let bCursor = await budgetIndex.openCursor(null, 'prev');
   if (!bCursor) return;
@@ -179,20 +198,9 @@ const migrateUtilizedMillis = async () => {
   cursor = await cursor.continue(); // skip to first complete time stamp
   while (cursor && !lastStamp) {
     if (cursor.value.start <= start) lastStamp = true;
-    let task = await taskStore.get(cursor.value.taskId);
-    // updates task in question and all of its Ancestors
-    updateAncestors: while (task) {
-      const startToSubtract = lastStamp ? start : cursor.value.start;
-      const increment = lastStart - startToSubtract;
-      const utilization = task?.utilization ? task.utilization : 0;
-      await taskStore.put({
-        ...task,
-        utilization: utilization + increment,
-      });
-      if (task.parentId === '1') break updateAncestors;
-      task = await taskStore.get(task.parentId);
-    }
-
+    const startToSubtract = lastStamp ? start : cursor.value.start;
+    const change = lastStart - startToSubtract;
+    await changeUtilization(true, tasks, change, cursor.value.taskId);
     lastStart = cursor.value.start;
     cursor = await cursor.continue();
   }
@@ -251,7 +259,26 @@ const page = async (
 
 const removeStamp = async (id: string) => {
   const db = await getDb();
-  await db.delete('timeline', id);
+  const transaction = db.transaction(['timeline', 'tasks'], 'readwrite');
+  const timeStore = transaction.objectStore('timeline');
+  const tasks = transaction.objectStore('tasks');
+  const timeIndex = timeStore.index('timeOrder');
+  const { start, taskId } = await timeStore.get(id);
+  let nextRange = IDBKeyRange.bound(start, Infinity, true, true);
+  let prevRange = IDBKeyRange.bound(0, start, true, true);
+  let cursor = await timeIndex.openCursor(nextRange);
+  const nextStamp = cursor.value;
+  cursor = await timeIndex.openCursor(prevRange, 'prev');
+  const prevStamp = cursor ? cursor.value : null;
+  const change = nextStamp.start - start;
+  if (prevStamp) {
+    // add extra to previous stamp's task and ancestors
+    await changeUtilization(true, tasks, change, prevStamp.taskId);
+  }
+  // remove from task of old stamp
+  await changeUtilization(false, tasks, change, taskId);
+  // finally remove the stamp
+  await timeStore.delete(id);
 };
 
 export {
@@ -259,7 +286,6 @@ export {
   getStamps,
   incomingTimeline,
   editStamp,
-  // compileUtilizedMillis,
   removeStamp,
   page,
   getRecordingId,
