@@ -2,6 +2,7 @@
 import { getDb } from './dbCore';
 import type { timestampI, memStampI, timeLineData } from '../shared/interface';
 import { shownStamps } from '../stores/defaultData';
+import { newTimeStamp } from '../stores/timeStore';
 
 const addStamp = async (stamp: timestampI) => {
   const db = await getDb();
@@ -73,20 +74,6 @@ const getStamps = async (end: number = 0): Promise<timeLineData> => {
     history,
     now,
   };
-};
-
-const editStamp = async (timestamp: timestampI) => {
-  const db = await getDb();
-  // check if this timestamp is taken
-  const existing = await db.getFromIndex(
-    'timeline',
-    'timeOrder',
-    timestamp.start,
-  );
-  // skip put operations on existing entries at this start time
-  // Start time is required to be unique
-  if (existing) return;
-  await db.put('timeline', timestamp);
 };
 
 const incomingTimeline = async ({
@@ -279,6 +266,68 @@ const removeStamp = async (id: string) => {
   await changeUtilization(false, tasks, change, taskId);
   // finally remove the stamp
   await timeStore.delete(id);
+};
+
+const editStamp = async (timestamp: timestampI) => {
+  const db = await getDb();
+  const transaction = db.transaction(['timeline', 'tasks'], 'readwrite');
+  const timeStore = transaction.objectStore('timeline');
+  const timeIndex = timeStore.index('timeOrder');
+  // if timestamp taken abort, unique requirement
+  if (await timeIndex.get(timestamp.start)) return;
+  const tasks = transaction.objectStore('tasks');
+  const oStart = (await timeStore.get(timestamp.id)).start;
+  let oldNextRange = IDBKeyRange.bound(oStart, Infinity, true, true);
+  let oldPrevRange = IDBKeyRange.bound(0, oStart, true, true);
+  let newNextRange = IDBKeyRange.bound(timestamp.start, Infinity, true, true);
+  let newPrevRange = IDBKeyRange.bound(0, timestamp.start, true, true);
+  let cursor = await timeIndex.openCursor(oldNextRange);
+  const now = Date.now();
+  const oldNextStart = cursor ? cursor.value.start : now;
+  cursor = await timeIndex.openCursor(oldPrevRange, 'prev');
+  const oldPrevStamp = cursor ? cursor.value : null;
+  cursor = await timeIndex.openCursor(newNextRange);
+  const newNextStart = cursor ? cursor.value.start : now;
+  cursor = await timeIndex.openCursor(newPrevRange, 'prev');
+  const newPrevStamp = cursor ? cursor.value : null;
+
+  const greater = timestamp.start > oStart ? true : false;
+  if (newNextStart === oldNextStart) {
+    const change = greater
+      ? timestamp.start - oStart
+      : oStart - timestamp.start;
+    if (newPrevStamp === oldPrevStamp) {
+      if (newPrevStamp) {
+        // start-start / add rm prev
+        await changeUtilization(greater, tasks, change, newPrevStamp.taskId);
+      }
+      await changeUtilization(!greater, tasks, change, timestamp.taskId);
+      // interframe / add rm task
+    }
+  } else {
+    const oldSize = oldPrevStamp ? oStart - oldPrevStamp.start : 0;
+    const newSize = newPrevStamp ? oStart - newPrevStamp.start : 0;
+    const increase = oldSize < newSize ? true : false;
+    const diff = oldSize < newSize ? newSize - oldSize : oldSize - newSize;
+    const moveFromChange = oldPrevStamp ? oStart - oldPrevStamp.start : 0;
+    // pre-start / add rm task / add old prev
+    if (moveFromChange) {
+      await changeUtilization(true, tasks, moveFromChange, oldPrevStamp.taskId);
+    }
+    if (oldSize !== newSize) {
+      await changeUtilization(increase, tasks, diff, timestamp.taskId);
+    }
+
+    if (newPrevStamp) {
+      // move / rm new prev
+      const prevSize = newNextStart - newPrevStamp.start;
+      const prevChange =
+        newSize > prevSize ? newSize - prevSize : prevSize - newSize;
+      await changeUtilization(false, tasks, prevChange, newPrevStamp.taskId);
+    }
+  }
+
+  await db.put('timeline', timestamp);
 };
 
 export {
