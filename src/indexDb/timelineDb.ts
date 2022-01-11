@@ -202,7 +202,7 @@ const figureSprintValues = async () => {
       utilization: 0,
       count: 0,
     });
-    await tCursor.continue();
+    tCursor = await tCursor.continue();
   }
   // Get start time
   let bCursor = await budgetIndex.openCursor(null, 'prev');
