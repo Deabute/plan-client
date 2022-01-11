@@ -3,9 +3,40 @@ import { getDb } from './dbCore';
 import type { timestampI, memStampI, timeLineData } from '../shared/interface';
 import { shownStamps } from '../stores/defaultData';
 
+const changeUtilization = async (
+  increment: boolean,
+  tasks: any, // wish it was easier to understand this type
+  duration: number,
+  originTaskId: string,
+) => {
+  let task = await tasks.get(originTaskId);
+  while (task) {
+    let utilization = task?.utilization ? task.utilization : 0;
+    if (increment) {
+      utilization += duration;
+    } else {
+      utilization -= duration;
+    }
+    await tasks.put({ ...task, utilization });
+    if (task.parentId === '1') break;
+    task = await tasks.get(task.parentId);
+  }
+};
+
 const addStamp = async (stamp: timestampI) => {
   const db = await getDb();
-  db.add('timeline', stamp);
+  const transaction = db.transaction(['timeline', 'tasks'], 'readwrite');
+  const timeline = transaction.objectStore('timeline');
+  const tasks = transaction.objectStore('tasks');
+  const timeOrder = timeline.index('timeOrder');
+  let cursor = await timeOrder.openCursor(null, 'prev');
+  if (cursor) {
+    // add this new duration to lineage utilization
+    const duration = stamp.start - cursor.value.start;
+    changeUtilization(true, tasks, duration, cursor.value.taskId);
+  }
+
+  timeline.add(stamp);
 };
 
 const getRecordingId = async (): Promise<string | null> => {
@@ -135,26 +166,6 @@ const incomingTimeline = async ({
 //   }
 //   return totalUtilization;
 // };
-
-const changeUtilization = async (
-  increment: boolean,
-  tasks: any, // wish it was easier to understand this type
-  duration: number,
-  originTaskId: string,
-) => {
-  let task = await tasks.get(originTaskId);
-  while (task) {
-    let utilization = task?.utilization ? task.utilization : 0;
-    if (increment) {
-      utilization += duration;
-    } else {
-      utilization -= duration;
-    }
-    await tasks.put({ ...task, utilization });
-    if (task.parentId === '1') break;
-    task = await tasks.get(task.parentId);
-  }
-};
 
 // Don't calculate first time stamp (w/e till now)
 // don't run this function if its already be run once - Check
