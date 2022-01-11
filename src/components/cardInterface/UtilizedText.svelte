@@ -12,10 +12,8 @@
   export let task: memTaskI;
   export let fraction: number | null = null;
 
-  // this turnary can be removed on a full migration
-  const utilization = task?.utilization ? task.utilization : 0;
-  let utilizationNumber: number = utilization;
-  let utilizationText: string = getDurationStamp(utilization);
+  let utilizationNumber: number = task.utilization;
+  let utilizationText: string = getDurationStamp(task.utilization);
 
   const setUtilization = (millis: number) => {
     utilizationNumber = millis;
@@ -38,7 +36,7 @@
     if ($selectedUtilizationOption !== 'This Sprint') return;
     if (parentId === task.id) {
       unsub = nowDurationStamp.subscribe((duration) => {
-        setUtilization(utilization + duration);
+        if (duration > 1000) setUtilization(task.utilization + duration);
       });
     } else {
       if (unsub) {
