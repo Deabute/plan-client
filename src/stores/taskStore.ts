@@ -131,6 +131,7 @@ const loadTask = async (
   refTask: taskI = genesisTask,
   renderParent: boolean = true,
 ) => {
+  console.log('running loadTask');
   let taskList = await getSubtask(refTask, renderParent);
   // Create a default task if this is the first load or the last task was completed
   if (!taskList.tasks.length) {

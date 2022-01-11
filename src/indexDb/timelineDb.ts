@@ -5,6 +5,8 @@ import type {
   memStampI,
   timeLineData,
   taskI,
+  taskListData,
+  memTaskI,
 } from '../shared/interface';
 import { shownStamps } from '../stores/defaultData';
 
@@ -137,6 +139,49 @@ const incomingTimeline = async ({
     await db.add('timeline', data);
   }
   return done;
+};
+
+const compileUtilizationByList = async (
+  list: memTaskI[],
+  start: number,
+  end: number,
+): Promise<memTaskI[]> => {
+  end = end ? end : Date.now();
+  const db = await getDb();
+  const transaction = db.transaction(['timeline', 'tasks']);
+  const timeIndex = transaction.objectStore('timeline').index('timeOrder');
+  const tasks = transaction.objectStore('tasks');
+  const range = IDBKeyRange.bound(0, end);
+  let cursor = await timeIndex.openCursor(range, 'prev');
+  let lastStart = end;
+  let lastStamp = false;
+  pageTruTime: while (cursor && !lastStamp) {
+    if (cursor.value.start <= start) lastStamp = true;
+    // check if this is or is a descendent of one of our task
+    let task = await tasks.get(cursor.value.taskId);
+    checkIfDescendent: while (task) {
+      for (let i = 0; i < list.length; i++) {
+        if (task.id === list[i].id) {
+          if (lastStamp) {
+            // in this way task started outside window but completed within count for whats within
+            list[i].utilization += lastStart - start;
+            break pageTruTime;
+          } else {
+            list[i].utilization += lastStart - cursor.value.start;
+            break checkIfDescendent;
+          }
+        }
+      }
+      // not a descendent condition
+      if (task.parentId === '1') break checkIfDescendent;
+      task = await tasks.get(task.parentId);
+    }
+    // continue the cycle till we run out of stamps for this period
+    lastStart = cursor.value.start;
+    cursor = await cursor.continue();
+  }
+
+  return list;
 };
 
 const figureSprintValues = async () => {
@@ -329,4 +374,5 @@ export {
   getRecordingId,
   figureSprintValues,
   moveUtilization,
+  compileUtilizationByList,
 };
