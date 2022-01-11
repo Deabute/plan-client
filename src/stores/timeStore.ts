@@ -1,7 +1,5 @@
 // timeStore.ts Copyright 2021 Paul Beaudet MIT License
 import { Unsubscriber, Writable, writable } from 'svelte/store';
-import { onEvent } from '../connections/dataChannels';
-import { incomingTimeline } from '../indexDb/timelineDb';
 import { addStamp, getStamps } from '../indexDb/timelineDb';
 import { createOid } from '../isomorphic/oid';
 import type {
@@ -112,30 +110,6 @@ const refreshTime = async (sticky: boolean = true) => {
   });
 };
 
-const remoteRecord = async ({ data }: { data: memStampI }) => {
-  const { id, taskId, start, type, lastModified } = data;
-  await addStamp({
-    id,
-    taskId,
-    start,
-    type,
-    lastModified,
-  });
-  timeStore.update((time) => {
-    // TODO Date.now() might be an issue in this context
-    time.history = [
-      { ...time.now, duration: Date.now() - time.now.start },
-      ...time.history,
-    ];
-    // History overflow hide (in memory)
-    if (time.history.length > 8) time.history.pop();
-    time.now = data;
-    return time;
-  });
-};
-
-onEvent('record', remoteRecord);
-
 const recordTime = (task: memTaskI) => {
   const { topChild, ...baseTask } = task;
   const refTask = task.topChild ? topChild : baseTask;
@@ -152,11 +126,6 @@ const recordTime = (task: memTaskI) => {
     return time;
   });
 };
-
-onEvent('sync-timeline', async (req: { done: boolean; data: timestampI }) => {
-  const done = await incomingTimeline(req);
-  if (done) await refreshTime();
-});
 
 export {
   newTimeStamp,

@@ -6,7 +6,6 @@
     getDurationStamp,
     getHumanReadableStamp,
   } from '../components/time/timeConvert';
-  import { peerBroadcast } from '../connections/dataChannels';
   import { addEvent } from '../indexDb/eventsDb';
   import { editStamp, removeStamp } from '../indexDb/timelineDb';
   import {
@@ -43,11 +42,7 @@
       lastModified: Date.now(),
     };
     await editStamp(newTimestamp);
-    await addEvent('editTimestamp', {
-      id: stamp.id,
-      timestamp: newTimestamp.start,
-    });
-    peerBroadcast('sync-timeline', { data: newTimestamp, done: true });
+    await addEvent('editTimestamp', { stamp: newTimestamp });
     refreshTime();
     editing = false;
   };

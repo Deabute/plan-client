@@ -57,6 +57,7 @@ const outgoingChanges = async (sendFunc: sendFuncI) => {
   const db = await getDb();
   const transaction = db.transaction(allStores);
   for (let i = 0; i < allStores.length; i++) {
+    if (allStores[i] === 'timeline') continue;
     if (allStores[i] === 'connect') {
       // skip this for now, wouldn't want to export your own private key
       const store = transaction.objectStore('connect');

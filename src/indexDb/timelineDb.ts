@@ -49,9 +49,9 @@ const addStamp = async (stamp: timestampI) => {
   if (cursor) {
     // add this new duration to lineage utilization
     const duration = stamp.start - cursor.value.start;
-    changeUtilization(true, tasks, duration, cursor.value.taskId);
+    await changeUtilization(true, tasks, duration, cursor.value.taskId);
   }
-  timeline.add(stamp);
+  await timeline.add(stamp);
 };
 
 const getRecordingId = async (): Promise<string | null> => {
@@ -119,25 +119,6 @@ const getStamps = async (end: number = 0): Promise<timeLineData> => {
     history,
     now,
   };
-};
-
-const incomingTimeline = async ({
-  data,
-  done,
-}: {
-  data: timestampI;
-  done: boolean;
-}): Promise<boolean> => {
-  const db = await getDb();
-  const localData = await db.get('timeline', data.id);
-  if (localData) {
-    if (data.lastModified > localData.lastModified) {
-      await db.put('timeline', data);
-    }
-  } else {
-    await db.add('timeline', data);
-  }
-  return done;
 };
 
 const compileUtilizationByList = async (
@@ -366,7 +347,6 @@ const editStamp = async (timestamp: timestampI) => {
 export {
   addStamp,
   getStamps,
-  incomingTimeline,
   editStamp,
   removeStamp,
   page,
