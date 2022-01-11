@@ -307,18 +307,16 @@ const checkOff = (taskId: string) => {
         });
       }
       if (currentRunningTask) {
+        timeline.now = newTimeStamp(nextRecord);
         timeline.history = [
           {
-            ...timeline.now,
-            duration: Date.now() - timeline.now.start,
+            ...now,
+            duration: timeline.now.start - now.start,
             done: checkTask.cadence === 'zero' ? true : false,
           },
           ...timeline.history,
         ];
-        if (timeline.history.length > shownStamps) {
-          timeline.history.pop();
-        }
-        timeline.now = newTimeStamp(nextRecord);
+        if (timeline.history.length > shownStamps) timeline.history.pop();
       }
       return timeline;
     });
@@ -348,18 +346,16 @@ const hideTask = (task: memTaskI) => {
         };
       });
       if (currentRunningTask) {
+        timeline.now = newTimeStamp(nextRecord);
         timeline.history = [
           {
-            ...timeline.now,
-            duration: Date.now() - timeline.now.start,
+            ...now,
+            duration: timeline.now.start - now.start,
             done: true,
           },
           ...timeline.history,
         ];
-        if (timeline.history.length > shownStamps) {
-          timeline.history.pop();
-        }
-        timeline.now = newTimeStamp(nextRecord);
+        if (timeline.history.length > shownStamps) timeline.history.pop();
       }
       return timeline;
     });

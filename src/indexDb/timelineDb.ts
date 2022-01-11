@@ -2,7 +2,6 @@
 import { getDb } from './dbCore';
 import type { timestampI, memStampI, timeLineData } from '../shared/interface';
 import { shownStamps } from '../stores/defaultData';
-import { newTimeStamp } from '../stores/timeStore';
 
 const addStamp = async (stamp: timestampI) => {
   const db = await getDb();
