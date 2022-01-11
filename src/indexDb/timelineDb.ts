@@ -1,6 +1,11 @@
 // timelineDb.ts copyright 2021 Paul Beaudet MIT License
 import { getDb } from './dbCore';
-import type { timestampI, memStampI, timeLineData } from '../shared/interface';
+import type {
+  timestampI,
+  memStampI,
+  timeLineData,
+  taskI,
+} from '../shared/interface';
 import { shownStamps } from '../stores/defaultData';
 
 const changeUtilization = async (
@@ -23,6 +28,19 @@ const changeUtilization = async (
   }
 };
 
+const moveUtilization = async (srcTask: taskI | string, destParent: string) => {
+  const db = await getDb();
+  const transaction = db.transaction('tasks', 'readwrite');
+  const tasks = transaction.objectStore('tasks');
+  const task = typeof srcTask === 'string' ? await tasks.get(srcTask) : srcTask;
+  if (destParent !== '1') {
+    changeUtilization(true, tasks, task.utilization, destParent);
+  }
+  if (task.parentId !== '1') {
+    changeUtilization(false, tasks, task.utilization, task.parentId);
+  }
+};
+
 const addStamp = async (stamp: timestampI) => {
   const db = await getDb();
   const transaction = db.transaction(['timeline', 'tasks'], 'readwrite');
@@ -35,7 +53,6 @@ const addStamp = async (stamp: timestampI) => {
     const duration = stamp.start - cursor.value.start;
     changeUtilization(true, tasks, duration, cursor.value.taskId);
   }
-
   timeline.add(stamp);
 };
 
@@ -349,4 +366,5 @@ export {
   page,
   getRecordingId,
   migrateUtilizedMillis,
+  moveUtilization,
 };

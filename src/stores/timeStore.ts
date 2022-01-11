@@ -122,14 +122,13 @@ const remoteRecord = async ({ data }: { data: memStampI }) => {
     lastModified,
   });
   timeStore.update((time) => {
+    // TODO Date.now() might be an issue in this context
     time.history = [
       { ...time.now, duration: Date.now() - time.now.start },
       ...time.history,
     ];
     // History overflow hide (in memory)
-    if (time.history.length > 8) {
-      time.history.pop();
-    }
+    if (time.history.length > 8) time.history.pop();
     time.now = data;
     return time;
   });
@@ -148,9 +147,7 @@ const recordTime = (task: memTaskI) => {
       ...time.history,
     ];
     // History overflow hide (in memory)
-    if (time.history.length > 8) {
-      time.history.pop();
-    }
+    if (time.history.length > 8) time.history.pop();
     time.now = newTimeStamp(refTask);
     return time;
   });
@@ -158,9 +155,7 @@ const recordTime = (task: memTaskI) => {
 
 onEvent('sync-timeline', async (req: { done: boolean; data: timestampI }) => {
   const done = await incomingTimeline(req);
-  if (done) {
-    await refreshTime();
-  }
+  if (done) await refreshTime();
 });
 
 export {

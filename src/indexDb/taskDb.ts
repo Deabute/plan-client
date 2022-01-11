@@ -193,8 +193,8 @@ const createActivity = async (task: taskI) => {
 const placeFolderDb = async (task: taskI) => {
   const db = await getDb();
   const trans = db.transaction(['tasks'], 'readwrite');
-  const tasksStore = trans.objectStore('tasks');
-  const taskIndex = tasksStore.index('priority');
+  const tasks = trans.objectStore('tasks');
+  const taskIndex = tasks.index('priority');
   let cursor = await taskIndex.openCursor(getPriorityIndexRange(task.parentId));
   const lastModified = Date.now();
   let position = 0;
@@ -228,10 +228,10 @@ const placeFolderDb = async (task: taskI) => {
     cursor = await cursor.continue();
   }
   if (!changedTask) pushChange(task);
-  for (let i = 0; i < changes.length; i++) await tasksStore.put(changes[i]);
+  for (let i = 0; i < changes.length; i++) await tasks.put(changes[i]);
 };
 
-// Used for correcting positions when an item is checked off
+// Used for correcting positions when an item is checked off or moved from one folder to another
 const backfillPositions = async (parentId: string) => {
   const db = await getDb();
   const trans = db.transaction(['tasks'], 'readwrite');

@@ -1,7 +1,7 @@
 // eventsOnEvents ~ Copyright 2021 Paul Beaudet MIT License
 import type { eventI } from '../shared/interface';
 import { deleteConnection } from './connectionDB';
-import { addStamp, removeStamp } from './timelineDb';
+import { addStamp, moveUtilization, removeStamp } from './timelineDb';
 import { refreshTime } from '../stores/timeStore';
 import { refreshTask } from '../stores/taskStore';
 import { backfillPositions, placeFolderDb, updateTaskSafe } from './taskDb';
@@ -62,7 +62,10 @@ const initEventsForEvents = () => {
 
   eventsOn('moveTask', async ({ data }: eventI) => {
     await placeFolderDb(data.task);
-    if (data.backfill) backfillPositions(data.task.parentId);
+    if (data.backfill) {
+      await backfillPositions(data.backfill);
+      moveUtilization(data.task.id, data.task.parentId);
+    }
     if (!getBooleanStatus(syncingDown)) refreshTask();
   });
 };

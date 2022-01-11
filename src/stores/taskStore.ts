@@ -34,6 +34,7 @@ import { addEvent } from '../indexDb/eventsDb';
 import { cancelFund } from './fundingStore';
 import type { taskPayload } from '../connections/connectInterface';
 import { nextOccurrence } from '../components/time/CadenceFunctions';
+import { moveUtilization } from '../indexDb/timelineDb';
 
 const defaultTaskArray: memTaskI[] = [];
 
@@ -216,10 +217,9 @@ onEvent('task', async ({ data }: { data: taskPayload }) => {
 
 // Change of position
 const placeFolder = async (
-  // { topChild, ...baseTask }: memTaskI,
   sourceId: string,
   dest: memTaskI,
-  after: boolean = true,
+  after: boolean = true, // after this destination or inside destination
 ) => {
   const task = await getTaskById(sourceId);
   const changedTask: taskI = {
@@ -229,7 +229,12 @@ const placeFolder = async (
   };
   await placeFolderDb(changedTask);
   const backfill = task.parentId !== changedTask.parentId ? task.parentId : '';
-  if (backfill) await backfillPositions(task.parentId);
+  // utilization only needs to change in backfill case (moved from one folder to another)
+  // utilization doesn't need to be removed or added to TLD
+  if (backfill) {
+    await backfillPositions(task.parentId);
+    await moveUtilization(task, changedTask.parentId);
+  }
   refreshTask();
   moveTask.set(null);
   addEvent('moveTask', {
