@@ -5,7 +5,6 @@ import type {
   memStampI,
   timeLineData,
   taskI,
-  taskListData,
   memTaskI,
 } from '../shared/interface';
 import { shownStamps } from '../stores/defaultData';
