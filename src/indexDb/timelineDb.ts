@@ -16,12 +16,9 @@ const changeUtilization = async (
 ) => {
   let task = await tasks.get(originTaskId);
   while (task) {
-    let utilization = task?.utilization ? task.utilization : 0;
-    if (increment) {
-      utilization += duration;
-    } else {
-      utilization -= duration;
-    }
+    let utilization = increment
+      ? task.utilization + duration
+      : task.utilization - duration;
     await tasks.put({ ...task, utilization });
     if (task.parentId === '1') break;
     task = await tasks.get(task.parentId);
@@ -142,56 +139,7 @@ const incomingTimeline = async ({
   return done;
 };
 
-// const compileUtilizedMillis = async (
-//   parentId: string,
-//   start: number,
-//   end: number = 0,
-// ): Promise<number> => {
-//   end = end ? end : Date.now();
-//   // Top level case is just the duration of requested period
-//   if (parentId === '1') return end - start;
-//   const db = await getDb();
-//   const transaction = db.transaction(['timeline', 'tasks']);
-//   const timeIndex = transaction.objectStore('timeline').index('timeOrder');
-//   const taskStore = transaction.objectStore('tasks');
-//   const range = IDBKeyRange.bound(0, end);
-//   let cursor = await timeIndex.openCursor(range, 'prev');
-//   let lastStart = end;
-//   let totalUtilization = 0;
-//   let lastStamp = false;
-//   pageTruTime: while (cursor && !lastStamp) {
-//     if (cursor.value.start <= start) lastStamp = true;
-//     // figure if this timestamp is in the lineage we are curious about
-//     let task = await taskStore.get(cursor.value.taskId);
-//     checkIfDescendent: while (task) {
-//       if (task.id === parentId) {
-//         if (lastStamp) {
-//           // in this way task started outside window but completed within count for whats within
-//           totalUtilization += lastStart - start;
-//           break pageTruTime;
-//         } else {
-//           totalUtilization += lastStart - cursor.value.start;
-//           break checkIfDescendent;
-//         }
-//       }
-//       // not a descendent condition
-//       if (task.parentId === '1') break checkIfDescendent;
-//       task = await taskStore.get(task.parentId);
-//     }
-//     lastStart = cursor.value.start;
-//     cursor = await cursor.continue();
-//   }
-//   return totalUtilization;
-// };
-
-// Don't calculate first time stamp (w/e till now)
-// don't run this function if its already be run once - Check
-// Subsequent runs will double utilization - Runs only once for migration
-// a zeroing run would be needed for accurate subsequent runs
-// How will this work on transitioning to each sprint?
-// Maybe stream through all task to make sure utilization is at least added at 0
-// an the same with count
-const migrateUtilizedMillis = async () => {
+const figureSprintValues = async () => {
   const end = Date.now();
   const db = await getDb();
   const transaction = db.transaction(
@@ -201,9 +149,21 @@ const migrateUtilizedMillis = async () => {
   const timeIndex = transaction.objectStore('timeline').index('timeOrder');
   const tasks = transaction.objectStore('tasks');
   const budgetIndex = transaction.objectStore('budget').index('budgetOrder');
+  // zero out old values
+  let tCursor = await tasks.openCursor();
+  while (tCursor) {
+    tCursor.update({
+      ...tCursor.value,
+      utilization: 0,
+      count: 0,
+    });
+    await tCursor.continue();
+  }
+  // Get start time
   let bCursor = await budgetIndex.openCursor(null, 'prev');
   if (!bCursor) return;
   const { start } = bCursor.value;
+  // traverse timeline and count current utilization along the way
   const range = IDBKeyRange.bound(0, end);
   let cursor = await timeIndex.openCursor(range, 'prev');
   if (!cursor) return; // no time stamps to compile
@@ -211,6 +171,7 @@ const migrateUtilizedMillis = async () => {
   let lastStamp = false;
   cursor = await cursor.continue(); // skip to first complete time stamp
   while (cursor && !lastStamp) {
+    // For every timestamp this sprint
     if (cursor.value.start <= start) lastStamp = true;
     const startToSubtract = lastStamp ? start : cursor.value.start;
     const change = lastStart - startToSubtract;
@@ -300,8 +261,9 @@ const editStamp = async (timestamp: timestampI) => {
   const transaction = db.transaction(['timeline', 'tasks'], 'readwrite');
   const timeStore = transaction.objectStore('timeline');
   const timeIndex = timeStore.index('timeOrder');
-  // if timestamp taken abort, unique requirement
+  // if timestamp taken abort, unique requirement: Validation
   if (await timeIndex.get(timestamp.start)) return;
+  // figure change in utilization
   const tasks = transaction.objectStore('tasks');
   const oStart = (await timeStore.get(timestamp.id)).start;
   let oldNextRange = IDBKeyRange.bound(oStart, Infinity, true, true);
@@ -353,8 +315,8 @@ const editStamp = async (timestamp: timestampI) => {
       await changeUtilization(false, tasks, prevChange, newPrevStamp.taskId);
     }
   }
-
-  await db.put('timeline', timestamp);
+  // The actual edit
+  await timeStore.put(timestamp);
 };
 
 export {
@@ -365,6 +327,6 @@ export {
   removeStamp,
   page,
   getRecordingId,
-  migrateUtilizedMillis,
+  figureSprintValues,
   moveUtilization,
 };

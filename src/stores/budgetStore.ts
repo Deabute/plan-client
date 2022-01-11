@@ -3,6 +3,7 @@ import { Writable, writable } from 'svelte/store';
 import type { budgetI } from '../shared/interface';
 import { getCurrentBudget, newBudget, updateBudget } from '../indexDb/budgetDb';
 import { createOid } from '../isomorphic/oid';
+import { figureSprintValues } from '../indexDb/timelineDb';
 
 const budgetStore: Writable<budgetI> = writable({
   id: '0',
@@ -28,10 +29,10 @@ const getBudget = async () => {
     };
     // save new budget
     await updateBudget(current);
+    // Start from scratch and calculate utilization if starting a new sprint
+    await figureSprintValues();
   }
-  budgetStore.update((store) => {
-    return current;
-  });
+  budgetStore.set(current);
 };
 
 const getRemainingMillis = (budget: budgetI): number => {
