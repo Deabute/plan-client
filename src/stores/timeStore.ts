@@ -95,7 +95,7 @@ const refreshTime = async (sticky: boolean = true) => {
   let end: number = 0;
   if (sticky) {
     timeStore.update((time) => {
-      end = time.history[0].start;
+      if (time.history.length) end = time.history[0].start;
       return time;
     });
   }
