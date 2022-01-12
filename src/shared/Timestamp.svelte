@@ -17,7 +17,12 @@
   import type { memStampI, timestampI } from './interface';
   import StampEdit from './StampEdit.svelte';
   import { canUndo, getTaskById } from '../indexDb/taskDb';
-  import { undoAndPlace, checkOff, openFolder } from '../stores/taskStore';
+  import {
+    undoAndPlace,
+    checkOff,
+    openFolder,
+    refreshTask,
+  } from '../stores/taskStore';
   import { loadAgenda, reloadNextTask } from '../stores/agendaStore';
   import Gear from 'svelte-bootstrap-icons/lib/Gear';
   import Check from 'svelte-bootstrap-icons/lib/Check';
@@ -44,6 +49,7 @@
     await editStamp(newTimestamp);
     await addEvent('editTimestamp', { stamp: newTimestamp });
     refreshTime();
+    refreshTask(); // potential change in utilization
     editing = false;
   };
 

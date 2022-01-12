@@ -291,53 +291,54 @@ const editStamp = async (timestamp: timestampI) => {
   // figure change in utilization
   const tasks = transaction.objectStore('tasks');
   const oStart = (await timeStore.get(timestamp.id)).start;
-  let oldNextRange = IDBKeyRange.bound(oStart, Infinity, true, true);
-  let oldPrevRange = IDBKeyRange.bound(0, oStart, true, true);
-  let newNextRange = IDBKeyRange.bound(timestamp.start, Infinity, true, true);
-  let newPrevRange = IDBKeyRange.bound(0, timestamp.start, true, true);
+  const oldNextRange = IDBKeyRange.bound(oStart, Infinity, true, true);
+  const oldPrevRange = IDBKeyRange.bound(0, oStart, true, true);
+  const newNextRange = IDBKeyRange.bound(timestamp.start, Infinity, true, true);
+  const newPrevRange = IDBKeyRange.bound(0, timestamp.start, true, true);
   let cursor = await timeIndex.openCursor(oldNextRange);
-  const now = Date.now();
-  const oldNextStart = cursor ? cursor.value.start : now;
+  const oldNextStart = cursor ? cursor.value.start : 0;
   cursor = await timeIndex.openCursor(oldPrevRange, 'prev');
   const oldPrevStamp = cursor ? cursor.value : null;
   cursor = await timeIndex.openCursor(newNextRange);
-  const newNextStart = cursor ? cursor.value.start : now;
+  let newNextStart = cursor ? cursor.value.start : 0;
+  if (newNextStart === oStart) cursor = await cursor.continue();
+  newNextStart = cursor ? cursor.value.start : 0;
   cursor = await timeIndex.openCursor(newPrevRange, 'prev');
-  const newPrevStamp = cursor ? cursor.value : null;
+  let newPrevStamp = cursor ? cursor.value : null;
+  if (newPrevStamp?.start === oStart) cursor = await cursor.continue();
+  newPrevStamp = cursor ? cursor.value : null;
 
   const greater = timestamp.start > oStart ? true : false;
   if (newNextStart === oldNextStart) {
+    // same next task / no timeline traversal
     const change = greater
       ? timestamp.start - oStart
       : oStart - timestamp.start;
-    if (newPrevStamp === oldPrevStamp) {
-      if (newPrevStamp) {
-        // start-start / add rm prev
-        await changeUtilization(greater, tasks, change, newPrevStamp.taskId);
-      }
+    if (newPrevStamp) {
+      // start-start / add rm prev
+      await changeUtilization(greater, tasks, change, newPrevStamp.taskId);
+    }
+    // interframe => add / rm at least task
+    if (newNextStart) {
+      // given this isn't the running task add or subtract diff
       await changeUtilization(!greater, tasks, change, timestamp.taskId);
-      // interframe / add rm task
     }
   } else {
-    const oldSize = oldPrevStamp ? oStart - oldPrevStamp.start : 0;
-    const newSize = newPrevStamp ? oStart - newPrevStamp.start : 0;
+    const oldSize = oldNextStart - oStart;
+    const newSize = newNextStart - timestamp.start;
     const increase = oldSize < newSize ? true : false;
-    const diff = oldSize < newSize ? newSize - oldSize : oldSize - newSize;
-    const moveFromChange = oldPrevStamp ? oStart - oldPrevStamp.start : 0;
-    // pre-start / add rm task / add old prev
-    if (moveFromChange) {
-      await changeUtilization(true, tasks, moveFromChange, oldPrevStamp.taskId);
+    const diff = increase ? newSize - oldSize : oldSize - newSize;
+    // add relocated utilization to old prev if it exist
+    if (oldPrevStamp) {
+      await changeUtilization(true, tasks, oldSize, oldPrevStamp.taskId);
     }
+    // add or rm task if it changed
     if (oldSize !== newSize) {
       await changeUtilization(increase, tasks, diff, timestamp.taskId);
     }
-
+    // offset utilization from new prev stamp
     if (newPrevStamp) {
-      // move / rm new prev
-      const prevSize = newNextStart - newPrevStamp.start;
-      const prevChange =
-        newSize > prevSize ? newSize - prevSize : prevSize - newSize;
-      await changeUtilization(false, tasks, prevChange, newPrevStamp.taskId);
+      await changeUtilization(false, tasks, newSize, newPrevStamp.taskId);
     }
   }
   // The actual edit

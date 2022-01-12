@@ -34,7 +34,10 @@ const initEventsForEvents = () => {
 
   eventsOn('editTimestamp', async ({ data }: eventI) => {
     await editStamp(data.stamp);
-    if (!getBooleanStatus(syncingDown)) refreshTime();
+    if (!getBooleanStatus(syncingDown)) {
+      refreshTime();
+      refreshTask();
+    }
   });
 
   eventsOn('checkOff', async ({ data }: eventI) => {
