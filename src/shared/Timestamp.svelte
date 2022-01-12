@@ -48,7 +48,7 @@
     };
     await editStamp(newTimestamp);
     await addEvent('editTimestamp', { stamp: newTimestamp });
-    refreshTime();
+    refreshTime(false);
     refreshTask(); // potential change in utilization
     editing = false;
   };
