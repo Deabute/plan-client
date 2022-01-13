@@ -326,7 +326,7 @@
   {#if $showSideNav}
     <div class="ms-1 fixed-bottom">
       <div class="fs-6">
-        {`Durration: ${Math.trunc($budgetStore.frame / weekInMillis)} weeks`}
+        {`Duration: ${Math.trunc($budgetStore.frame / weekInMillis)} weeks`}
       </div>
       <div class="fs-6">{getSprintEndDate($budgetStore)}</div>
     </div>
