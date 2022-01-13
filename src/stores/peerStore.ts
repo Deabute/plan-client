@@ -7,6 +7,11 @@ const rtcPeers: Writable<peersI[]> = writable([]);
 const peerSyncEnabled: Writable<boolean> = writable(false);
 const syncingUp: Writable<boolean> = writable(false);
 const syncingDown: Writable<boolean> = writable(false);
+const firstSync: Writable<{
+  peerId: string;
+  isPrimary: boolean;
+  done: boolean;
+}> = writable(null);
 
 const getBooleanStatus = (state: Writable<boolean>): boolean => {
   let syncStatus = false;
@@ -17,4 +22,11 @@ const getBooleanStatus = (state: Writable<boolean>): boolean => {
   return syncStatus;
 };
 
-export { rtcPeers, peerSyncEnabled, syncingUp, syncingDown, getBooleanStatus };
+export {
+  rtcPeers,
+  peerSyncEnabled,
+  syncingUp,
+  syncingDown,
+  getBooleanStatus,
+  firstSync,
+};

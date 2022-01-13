@@ -15,7 +15,7 @@
   import { addEvent } from '../../indexDb/eventsDb';
   import { setPrimary } from '../../indexDb/profilesDb';
   import type { IDBPCursorWithValue, PlanDB } from '../../shared/interface';
-  import { peerSyncEnabled } from '../../stores/peerStore';
+  import { firstSync, peerSyncEnabled } from '../../stores/peerStore';
   import {
     showPeerSync,
     toggleSettingDialog,
@@ -67,22 +67,30 @@
     return existing ? false : true;
   };
 
-  const addPeer = (thisDevice: boolean = true) => {
+  const addPeer = (isPrimary: boolean = true) => {
     return async () => {
-      if (thisDevice) await setPrimary();
+      await setPrimary(isPrimary); // will set to undecided if previously set
       const peerId = newPeer.toUpperCase();
       await newConnection(peerId);
-      const annoucement = await getAnnouncement(thisDevice);
+      const annoucement = await getAnnouncement(isPrimary);
       annoucement.peers = [peerId];
       wsSend('addPeer', annoucement);
-      addEvent('addConnection', { id: peerId });
-      connectionArray = [];
+      $firstSync = { peerId, isPrimary, done: false };
       newPeer = '';
-      refreshPeers();
-      // todo if first peer added
       $peerSyncEnabled = true;
     };
   };
+
+  // This should handle both the requester and accepter
+  firstSync.subscribe((sync) => {
+    if (sync && sync.done) {
+      addEvent('addConnection', { id: sync.peerId });
+      connectionArray = [];
+      refreshPeers();
+      $firstSync = null;
+      $showPeerSync = false;
+    }
+  });
 
   const removePeer = (peerId: string) => {
     // returns onclick event with peerId in closure

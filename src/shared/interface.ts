@@ -28,6 +28,8 @@ interface taskI {
   timeCreated: number; // timestamp of creation
   dueDate: number; // Date that task needs to be completed by
   autoAssigned: boolean; // if fraction was assigned by app or user to determine its flexibility
+  count: number; // temp: occurrences per this sprint
+  utilization: number; // temp: total time used per this sprint
 }
 
 interface optionalTaskI {
@@ -49,6 +51,8 @@ interface optionalTaskI {
   timeCreated?: number; // timestamp of creation
   dueDate?: number; // Date that task needs to be completed by
   autoAssigned?: boolean; // if fraction was assigned by app or user to determine its flexibility
+  count?: number;
+  utilization?: number;
 }
 
 // Stored data for connection information of other devices to sync with and self
@@ -203,6 +207,7 @@ interface PlanDB extends DBSchema {
     };
   };
   timeline: {
+    // this is not really needed if events are indexed properly
     key: string;
     value: timestampI;
     indexes: { timeOrder: number };
@@ -277,15 +282,8 @@ type indexOptions =
   | 'priority'
   | 'eventOrder';
 type columnIds = '1' | '2' | '3';
-type ratingsType = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 type actionTypes = 'done' | 'record' | 'remove';
 type AmPm = 'AM' | 'PM';
-
-interface moveProfileI {
-  forward: boolean;
-  moveItem: string;
-  anchor: string;
-}
 
 type weekType = 'Sat-Sun' | 'Mon-Fri' | 'Whole';
 // none = one off / many = many times / other = once every x
@@ -299,14 +297,6 @@ interface cadenceI {
   strict: boolean; // can only be done at this time vs loosely this cadence
   // e.g. sleep strictly happens at your bed time, but mow the lawn loosely happens once a week
 }
-
-interface taskLines {
-  end: boolean;
-  eta: boolean;
-  cut: boolean;
-}
-
-type priority = taskLines | null;
 
 type allDataTypes =
   | taskI
@@ -342,7 +332,6 @@ export type {
   indexOptions,
   timestampI,
   memStampI,
-  ratingsType,
   timeStore,
   columnIds,
   actionTypes,
@@ -350,13 +339,10 @@ export type {
   velocityI,
   budgetI,
   allStoreTypes,
-  moveProfileI,
   AmPm,
   cadenceI,
   weekType,
   cadenceInterval,
-  taskLines,
-  priority,
   allDataTypes,
   eventActions,
   eventValue,

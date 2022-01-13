@@ -3,7 +3,6 @@ import { get, Writable, writable } from 'svelte/store';
 import type { taskI, memTaskI, taskListData } from '../shared/interface';
 import {
   genesisTask,
-  createDefaultTask,
   getColdStartData,
   shownStamps,
   startingVelocity,
@@ -35,6 +34,7 @@ import { addEvent } from '../indexDb/eventsDb';
 import { cancelFund } from './fundingStore';
 import type { taskPayload } from '../connections/connectInterface';
 import { nextOccurrence } from '../components/time/CadenceFunctions';
+import { moveUtilization } from '../indexDb/timelineDb';
 
 const defaultTaskArray: memTaskI[] = [];
 
@@ -173,7 +173,7 @@ onEvent('sync-tasks', async (data: { data: taskI; done: boolean }) => {
   if (done) {
     await refreshTask();
     await loadAgenda();
-    await refreshTime();
+    await refreshTime(false);
   }
 });
 
@@ -196,11 +196,11 @@ const newActivity = async (
       ? lineage[0].cadence
       : 'zero';
   const newTask: taskI = {
-    ...createDefaultTask(),
+    ...genesisTask,
     id: taskId,
     parentId: lineage[0].id,
     body,
-    description: '',
+    fraction: 0,
     cadence,
     lastModified: currentTimestamp,
     timeCreated: currentTimestamp,
@@ -217,10 +217,9 @@ onEvent('task', async ({ data }: { data: taskPayload }) => {
 
 // Change of position
 const placeFolder = async (
-  // { topChild, ...baseTask }: memTaskI,
   sourceId: string,
   dest: memTaskI,
-  after: boolean = true,
+  after: boolean = true, // after this destination or inside destination
 ) => {
   const task = await getTaskById(sourceId);
   const changedTask: taskI = {
@@ -230,7 +229,12 @@ const placeFolder = async (
   };
   await placeFolderDb(changedTask);
   const backfill = task.parentId !== changedTask.parentId ? task.parentId : '';
-  if (backfill) await backfillPositions(task.parentId);
+  // utilization only needs to change in backfill case (moved from one folder to another)
+  // utilization doesn't need to be removed or added to TLD
+  if (backfill) {
+    await backfillPositions(task.parentId);
+    await moveUtilization(task, changedTask.parentId);
+  }
   refreshTask();
   moveTask.set(null);
   addEvent('moveTask', {
@@ -308,18 +312,16 @@ const checkOff = (taskId: string) => {
         });
       }
       if (currentRunningTask) {
+        timeline.now = newTimeStamp(nextRecord);
         timeline.history = [
           {
-            ...timeline.now,
-            duration: Date.now() - timeline.now.start,
+            ...now,
+            duration: timeline.now.start - now.start,
             done: checkTask.cadence === 'zero' ? true : false,
           },
           ...timeline.history,
         ];
-        if (timeline.history.length > shownStamps) {
-          timeline.history.pop();
-        }
-        timeline.now = newTimeStamp(nextRecord);
+        if (timeline.history.length > shownStamps) timeline.history.pop();
       }
       return timeline;
     });
@@ -349,18 +351,16 @@ const hideTask = (task: memTaskI) => {
         };
       });
       if (currentRunningTask) {
+        timeline.now = newTimeStamp(nextRecord);
         timeline.history = [
           {
-            ...timeline.now,
-            duration: Date.now() - timeline.now.start,
+            ...now,
+            duration: timeline.now.start - now.start,
             done: true,
           },
           ...timeline.history,
         ];
-        if (timeline.history.length > shownStamps) {
-          timeline.history.pop();
-        }
-        timeline.now = newTimeStamp(nextRecord);
+        if (timeline.history.length > shownStamps) timeline.history.pop();
       }
       return timeline;
     });

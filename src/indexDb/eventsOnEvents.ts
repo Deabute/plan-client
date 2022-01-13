@@ -1,7 +1,12 @@
 // eventsOnEvents ~ Copyright 2021 Paul Beaudet MIT License
 import type { eventI } from '../shared/interface';
 import { deleteConnection } from './connectionDB';
-import { addStamp, removeStamp } from './timelineDb';
+import {
+  addStamp,
+  editStamp,
+  moveUtilization,
+  removeStamp,
+} from './timelineDb';
 import { refreshTime } from '../stores/timeStore';
 import { refreshTask } from '../stores/taskStore';
 import { backfillPositions, placeFolderDb, updateTaskSafe } from './taskDb';
@@ -19,12 +24,20 @@ const initEventsForEvents = () => {
   eventsOn('removeTimestamp', async ({ data }: eventI) => {
     const { id } = data;
     await removeStamp(id);
-    refreshTime();
+    if (!getBooleanStatus(syncingDown)) refreshTime();
   });
 
   eventsOn('newTimestamp', async ({ data }: eventI) => {
     await addStamp(data.stamp);
     if (!getBooleanStatus(syncingDown)) refreshTime();
+  });
+
+  eventsOn('editTimestamp', async ({ data }: eventI) => {
+    await editStamp(data.stamp);
+    if (!getBooleanStatus(syncingDown)) {
+      refreshTime(false);
+      refreshTask();
+    }
   });
 
   eventsOn('checkOff', async ({ data }: eventI) => {
@@ -62,7 +75,10 @@ const initEventsForEvents = () => {
 
   eventsOn('moveTask', async ({ data }: eventI) => {
     await placeFolderDb(data.task);
-    if (data.backfill) backfillPositions(data.task.parentId);
+    if (data.backfill) {
+      await backfillPositions(data.backfill);
+      moveUtilization(data.task.id, data.task.parentId);
+    }
     if (!getBooleanStatus(syncingDown)) refreshTask();
   });
 };

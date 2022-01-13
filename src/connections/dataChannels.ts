@@ -1,10 +1,12 @@
 // dataChannels ~ Copyright 2021 Paul Beaudet MIT License
 
+import { get } from 'svelte/store';
 import { connectionTimestamp } from '../indexDb/connectionDB';
 import { getDb } from '../indexDb/dbCore';
+import { removeDataToBeSecondary } from '../indexDb/profilesDb';
 import { syncUp } from '../indexDb/tokenDb';
 import type { profileI, pskI } from '../shared/interface';
-import { rtcPeers } from '../stores/peerStore';
+import { firstSync, rtcPeers } from '../stores/peerStore';
 import { newProfile } from '../stores/settingsStore';
 import { activityPing } from '../stores/syncStore';
 import type {
@@ -64,7 +66,6 @@ const detectHeartbeat = (peerId: string) => {
 };
 
 const disconnect = (peerId: string) => {
-  console.log(`${peerId} sys: disconnecting`);
   connectionTimestamp(peerId);
   rtcPeers.update((peers) => {
     return peers.filter((peer) => peer.peerId !== peerId);
@@ -138,13 +139,27 @@ const incoming = (peerId: string) => {
   };
 };
 
+// once the two clients connect if its the first time one will decide to dump their data
+// Meanwhile the other is going to try to spam the other with data to fill what is being emptied
+// dont set or send out going until this is settled
 const onChannelConnection = (peerId: string, sendFunc: sendFuncI) => {
   // returns the event handler for ondatachannel with peerId in closure
   return (event: RTCDataChannelEvent) => {
     const channel = event.channel;
     channel.onmessage = incoming(peerId);
-    channel.onopen = () => {
-      console.log(`opening connection for ${peerId}`);
+    channel.onopen = async () => {
+      const first = get(firstSync);
+      let cleanUpDelay = 0;
+      if (first && !first.done && first.peerId === peerId) {
+        if (first.isPrimary) {
+          // give it a couple seconds before sending data if primary
+          cleanUpDelay = 2000;
+        } else {
+          // clear data if secondary
+          await removeDataToBeSecondary();
+        }
+        firstSync.set({ ...first, done: true });
+      }
       rtcPeers.update((peers) => {
         for (let i = 0; i < peers.length; i++) {
           if (peers[i].peerId === peerId) {
@@ -155,7 +170,9 @@ const onChannelConnection = (peerId: string, sendFunc: sendFuncI) => {
         return peers;
       });
       connectionTimestamp(peerId);
-      outgoingChanges(sendFunc);
+      setTimeout(() => {
+        outgoingChanges(sendFunc);
+      }, cleanUpDelay);
     };
     channel.onclose = () => {
       disconnect(peerId);

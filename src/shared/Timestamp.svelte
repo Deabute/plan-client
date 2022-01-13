@@ -6,7 +6,6 @@
     getDurationStamp,
     getHumanReadableStamp,
   } from '../components/time/timeConvert';
-  import { peerBroadcast } from '../connections/dataChannels';
   import { addEvent } from '../indexDb/eventsDb';
   import { editStamp, removeStamp } from '../indexDb/timelineDb';
   import {
@@ -18,7 +17,12 @@
   import type { memStampI, timestampI } from './interface';
   import StampEdit from './StampEdit.svelte';
   import { canUndo, getTaskById } from '../indexDb/taskDb';
-  import { undoAndPlace, checkOff, openFolder } from '../stores/taskStore';
+  import {
+    undoAndPlace,
+    checkOff,
+    openFolder,
+    refreshTask,
+  } from '../stores/taskStore';
   import { loadAgenda, reloadNextTask } from '../stores/agendaStore';
   import Gear from 'svelte-bootstrap-icons/lib/Gear';
   import Check from 'svelte-bootstrap-icons/lib/Check';
@@ -43,12 +47,9 @@
       lastModified: Date.now(),
     };
     await editStamp(newTimestamp);
-    await addEvent('editTimestamp', {
-      id: stamp.id,
-      timestamp: newTimestamp.start,
-    });
-    peerBroadcast('sync-timeline', { data: newTimestamp, done: true });
-    refreshTime();
+    await addEvent('editTimestamp', { stamp: newTimestamp });
+    refreshTime(false);
+    refreshTask(); // potential change in utilization
     editing = false;
   };
 

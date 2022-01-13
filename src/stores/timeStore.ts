@@ -1,7 +1,5 @@
 // timeStore.ts Copyright 2021 Paul Beaudet MIT License
 import { Unsubscriber, Writable, writable } from 'svelte/store';
-import { onEvent } from '../connections/dataChannels';
-import { incomingTimeline } from '../indexDb/timelineDb';
 import { addStamp, getStamps } from '../indexDb/timelineDb';
 import { createOid } from '../isomorphic/oid';
 import type {
@@ -77,7 +75,6 @@ const newTimeStamp = ({ id, body }: taskI): memStampI => {
     body,
     done: false,
   };
-  // peerBroadcast('record', { data: inMemStamp });
   return inMemStamp;
 };
 
@@ -98,45 +95,12 @@ const refreshTime = async (sticky: boolean = true) => {
   let end: number = 0;
   if (sticky) {
     timeStore.update((time) => {
-      end = time.history[0].start;
+      if (time.history.length) end = time.history[0].start;
       return time;
     });
   }
-  const { history, now } = await getStamps(end);
-  timeStore.update((time) => {
-    if (!history.length) return time;
-    // What about the case where user deletes all history?
-    return {
-      now,
-      history,
-    };
-  });
+  timeStore.set(await getStamps(end));
 };
-
-const remoteRecord = async ({ data }: { data: memStampI }) => {
-  const { id, taskId, start, type, lastModified } = data;
-  await addStamp({
-    id,
-    taskId,
-    start,
-    type,
-    lastModified,
-  });
-  timeStore.update((time) => {
-    time.history = [
-      { ...time.now, duration: Date.now() - time.now.start },
-      ...time.history,
-    ];
-    // History overflow hide (in memory)
-    if (time.history.length > 8) {
-      time.history.pop();
-    }
-    time.now = data;
-    return time;
-  });
-};
-
-onEvent('record', remoteRecord);
 
 const recordTime = (task: memTaskI) => {
   const { topChild, ...baseTask } = task;
@@ -149,20 +113,11 @@ const recordTime = (task: memTaskI) => {
       ...time.history,
     ];
     // History overflow hide (in memory)
-    if (time.history.length > 8) {
-      time.history.pop();
-    }
+    if (time.history.length > 8) time.history.pop();
     time.now = newTimeStamp(refTask);
     return time;
   });
 };
-
-onEvent('sync-timeline', async (req: { done: boolean; data: timestampI }) => {
-  const done = await incomingTimeline(req);
-  if (done) {
-    await refreshTime();
-  }
-});
 
 export {
   newTimeStamp,
