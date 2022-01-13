@@ -1,5 +1,6 @@
 // defaultData.ts Copyright Paul Beaudet 2021 MIT License
 
+import { children } from 'svelte/internal';
 import type {
   taskStores,
   taskI,
@@ -166,7 +167,18 @@ interface defaultObj {
 // Or else it will disappear on peer sync
 const arrayOfDefaults: defaultObj[] = [
   {
-    body: 'Click "rec" on another task to start another recording and stop this one (Beginner Tips maybe?)',
+    body: 'Click the recording task on another task to start another recording and stop this one',
+  },
+  {
+    body: 'Clicking the check mark on the running task will start recording the next task in the "Task Priority Order"',
+    children: [
+      { body: 'Task Priority Order, has two factors in the following order' },
+      { body: 'Priority one: First task set to "do" within the hour' },
+      { body: 'Priority two: Next task in the same folder' },
+      {
+        body: 'Having this system should alow quick use of the app without too much interaction',
+      },
+    ],
   },
   {
     body: 'Work',
@@ -188,9 +200,39 @@ const arrayOfDefaults: defaultObj[] = [
       { body: 'Breakfast', cadence: 'w,w,1,0,0,0' },
       { body: 'Lunch', cadence: 'w,w,1,0,0,0' },
       { body: 'Dinner', cadence: 'w,w,1,0,0,0' },
+      {
+        body: 'Why should I track eating and sleeping? (open for answers)',
+        children: [
+          {
+            body: 'This a whole time accounting tool, it answers the question "where did the time go?"',
+          },
+          {
+            body: 'It may not be important to know how long lunch takes, but it is helpful to know what time is left for new habits and hobbies and where they fit',
+          },
+          {
+            body: 'Since eating is a non-negotiable thing that follows a specific pattern, the exact time it takes up contributes to knowing where that new cycling hobby fits into the picture',
+          },
+          {
+            body: 'Sometimes its not a matter of whether the time is there its a factor of whether it fits',
+          },
+        ],
+      },
     ],
   },
   { body: 'Sleep', fraction: hourInMillis * 8 * 7, cadence: 'w,w,1,0,0,0' },
+  {
+    body: 'Exercise',
+    cadence: 'many',
+    children: [{ body: 'Walk', cadence: 'many' }],
+  },
+  {
+    body: 'Just For Fun',
+    cadence: 'many',
+    children: [
+      { body: 'Streaming / TV', cadence: 'many' },
+      { body: 'Read', cadence: 'many' },
+    ],
+  },
   {
     body: 'Chores',
     children: [
@@ -199,18 +241,39 @@ const arrayOfDefaults: defaultObj[] = [
     ],
   },
   {
+    body: 'Social',
+    cadence: 'many',
+    children: [
+      { body: 'Keep in touch with family', cadence: 'many' },
+      { body: 'Keep in touch with friends', cadence: 'many' },
+      { body: 'Professional Networking', cadence: 'many' },
+      {
+        body: 'Feel free to make a list of friends and family, set some do times to reach out or get together!',
+      },
+    ],
+  },
+  {
     body: 'Beginner Tips (Click open on this folder)',
     children: [
       {
-        body: 'The goal is tell your time what to do',
+        body: 'The goal is to take direction of how time is spent, from a longer term view then in the moment',
       },
       {
-        body: 'Set a budget for your week by clicking the time slider under the task name',
+        body: 'The default term is two weeks from the time of opening the app',
       },
       {
-        body: 'Set an agenda for your day by giving "do" times to your task with the "when" editor',
+        body: 'Set a budget for this period by clicking the time slider under the task name',
       },
-      { body: 'To remove a task folder, click edit then click done' },
+      {
+        body: "Don't worry about getting the budget perfect, life happens, roll with the punches. The sliders can be pulled any time",
+      },
+      {
+        body: 'This is about gaining realistic perspective on time use, not becoming a monk that self-flagellates',
+      },
+      {
+        body: 'Set an agenda for your day by giving "do" times to your task with the "do" option in task settings',
+      },
+      { body: 'To remove / complete a task folder, click the check icon' },
       {
         body: 'Views (Open me!)',
         children: [
@@ -230,7 +293,7 @@ const arrayOfDefaults: defaultObj[] = [
         ],
       },
       {
-        body: 'To set a recurring task click "edit" and then "many"',
+        body: 'To set a task to recur click the gear icon and then "recur"',
         children: [
           { body: '"None" represents a one off task' },
           {
