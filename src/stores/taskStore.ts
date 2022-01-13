@@ -173,7 +173,7 @@ onEvent('sync-tasks', async (data: { data: taskI; done: boolean }) => {
   if (done) {
     await refreshTask();
     await loadAgenda();
-    await refreshTime();
+    await refreshTime(false);
   }
 });
 

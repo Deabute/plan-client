@@ -99,15 +99,7 @@ const refreshTime = async (sticky: boolean = true) => {
       return time;
     });
   }
-  const { history, now } = await getStamps(end);
-  timeStore.update((time) => {
-    if (!history.length) return time;
-    // What about the case where user deletes all history?
-    return {
-      now,
-      history,
-    };
-  });
+  timeStore.set(await getStamps(end));
 };
 
 const recordTime = (task: memTaskI) => {

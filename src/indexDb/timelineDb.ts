@@ -7,7 +7,7 @@ import type {
   taskI,
   memTaskI,
 } from '../shared/interface';
-import { shownStamps } from '../stores/defaultData';
+import { defaultNow, shownStamps } from '../stores/defaultData';
 
 const changeUtilization = async (
   increment: boolean,
@@ -73,7 +73,7 @@ const getStamps = async (end: number = 0): Promise<timeLineData> => {
     // Add a reference stamp to get duration
     const range = IDBKeyRange.bound(end + 1, currentTime);
     cursor = await timeStore.openCursor(range);
-    rawStamps.push(cursor.value);
+    if (cursor) rawStamps.push(cursor.value);
   } else {
     rawStamps.push(nowVal);
   }

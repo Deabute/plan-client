@@ -75,7 +75,7 @@ const updateProfile = async (profile: profileI): Promise<profileI> => {
 };
 
 // this wont work with multi profile sync
-const setPrimary = async (): Promise<boolean> => {
+const setPrimary = async (isPrimary: boolean = true): Promise<boolean> => {
   const db = await getDb();
   const transaction = db.transaction(['profiles', 'connect'], 'readwrite');
   const profileDb = transaction.objectStore('profiles');
@@ -94,8 +94,8 @@ const setPrimary = async (): Promise<boolean> => {
     if (cursor.value.id === currentProfile) {
       cursor.update({
         ...cursor.value,
-        status: 'primary',
-        lastConnect: Date.now(),
+        status: isPrimary ? 'primary' : 'undecided',
+        lastConnect: Date.now(), // this might more appropriately be called last set
       });
       return true;
     }
@@ -131,6 +131,24 @@ const getAllProfiles = async (): Promise<profileI[]> => {
   return userArray;
 };
 
+const removeDataToBeSecondary = async () => {
+  const db = await getDb();
+  const transaction = db.transaction(
+    ['tasks', 'timeline', 'budget', 'events', 'tach'],
+    'readwrite',
+  );
+  const tasks = transaction.objectStore('tasks');
+  const timeline = transaction.objectStore('timeline');
+  const budget = transaction.objectStore('budget');
+  const events = transaction.objectStore('events');
+  const tach = transaction.objectStore('tach');
+  await tasks.clear();
+  await timeline.clear();
+  await budget.clear();
+  await events.clear();
+  await tach.clear();
+};
+
 export {
   generateProfile,
   initProfile,
@@ -138,4 +156,5 @@ export {
   getAllProfiles,
   setPrimary,
   getPrimary,
+  removeDataToBeSecondary,
 };

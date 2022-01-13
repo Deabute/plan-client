@@ -2,7 +2,7 @@
 <script lang="ts">
   import { newConnection } from '../indexDb/connectionDB';
   import { setPrimary } from '../indexDb/profilesDb';
-  import { peerSyncEnabled } from '../stores/peerStore';
+  import { firstSync, peerSyncEnabled } from '../stores/peerStore';
   import { pendingPeers } from '../stores/settingsStore';
   import type { requesterInfo } from './connectInterface';
   import { makeOfferOnApproval } from './signaling';
@@ -14,15 +14,20 @@
     thisDevice,
   }: requesterInfo) => {
     return async () => {
-      if (!thisDevice) await setPrimary();
-      // this device refers to the other in this instance
+      $firstSync = {
+        peerId: requester,
+        isPrimary: !thisDevice,
+        done: false,
+      };
+      await setPrimary(!thisDevice);
+      // "thisDevice" refers to the other device here, just passing the prop from initiator
       await newConnection(requester);
       makeOfferOnApproval(requester, sig, deviceCert);
-      // if thisDevice set other device profile as primary
       $pendingPeers = $pendingPeers.filter((p) => p.requester !== requester);
       $peerSyncEnabled = true;
     };
   };
+
   const onDeny = (peerId: string) => {
     return () => {
       $pendingPeers = $pendingPeers.filter((p) => p.requester !== peerId);
