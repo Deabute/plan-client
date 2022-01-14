@@ -303,31 +303,38 @@
     </li>
   </ul>
   <hr />
-  {#if $showSideNav}<span class="ms-1 fs-5">About Links</span>{/if}
-  <ul class="nav nav-pills flex-column mb-auto">
-    <li class="nav-item p-1 ms-1" type="link">
-      <a class="text-white" href="https://deabute.com/products/plan/">
-        <InfoCircle />
-        {#if $showSideNav}
+  {#if $showSideNav}
+    <span class="ms-1 fs-5">Learn Links</span>
+    <ul class="nav nav-pills flex-column mb-auto">
+      <li class="nav-item p-1 ms-1" type="link">
+        <a class="text-white" href="https://deabute.com/products/plan/">
+          <InfoCircle />
           &nbsp;
           <span>Budgeting</span>
           &nbsp;
           <BoxArrowUpRight />
-        {/if}
-      </a>
-    </li>
-    <li class="nav-item p-1 ms-1" type="link">
-      <a class="text-white" href="https://github.com/Deabute/plan-client">
-        <Github />
-        {#if $showSideNav}
+        </a>
+      </li>
+      <li class="nav-item p-1 ms-1" type="link">
+        <a class="text-white" href="https://deabute.com/plan-get-involved/">
+          <InfoCircle />
+          &nbsp;
+          <span>Contributing</span>
+          &nbsp;
+          <BoxArrowUpRight />
+        </a>
+      </li>
+      <li class="nav-item p-1 ms-1" type="link">
+        <a class="text-white" href="https://github.com/Deabute/plan-client">
+          <Github />
           &nbsp;
           <span>Source Code</span>
           &nbsp;
           <BoxArrowUpRight />
-        {/if}
-      </a>
-    </li>
-  </ul>
+        </a>
+      </li>
+    </ul>
+  {/if}
 
   {#if $showSideNav}
     <div class="ms-1 fixed-bottom">
