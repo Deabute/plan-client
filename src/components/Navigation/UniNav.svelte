@@ -264,7 +264,13 @@
     >
       <Cloud />
       {#if $showSideNav}
-        <span class={`rounded not-selected p-1`}> Cloud Sync </span>
+        <span
+          class={`rounded not-selected p-1${
+            $syncingUp || $syncingDown ? ' text-warning' : ''
+          }`}
+        >
+          Cloud Sync
+        </span>
       {/if}
     </li>
     <!-- <li
@@ -297,25 +303,25 @@
     </li>
   </ul>
   <hr />
-  {#if $showSideNav}<span class="ms-1 fs-5">About</span>{/if}
+  {#if $showSideNav}<span class="ms-1 fs-5">About Links</span>{/if}
   <ul class="nav nav-pills flex-column mb-auto">
-    <li class="nav-item p-1 ms-1" type="link">
-      <a class="text-white" href="https://github.com/Deabute/plan-client">
-        <Github />
-        {#if $showSideNav}
-          &nbsp;
-          <span>Github</span>
-          &nbsp;
-          <BoxArrowUpRight />
-        {/if}
-      </a>
-    </li>
     <li class="nav-item p-1 ms-1" type="link">
       <a class="text-white" href="https://deabute.com/products/plan/">
         <InfoCircle />
         {#if $showSideNav}
           &nbsp;
           <span>Budgeting</span>
+          &nbsp;
+          <BoxArrowUpRight />
+        {/if}
+      </a>
+    </li>
+    <li class="nav-item p-1 ms-1" type="link">
+      <a class="text-white" href="https://github.com/Deabute/plan-client">
+        <Github />
+        {#if $showSideNav}
+          &nbsp;
+          <span>Source Code</span>
           &nbsp;
           <BoxArrowUpRight />
         {/if}
