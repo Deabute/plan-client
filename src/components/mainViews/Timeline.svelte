@@ -1,8 +1,8 @@
 <!-- Timeline.svelt Copyright 2021 Paul Beaudet MIT Licence -->
 <script lang="ts">
-  import { timelineColumnName } from '../../stores/defaultData';
+  import { genesisTask, timelineColumnName } from '../../stores/defaultData';
   import Timestamp from '../../shared/Timestamp.svelte';
-  import { timeStore } from '../../stores/timeStore';
+  import { recordTime, timeStore } from '../../stores/timeStore';
   import { page } from '../../indexDb/timelineDb';
   import {
     showTimelineColumn,
@@ -14,6 +14,9 @@
   import { nextUp } from '../../stores/agendaStore';
   import { openFolder } from '../../stores/taskStore';
   import { moveTask } from '../../stores/settingsStore';
+  import RecordBtn from 'svelte-bootstrap-icons/lib/RecordBtn';
+  import FolderSymlink from 'svelte-bootstrap-icons/lib/FolderSymlink';
+  import type { taskI } from '../../shared/interface';
 
   export let isMobile: boolean = false;
 
@@ -50,12 +53,22 @@
     }
   };
 
-  let nextTaskBody: string = 'Loading';
+  let next: taskI = {
+    ...genesisTask,
+    body: 'loading...',
+  };
   nextUp.subscribe(async (nextTask) => {
-    nextTaskBody = nextTask
-      ? nextTask.body
-      : 'Make some more folders or this is the only one that can be worked on';
+    next = nextTask
+      ? nextTask
+      : {
+          ...genesisTask,
+          body: 'Make some more folders or this is the only one that can be worked on',
+        };
   });
+
+  const recordNextTask = async () => {
+    recordTime(next);
+  };
 </script>
 
 <ViewContainer
@@ -82,9 +95,29 @@
         class="pb-1 border-bottom"
       >
         <div class="row mb-1 text-center">
-          <div class="col-2 text-success align-self-end">Next</div>
-          <div class="col-8 text-secondary">{nextTaskBody}</div>
-          <div class="col-2 text-success align-self-end"><ArrowDown /></div>
+          <div class="col-2 align-self-end">
+            {#if next.id !== '1'}
+              <div
+                type="button"
+                class="row pb-2"
+                on:click={openFolder(next, $moveTask)}
+              >
+                <FolderSymlink />
+              </div>
+              <div
+                type="button"
+                on:click={recordNextTask}
+                class="row text-danger align-self-end"
+              >
+                <RecordBtn />
+              </div>
+            {/if}
+          </div>
+          <div class="col-8 text-secondary">{next.body}</div>
+          <div class="col-2 text-success align-self-end">
+            <div class="row pb-2 ps-3">Next</div>
+            <div class="row"><ArrowDown /></div>
+          </div>
         </div>
       </div>
       <Timestamp timestamp={$timeStore.now} inProgress={true} />

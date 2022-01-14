@@ -115,7 +115,11 @@
 <div class={`pb-1 border-bottom`} id={timestamp.id}>
   <div class="row mb-1 text-center">
     {#if timestamp.done || $timeStore.now.taskId === timestamp.taskId}
-      <span class="col-2" />
+      {#if inProgress}
+        <span class="col-2 text-danger">Tracking</span>
+      {:else}
+        <span class="col-2" />
+      {/if}
     {:else}
       <div class="col-2 text-danger" type="button" on:click={recordThisTask}>
         <RecordBtn />
