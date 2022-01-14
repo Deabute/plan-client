@@ -13,7 +13,7 @@ const defaultFrame: number = frameValues[1]; // 1 Week in Milliseconds
 
 const activitiesColumnName: string = 'Plan';
 const timelineColumnName: string = 'Track';
-const agendaColumnName: string = 'Do';
+const agendaColumnName: string = 'When';
 // const peopleColumnName: string = 'People';
 // const projectColumnName: string = 'Project';
 // const reviewColumnNome: string = "review";
@@ -157,7 +157,9 @@ const arrayOfDefaults: defaultObj[] = [
     body: 'Clicking the check mark on the running task will start recording the next task in the "Task Priority Order"',
     children: [
       { body: 'Task Priority Order, has two factors in the following order' },
-      { body: 'Priority one: First task set to "do" within the hour' },
+      {
+        body: `Priority one: First task set to "${agendaColumnName}" within the hour`,
+      },
       { body: 'Priority two: Next task in the same folder' },
       {
         body: 'Having this system should alow quick use of the app without too much interaction',
@@ -232,7 +234,7 @@ const arrayOfDefaults: defaultObj[] = [
       { body: 'Keep in touch with friends', cadence: 'many' },
       { body: 'Professional Networking', cadence: 'many' },
       {
-        body: 'Feel free to make a list of friends and family, set some do times to reach out or get together!',
+        body: `Feel free to make a list of friends and family, set some times "${agendaColumnName}" to reach out or get together!`,
       },
     ],
   },
@@ -255,7 +257,7 @@ const arrayOfDefaults: defaultObj[] = [
         body: 'This is about gaining realistic perspective on time use, not becoming a monk that self-flagellates',
       },
       {
-        body: 'Set an agenda for your day by giving "do" times to your task with the "do" option in task settings',
+        body: `Set an agenda for your day by giving "${agendaColumnName}" times to your task with the "${agendaColumnName}" option in task settings`,
       },
       { body: 'To remove / complete a task folder, click the check icon' },
       {
@@ -281,7 +283,7 @@ const arrayOfDefaults: defaultObj[] = [
         children: [
           { body: '"None" represents a one off task' },
           {
-            body: '"Many" represents a repeating task, do dates are cleared when they are completed',
+            body: `"Many" represents a repeating task, "${agendaColumnName}" dates are cleared when they are completed`,
           },
           {
             body: 'Day, Week Month, and Year give options to set cadence every number of those',

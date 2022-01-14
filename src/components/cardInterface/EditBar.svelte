@@ -11,6 +11,7 @@
   import CalendarEvent from 'svelte-bootstrap-icons/lib/CalendarEvent';
   import ArrowRepeat from 'svelte-bootstrap-icons/lib/ArrowRepeat';
   import ArrowDownUp from 'svelte-bootstrap-icons/lib/ArrowDownUp';
+  import { agendaColumnName } from '../../stores/defaultData';
 
   export let task: memTaskI;
   export let topChildShowing: boolean;
@@ -51,7 +52,7 @@
         type="button"
         on:click={toggleEditDue(task)}
       >
-        <CalendarEvent /> When
+        <CalendarEvent />&nbsp;{agendaColumnName}
       </button>
     {/if}
     <button
@@ -69,7 +70,7 @@
       <Trash />
     </button>
     <button class="btn btn-outline-dark col-2" type="button" on:click={move}>
-      <ArrowDownUp /> Move
+      <ArrowDownUp />
     </button>
   </div>
 {/if}
