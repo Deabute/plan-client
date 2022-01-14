@@ -1,10 +1,7 @@
 // defaultData.ts Copyright Paul Beaudet 2021 MIT License
-
-import { children } from 'svelte/internal';
 import type {
   taskStores,
   taskI,
-  columnIds,
   allStoreTypes,
   memStampI,
 } from '../shared/interface';
@@ -14,13 +11,6 @@ const frameOptions: number[] = [1, 2, 3, 4]; // Represented in weeks
 const frameValues: number[] = [604800000, 1209600000, 1814400000, 2419200000];
 const defaultFrame: number = frameValues[1]; // 1 Week in Milliseconds
 
-// IDs of columns
-const genId: { [key: string]: columnIds } = {
-  todo: '1',
-  done: '2',
-  time: '3',
-};
-
 const activitiesColumnName: string = 'Plan';
 const timelineColumnName: string = 'Track';
 const agendaColumnName: string = 'Do';
@@ -29,7 +19,7 @@ const agendaColumnName: string = 'Do';
 // const reviewColumnNome: string = "review";
 
 const genesisTask: taskI = {
-  id: genId.todo,
+  id: '1',
   parentId: '0',
   body: activitiesColumnName,
   position: 0,
@@ -46,12 +36,6 @@ const genesisTask: taskI = {
   autoAssigned: true,
   count: 0,
   utilization: 0,
-};
-
-const timelineParent: taskI = {
-  ...genesisTask,
-  id: genId.time,
-  body: timelineColumnName,
 };
 
 const stores: taskStores[] = ['tasks'];
@@ -383,8 +367,6 @@ export {
   genesisTask,
   startingVelocity,
   stores,
-  timelineParent,
-  genId,
   days,
   defaultNow,
   allStores,

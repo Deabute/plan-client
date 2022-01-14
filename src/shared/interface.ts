@@ -281,7 +281,6 @@ type indexOptions =
   | 'byParent'
   | 'priority'
   | 'eventOrder';
-type columnIds = '1' | '2' | '3';
 type actionTypes = 'done' | 'record' | 'remove';
 type AmPm = 'AM' | 'PM';
 
@@ -333,7 +332,6 @@ export type {
   timestampI,
   memStampI,
   timeStore,
-  columnIds,
   actionTypes,
   timeLineData,
   velocityI,

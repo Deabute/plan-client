@@ -1,7 +1,6 @@
 // taskDb.ts copyright 2021 Paul Beaudet MIT License
 import { getDb } from './dbCore';
 import {
-  genId,
   genesisTask,
   getPriorityIndexRange,
   shownStamps,
@@ -57,7 +56,7 @@ const getSubtask = async (
   // Figure out direct parent in lineage hierarchy
   let parent: taskI = refParent;
   if (renderParent) {
-    if (refParent.parentId === genId.todo) {
+    if (refParent.parentId === '1') {
       parent = genesisTask;
     } else {
       parent = await tasksDb.get(refParent.parentId);
@@ -66,12 +65,12 @@ const getSubtask = async (
   // set direct parent
   let lineage: taskI[] = [{ ...parent }];
   // compile parents and parents of parent ect.
-  while (parent && parent.parentId !== genId.todo) {
+  while (parent && parent.parentId !== '1') {
     parent = await tasksDb.get(parent.parentId);
     lineage = parent ? [...lineage, parent] : [...lineage];
   }
   // return list with genesis as top level task if not top level
-  lineage = lineage[0].id === genId.todo ? lineage : [...lineage, genesisTask];
+  lineage = lineage[0].id === '1' ? lineage : [...lineage, genesisTask];
   return {
     tasks,
     lineage,
@@ -117,14 +116,12 @@ const getSiblingTaskById = async (taskId: string): Promise<taskListData> => {
   }
   // Figure out direct parent in lineage hierarchy
   let parent: taskI =
-    task.parentId === genId.todo
-      ? genesisTask
-      : await tasksDb.get(task.parentId);
+    task.parentId === '1' ? genesisTask : await tasksDb.get(task.parentId);
   if (!parent) return taskListData;
   // set direct parent
   taskListData.lineage = [{ ...parent }];
   // compile parents and parents of parent ect.
-  while (parent && parent.parentId !== genId.todo) {
+  while (parent && parent.parentId !== '1') {
     parent = await tasksDb.get(parent.parentId);
     taskListData.lineage = parent
       ? [...taskListData.lineage, parent]
@@ -132,7 +129,7 @@ const getSiblingTaskById = async (taskId: string): Promise<taskListData> => {
   }
   // return list with genesis as top level task if not top level
   taskListData.lineage =
-    taskListData.lineage[0].id === genId.todo
+    taskListData.lineage[0].id === '1'
       ? taskListData.lineage
       : [...taskListData.lineage, genesisTask];
   return taskListData;
