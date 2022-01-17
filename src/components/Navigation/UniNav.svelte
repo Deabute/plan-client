@@ -11,6 +11,7 @@
     showTimelineMobile,
     showAgendaMobile,
     mobileToggle,
+    desktopMode,
   } from '../../indexDb/viewStoreDb';
   import {
     activitiesColumnName,
@@ -25,7 +26,7 @@
   import CalendarEvent from 'svelte-bootstrap-icons/lib/CalendarEvent';
   import List from 'svelte-bootstrap-icons/lib/List';
   import ListTask from 'svelte-bootstrap-icons/lib/ListTask';
-  import ClockHistory from 'svelte-bootstrap-icons/lib/ClockHistory';
+  // import ClockHistory from 'svelte-bootstrap-icons/lib/ClockHistory';
   import ArrowDownUp from 'svelte-bootstrap-icons/lib/ArrowDownUp';
   import BoxArrowUpRight from 'svelte-bootstrap-icons/lib/BoxArrowUpRight';
   import WifiOff from 'svelte-bootstrap-icons/lib/WifiOff';
@@ -49,22 +50,20 @@
   import { budgetStore } from '../../stores/budgetStore';
   import type { budgetI } from '../../shared/interface';
 
-  export let mobile: boolean = false;
   export let offcanvas: boolean = false;
-
   const getViewClass = (
-    mobile: boolean,
+    desktop: boolean,
     dView: boolean,
     mView: boolean,
   ): string => {
-    let ourView = mobile ? mView : dView;
+    let ourView = desktop ? dView : mView;
     return ourView ? ' selected' : ' not-selected';
   };
 
   const toggle = (name: string) => {
     return () => {
-      if (mobile) mobileToggle(name)();
-      else toggleView(name)();
+      if ($desktopMode) toggleView(name)();
+      else mobileToggle(name)();
     };
   };
 
@@ -156,7 +155,7 @@
     >
       <span
         class={`p-1 border border-dark border rounded${getViewClass(
-          mobile,
+          $desktopMode,
           $showActivityColumn,
           $showActivityMobile,
         )}`}
@@ -178,7 +177,7 @@
     >
       <span
         class={`p-1 border border-dark border rounded${getViewClass(
-          mobile,
+          $desktopMode,
           $showTimelineColumn,
           $showTimelineMobile,
         )}`}
@@ -200,7 +199,7 @@
     >
       <span
         class={`p-1 border border-dark border rounded${getViewClass(
-          mobile,
+          $desktopMode,
           $showAgendaColumn,
           $showAgendaMobile,
         )}`}

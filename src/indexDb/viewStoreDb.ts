@@ -13,6 +13,7 @@ const showActivityMobile: Writable<boolean> = writable(true);
 const showTimelineMobile: Writable<boolean> = writable(false);
 const showAgendaMobile: Writable<boolean> = writable(false);
 const showSideNav: Writable<boolean> = writable(true);
+const desktopMode: Writable<boolean> = writable(true);
 
 const views: {
   name: string;
@@ -103,4 +104,5 @@ export {
   mobileToggle,
   showSideNav,
   getParentView,
+  desktopMode,
 };

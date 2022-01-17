@@ -17,8 +17,6 @@
   import ViewContainer from './ViewContainer.svelte';
   import Folder from 'svelte-bootstrap-icons/lib/Folder';
 
-  export let isMobile: boolean = false;
-
   const cancelTaskMove = () => {
     $moveTask = null;
     $editTask = null;
@@ -35,7 +33,6 @@
   desktopView={$showActivityColumn}
   mobileView={$showActivityMobile}
   id={activitiesColumnName}
-  {isMobile}
 >
   <svelte:fragment slot="headerText">
     <span>

@@ -18,8 +18,6 @@
   import FolderSymlink from 'svelte-bootstrap-icons/lib/FolderSymlink';
   import type { taskI } from '../../shared/interface';
 
-  export let isMobile: boolean = false;
-
   let canPageDown = true;
   let canPageUp = false;
 
@@ -76,7 +74,6 @@
   mobileView={$showTimelineMobile}
   id={timelineColumnName}
   {scrollHandler}
-  {isMobile}
 >
   <svelte:fragment slot="headerText">
     <span>

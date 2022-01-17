@@ -11,8 +11,6 @@
   import ViewContainer from './ViewContainer.svelte';
   import CalendarEvent from 'svelte-bootstrap-icons/lib/CalendarEvent';
 
-  export let isMobile: boolean = false;
-
   let canPageDown = true;
   let canPageUp = true;
 
@@ -52,7 +50,6 @@
   mobileView={$showAgendaMobile}
   id={agendaColumnName}
   {scrollHandler}
-  {isMobile}
 >
   <svelte:fragment slot="headerText">
     <span>
