@@ -116,91 +116,89 @@
 </script>
 
 {#if $showPeerSync}
-  <div>
-    <div class="card card-body m-1" id="peerSyncDialog">
-      {#if sharingId}
-        <div class="row gy-2 mb-1">
-          <span class="col-3">This device's ID</span>
-          <span class="col-9">{sharingId}</span>
-        </div>
-        <!-- put a copy button here -->
-        {#if connectionArray.length < 1}
-          <div class="form-floating mb3 gy-2">
-            <input
-              type="text"
-              class="form-control"
-              id="new-peer-input"
-              maxlength={ID_LENGTH}
-              size={ID_LENGTH}
-              placeholder="Add Sync Peer ID"
-              bind:value={newPeer}
-              aria-describedby="add-peer-button"
-              aria-label="Add peer ID to sync"
-            />
-            <label for="new-peer-input">Add peer ID to sync</label>
-          </div>
-        {/if}
-        {#await validPeer(newPeer) then valid}
-          {#if valid}
-            <div class="text-center mt-1">
-              <span class="fs-5">Add Sync Peer: with </span>
-              <button
-                class="btn btn-outline-dark gy-2"
-                on:click={addPeer()}
-                type="button"
-                id="add-peer-button"
-              >
-                this device's profile
-              </button>
-              <button
-                class="btn btn-outline-dark gy-2"
-                on:click={addPeer(false)}
-                type="button"
-                id="add-peer-button"
-              >
-                it's profile
-              </button>
-            </div>
-          {/if}
-        {/await}
-        {#each connectionArray as connection, i}
-          <div class="card">
-            <div class="card-body row gy-1">
-              <button
-                class="btn btn-outline-dark col-1"
-                on:click={removePeer(connection.id)}
-              >
-                🗑️
-              </button>
-              <span class="col-7">
-                {i + 1}- Name: {connection.name}
-              </span>
-              <span class="col-4">
-                Last sync: {connection.last
-                  ? getHumanReadableStamp(connection.last)
-                  : 'Never'}
-              </span>
-            </div>
-          </div>
-        {/each}
-      {:else}
-        <div class="row gy-2">
-          <button class="btn btn-outline-dark" on:click={optIn}>
-            Turn on peer connections
-          </button>
+  <div class="card card-body m-1" id="peerSyncDialog">
+    {#if sharingId}
+      <div class="row gy-2 mb-1">
+        <span class="col-3">This device's ID</span>
+        <span class="col-9">{sharingId}</span>
+      </div>
+      <!-- put a copy button here -->
+      {#if connectionArray.length < 1}
+        <div class="form-floating mb3 gy-2">
+          <input
+            type="text"
+            class="form-control"
+            id="new-peer-input"
+            maxlength={ID_LENGTH}
+            size={ID_LENGTH}
+            placeholder="Add Sync Peer ID"
+            bind:value={newPeer}
+            aria-describedby="add-peer-button"
+            aria-label="Add peer ID to sync"
+          />
+          <label for="new-peer-input">Add peer ID to sync</label>
         </div>
       {/if}
-      <ProfileList />
-      <div class="row gy-2 mt-1">
-        <button
-          class="btn btn-outline-danger"
-          on:click={toggleSettingDialog('peerSync')}
-          aria-expanded="false"
-          aria-controls="peerSyncDialog"
-        >
-          Back
+      {#await validPeer(newPeer) then valid}
+        {#if valid}
+          <div class="text-center mt-1">
+            <span class="fs-5">Add Sync Peer: with </span>
+            <button
+              class="btn btn-outline-dark gy-2"
+              on:click={addPeer()}
+              type="button"
+              id="add-peer-button"
+            >
+              this device's profile
+            </button>
+            <button
+              class="btn btn-outline-dark gy-2"
+              on:click={addPeer(false)}
+              type="button"
+              id="add-peer-button"
+            >
+              it's profile
+            </button>
+          </div>
+        {/if}
+      {/await}
+      {#each connectionArray as connection, i}
+        <div class="card">
+          <div class="card-body row gy-1">
+            <button
+              class="btn btn-outline-dark col-1"
+              on:click={removePeer(connection.id)}
+            >
+              🗑️
+            </button>
+            <span class="col-7">
+              {i + 1}- Name: {connection.name}
+            </span>
+            <span class="col-4">
+              Last sync: {connection.last
+                ? getHumanReadableStamp(connection.last)
+                : 'Never'}
+            </span>
+          </div>
+        </div>
+      {/each}
+    {:else}
+      <div class="row gy-2">
+        <button class="btn btn-outline-dark" on:click={optIn}>
+          Turn on peer connections
         </button>
       </div>
+    {/if}
+    <ProfileList />
+    <div class="row gy-2 mt-1">
+      <button
+        class="btn btn-outline-danger"
+        on:click={toggleSettingDialog('peerSync')}
+        aria-expanded="false"
+        aria-controls="peerSyncDialog"
+      >
+        Back
+      </button>
     </div>
   </div>
 {/if}
