@@ -237,7 +237,9 @@
   {#if $showSideNav}<span class="ms-1 fs-5">Settings</span>{/if}
   <ul class="nav nav-pills flex-column mb-auto">
     <li
-      class={`nav-item p-1 ms-1 ${getSyncStatus($rtcPeers)}`}
+      class={`nav-item rounded not-selected p-1 ms-1 ${getSyncStatus(
+        $rtcPeers,
+      )}`}
       type="button"
       data-bs-toggle={offcanvas ? 'offcanvas' : ''}
       data-bs-target={offcanvas ? '#mobileMenu' : ''}
@@ -247,13 +249,13 @@
     >
       <Laptop />
       {#if $showSideNav}
-        <span class={`rounded not-selected p-1 ${getSyncStatus($rtcPeers)}`}>
+        <span class={`p-1 ${getSyncStatus($rtcPeers)}`}>
           <Phone />&nbsp; Multi-Device
         </span>
       {/if}
     </li>
     <li
-      class={`nav-item p-1 ms-1`}
+      class={`nav-item rounded not-selected p-1 ms-1`}
       type="button"
       data-bs-toggle={offcanvas ? 'offcanvas' : ''}
       data-bs-target={offcanvas ? '#mobileMenu' : ''}
@@ -263,7 +265,7 @@
     >
       <Hdd />
       {#if $showSideNav}
-        <span class={`rounded not-selected p-1`}> Backup </span>
+        <span class={`p-1`}> Backup </span>
       {/if}
     </li>
     <!-- <li
@@ -281,7 +283,7 @@
       {/if}
     </li> -->
     <li
-      class="nav-item p-1 ms-1"
+      class="nav-item rounded not-selected p-1 ms-1"
       type="button"
       data-bs-toggle={offcanvas ? 'offcanvas' : ''}
       data-bs-target={offcanvas ? '#mobileMenu' : ''}
@@ -291,7 +293,7 @@
     >
       <Trash />
       {#if $showSideNav}
-        <span class="rounded not-selected p-1"> Fresh Start </span>
+        <span class="p-1"> Fresh Start </span>
       {/if}
     </li>
   </ul>
