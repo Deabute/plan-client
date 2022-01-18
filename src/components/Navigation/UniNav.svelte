@@ -39,7 +39,12 @@
   import Cloud from 'svelte-bootstrap-icons/lib/Cloud';
   import CloudArrowUp from 'svelte-bootstrap-icons/lib/CloudArrowUp';
   import HourglassSplit from 'svelte-bootstrap-icons/lib/HourglassSplit';
-  import { toggleSettingDialog } from '../../stores/settingsStore';
+  import {
+    showBackup,
+    showFreshStart,
+    showMultiDevice,
+    toggleSettingDialog,
+  } from '../../stores/settingsStore';
   import {
     peerSyncEnabled,
     rtcPeers,
@@ -151,85 +156,61 @@
     <li
       data-bs-toggle={offcanvas ? 'offcanvas' : ''}
       data-bs-target={offcanvas ? '#mobileMenu' : ''}
-      class={`p-1 nav-item`}
+      class={`p-1 nav-item${getViewClass(
+        $desktopMode,
+        $showActivityColumn,
+        $showActivityMobile,
+      )}`}
       type="button"
       on:click={toggle('activity')}
     >
-      <span
-        class={`p-1 border border-dark border rounded${getViewClass(
-          $desktopMode,
-          $showActivityColumn,
-          $showActivityMobile,
-        )}`}
-      >
-        <Folder />
-      </span>
+      <span class={`p-1`}><Folder /></span>
       {#if $showSideNav}
-        <span class="not-selected rounded">
-          {activitiesColumnName}
-        </span>
+        <span>{activitiesColumnName}</span>
       {/if}
     </li>
     <li
       data-bs-toggle={offcanvas ? 'offcanvas' : ''}
       data-bs-target={offcanvas ? '#mobileMenu' : ''}
-      class={`p-1 nav-item`}
+      class={`p-1 nav-item${getViewClass(
+        $desktopMode,
+        $showTimelineColumn,
+        $showTimelineMobile,
+      )}`}
       type="button"
       on:click={toggle('timeline')}
     >
-      <span
-        class={`p-1 border border-dark border rounded${getViewClass(
-          $desktopMode,
-          $showTimelineColumn,
-          $showTimelineMobile,
-        )}`}
-      >
-        <Stopwatch />
-      </span>
+      <span class={`p-1`}><Stopwatch /></span>
       {#if $showSideNav}
-        <span class="not-selected rounded">
-          {timelineColumnName}
-        </span>
+        <span>{timelineColumnName}</span>
       {/if}
     </li>
     <li
       data-bs-toggle={offcanvas ? 'offcanvas' : ''}
       data-bs-target={offcanvas ? '#mobileMenu' : ''}
-      class={`p-1 nav-item`}
+      class={`p-1 nav-item${getViewClass(
+        $desktopMode,
+        $showAgendaColumn,
+        $showAgendaMobile,
+      )}`}
       type="button"
       on:click={toggle('agenda')}
     >
-      <span
-        class={`p-1 border border-dark border rounded${getViewClass(
-          $desktopMode,
-          $showAgendaColumn,
-          $showAgendaMobile,
-        )}`}
-      >
-        <CalendarEvent />
-      </span>
+      <span class={`p-1`}><CalendarEvent /></span>
       {#if $showSideNav}
-        <span class="not-selected rounded">
-          {agendaColumnName}
-        </span>
+        <span>{agendaColumnName}</span>
       {/if}
     </li>
     <li
       data-bs-toggle={offcanvas ? 'offcanvas' : ''}
       data-bs-target={offcanvas ? '#mobileMenu' : ''}
-      class="nav-item p-1"
+      class={`nav-item p-1 ${$showTopChild ? 'selected' : 'not-selected'}`}
       type="button"
       on:click={toggleView('topChild')}
     >
-      <span
-        class={`p-1 border border-dark border rounded${
-          $showTopChild ? ' selected' : ' not-selected'
-        }`}
-      >
-        <ListTask />
-      </span>
+      <span class={`p-1`}><ListTask /></span>
       {#if $showSideNav}
-        <span class="not-selected rounded"> Top sub-folder </span>
+        <span> Top sub-folder </span>
       {/if}
     </li>
   </ul>
@@ -237,9 +218,9 @@
   {#if $showSideNav}<span class="ms-1 fs-5">Settings</span>{/if}
   <ul class="nav nav-pills flex-column mb-auto">
     <li
-      class={`nav-item rounded not-selected p-1 ms-1 ${getSyncStatus(
-        $rtcPeers,
-      )}`}
+      class={`nav-item rounded p-1 ms-1 ${
+        $showMultiDevice ? 'selected' : 'not-selected'
+      } ${getSyncStatus($rtcPeers)}`}
       type="button"
       data-bs-toggle={offcanvas ? 'offcanvas' : ''}
       data-bs-target={offcanvas ? '#mobileMenu' : ''}
@@ -255,7 +236,9 @@
       {/if}
     </li>
     <li
-      class={`nav-item rounded not-selected p-1 ms-1`}
+      class={`nav-item rounded p-1 ms-1 ${
+        $showBackup ? 'selected' : 'not-selected'
+      }`}
       type="button"
       data-bs-toggle={offcanvas ? 'offcanvas' : ''}
       data-bs-target={offcanvas ? '#mobileMenu' : ''}
@@ -283,7 +266,9 @@
       {/if}
     </li> -->
     <li
-      class="nav-item rounded not-selected p-1 ms-1"
+      class={`nav-item rounded p-1 ms-1 ${
+        $showFreshStart ? 'selected' : 'not-selected'
+      }`}
       type="button"
       data-bs-toggle={offcanvas ? 'offcanvas' : ''}
       data-bs-target={offcanvas ? '#mobileMenu' : ''}
