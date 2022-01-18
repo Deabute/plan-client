@@ -47,19 +47,17 @@ const toggleAddFolder = () => {
 
 const editTask: Writable<memTaskI | null> = writable(null);
 
-const showPeerSync: Writable<boolean> = writable(false);
 const showHistory: Writable<boolean> = writable(false);
 const showDuration: Writable<boolean> = writable(false);
 const showFreshStart: Writable<boolean> = writable(false);
-const showCloudSync: Writable<boolean> = writable(false);
+const showMultiDevice: Writable<boolean> = writable(false);
 const showViews: Writable<boolean> = writable(true);
 
 const settingDialogs: { name: settingNames; store: Writable<boolean> }[] = [
-  { name: 'peerSync', store: showPeerSync },
   { name: 'history', store: showHistory },
   { name: 'duration', store: showDuration },
   { name: 'freshStart', store: showFreshStart },
-  { name: 'cloudSync', store: showCloudSync },
+  { name: 'multiDevice', store: showMultiDevice },
 ];
 
 const toggleSettingDialog = (name: settingNames) => {
@@ -106,12 +104,11 @@ export {
   toggleAddFolder,
   editTask,
   showHistory,
-  showPeerSync,
   showFreshStart,
   showDuration,
-  showCloudSync,
   toggleSettingDialog,
   newProfile,
   editToggle,
   showViews,
+  showMultiDevice,
 };

@@ -307,12 +307,7 @@ type allDataTypes =
   | eventI
   | pskI;
 
-type settingNames =
-  | 'peerSync'
-  | 'history'
-  | 'duration'
-  | 'freshStart'
-  | 'cloudSync';
+type settingNames = 'multiDevice' | 'history' | 'duration' | 'freshStart';
 
 export type {
   taskI,

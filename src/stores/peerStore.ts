@@ -1,6 +1,6 @@
 // settingsStore.ts Copyright 2021 Paul Beaudet MIT License
 
-import { writable, Writable } from 'svelte/store';
+import { get, writable, Writable } from 'svelte/store';
 import type { peersI } from '../connections/connectInterface';
 
 const rtcPeers: Writable<peersI[]> = writable([]);
@@ -22,6 +22,14 @@ const getBooleanStatus = (state: Writable<boolean>): boolean => {
   return syncStatus;
 };
 
+const peersConnected = (): boolean => {
+  const peers = get(rtcPeers);
+  for (let i = 0; i < peers.length; i++) {
+    if (peers[i].connected) return true;
+  }
+  return false;
+};
+
 export {
   rtcPeers,
   peerSyncEnabled,
@@ -29,4 +37,5 @@ export {
   syncingDown,
   getBooleanStatus,
   firstSync,
+  peersConnected,
 };

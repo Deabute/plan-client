@@ -32,7 +32,8 @@
   import WifiOff from 'svelte-bootstrap-icons/lib/WifiOff';
   import Github from 'svelte-bootstrap-icons/lib/Github';
   import InfoCircle from 'svelte-bootstrap-icons/lib/InfoCircle';
-  import People from 'svelte-bootstrap-icons/lib/People';
+  import Phone from 'svelte-bootstrap-icons/lib/Phone';
+  import Laptop from 'svelte-bootstrap-icons/lib/Laptop';
   import Trash from 'svelte-bootstrap-icons/lib/Trash';
   import Cloud from 'svelte-bootstrap-icons/lib/Cloud';
   import CloudArrowUp from 'svelte-bootstrap-icons/lib/CloudArrowUp';
@@ -74,7 +75,7 @@
         return peers[i].sank ? 'text-success' : 'text-warning';
       }
     }
-    return '';
+    return $syncingUp || $syncingDown ? ' text-warning' : '';
   };
 
   const getSprintEndDate = ({ start, frame }: budgetI) => {
@@ -119,7 +120,7 @@
         {:else if $connectionStatus === 'Cloud'}
           <Cloud />
         {:else if $connectionStatus === 'P2P'}
-          <People />
+          <Laptop />
         {/if}
         {#if $showSideNav}
           <span class="rounded">
@@ -239,36 +240,14 @@
       type="button"
       data-bs-toggle={offcanvas ? 'offcanvas' : ''}
       data-bs-target={offcanvas ? '#mobileMenu' : ''}
-      on:click={toggleSettingDialog('peerSync')}
+      on:click={toggleSettingDialog('multiDevice')}
       aria-expanded="false"
-      aria-controls="peerSyncDialog"
+      aria-controls="multiDevice"
     >
-      <People />
+      <Laptop />
       {#if $showSideNav}
         <span class={`rounded not-selected p-1 ${getSyncStatus($rtcPeers)}`}>
-          Peer Sync
-        </span>
-      {/if}
-    </li>
-    <li
-      class={`nav-item p-1 ms-1${
-        $syncingUp || $syncingDown ? ' text-warning' : ''
-      }`}
-      type="button"
-      data-bs-toggle={offcanvas ? 'offcanvas' : ''}
-      data-bs-target={offcanvas ? '#mobileMenu' : ''}
-      on:click={toggleSettingDialog('cloudSync')}
-      aria-expanded="false"
-      aria-controls="freshStart"
-    >
-      <Cloud />
-      {#if $showSideNav}
-        <span
-          class={`rounded not-selected p-1${
-            $syncingUp || $syncingDown ? ' text-warning' : ''
-          }`}
-        >
-          Cloud Sync
+          <Phone />&nbsp; Multi-Device
         </span>
       {/if}
     </li>

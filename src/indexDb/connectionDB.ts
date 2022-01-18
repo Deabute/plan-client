@@ -1,5 +1,9 @@
 // connectionDb.ts copyright 2021 Paul Beaudet MIT License
-import type { PlanDB, IDBPCursorWithValue } from '../shared/interface';
+import type {
+  PlanDB,
+  IDBPCursorWithValue,
+  connectionI,
+} from '../shared/interface';
 import { getDb } from './dbCore';
 import { getDeviceId } from '../shared/conversions';
 import { KEY_PAIR_CONFIG } from '../stores/defaultData';
@@ -181,6 +185,27 @@ const getConnectionId = async (): Promise<string> => {
   return null;
 };
 
+const getConnections = async (): Promise<{
+  connections: connectionI[];
+  id: string;
+}> => {
+  const connections: connectionI[] = [];
+  let id = '';
+  let cursor = await getConnectionCursor();
+  while (cursor) {
+    if (cursor.value.deviceKey === '') {
+      connections.push(cursor.value);
+    } else {
+      id = cursor.value.id;
+    }
+    cursor = await cursor.continue();
+  }
+  return {
+    connections,
+    id,
+  };
+};
+
 export {
   getConnectionCursor,
   newConnection,
@@ -192,4 +217,5 @@ export {
   getPub,
   checkPeerSyncEnabled,
   getConnectionId,
+  getConnections,
 };

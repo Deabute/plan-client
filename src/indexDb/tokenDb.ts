@@ -6,7 +6,7 @@ import type {
   syncCache,
 } from '../connections/connectInterface';
 import { wsSend } from '../connections/WebSocket';
-import type { tokenI } from '../shared/interface';
+import type { profileI, tokenI } from '../shared/interface';
 import { syncingUp } from '../stores/peerStore';
 import { getDb } from './dbCore';
 import { packageCache } from './pskDb';
@@ -86,4 +86,11 @@ const addToken = async (token: tokenI) => {
   db.add('tokens', token);
 };
 
-export { getLatestToken, addToken, syncUp };
+const requestToken = (uProfile: profileI) => {
+  wsSend('requestAuthToken', {
+    userId: uProfile.id,
+    password: uProfile.password,
+  });
+};
+
+export { getLatestToken, addToken, syncUp, requestToken };

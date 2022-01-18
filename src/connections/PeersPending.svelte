@@ -36,23 +36,19 @@
 </script>
 
 {#if $pendingPeers.length}
-  <div class="card m-1">
-    <div class="card-body">
-      {#each $pendingPeers as peer}
-        <span>
-          {`Do you trust device ${peer.requester} to sync ${
-            peer.thisDevice
-              ? "it's data to this device"
-              : "this device's data to it"
-          } ?`}
-        </span>
-        <button class="btn btn-outline-dark" on:click={onApproval(peer)}>
-          Approve
-        </button>
-        <button class="btn btn-outline-dark" on:click={onDeny(peer.requester)}>
-          Deny
-        </button>
-      {/each}
-    </div>
-  </div>
+  {#each $pendingPeers as peer}
+    <span>
+      {`Do you trust device ${peer.requester} to sync ${
+        peer.thisDevice
+          ? "it's data to this device"
+          : "this device's data to it"
+      } ?`}
+    </span>
+    <button class="btn btn-outline-dark" on:click={onApproval(peer)}>
+      Approve
+    </button>
+    <button class="btn btn-outline-dark" on:click={onDeny(peer.requester)}>
+      Deny
+    </button>
+  {/each}
 {/if}

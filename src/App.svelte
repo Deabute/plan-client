@@ -6,7 +6,6 @@
   import { loadTask } from './stores/taskStore';
   import { getTime } from './stores/timeStore';
   import { initConnectionSignaling } from './connections/signaling';
-  import PeersPending from './connections/PeersPending.svelte';
   import { migrateData } from './indexDb/migrations';
   import { loadAgenda } from './stores/agendaStore';
   import Agenda from './components/mainViews/Agenda.svelte';
@@ -21,10 +20,9 @@
   import Footer from './components/Navigation/Footer.svelte';
   import TaskList from './components/mainViews/TaskList.svelte';
   import { showViews, showAddFolder } from './stores/settingsStore';
-  import CloudSync from './components/menuItems/CloudSync.svelte';
   import { initEventsForEvents } from './indexDb/eventsOnEvents';
-  import PeerToPeer from './components/menuItems/PeerToPeer.svelte';
   import UniNav from './components/Navigation/UniNav.svelte';
+  import MultiDevice from './components/menuItems/MultiDevice.svelte';
 
   // only one db store should be loaded at a time sequentialy
   // otherwise intializing data and migrations will get triggered
@@ -78,12 +76,10 @@
       <UniNav />
     </div>
   {/if}
-  <PeerToPeer />
+  <MultiDevice />
   <BudgetSetings />
-  <PeersPending />
   <Utilized />
   <DeleteData />
-  <CloudSync />
   {#if $showViews}
     <TaskList />
     <Timeline />
