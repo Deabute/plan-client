@@ -21,7 +21,7 @@
   import DeleteData from './components/menuItems/DeleteData.svelte';
   import Footer from './components/Navigation/Footer.svelte';
   import TaskList from './components/mainViews/TaskList.svelte';
-  import { showAddFolder } from './stores/settingsStore';
+  import { showViews, showAddFolder } from './stores/settingsStore';
   import CloudSync from './components/menuItems/CloudSync.svelte';
   import { initEventsForEvents } from './indexDb/eventsOnEvents';
   import PeerToPeer from './components/menuItems/PeerToPeer.svelte';
@@ -73,22 +73,24 @@
 </script>
 
 <Messages />
-<PeerToPeer />
-<BudgetSetings />
-<PeersPending />
 <ToolTipBar />
-<Utilized />
-<DeleteData />
-<CloudSync />
 <main class={`scroll-container${getHeight($showAddFolder, tabletMode)}`}>
   {#if tabletMode}
     <div class="flex-shrink-0 text-white bg-dark pe-2">
       <UniNav />
     </div>
   {/if}
-  <TaskList />
-  <Timeline />
-  <Agenda />
+  <PeerToPeer />
+  <BudgetSetings />
+  <PeersPending />
+  <Utilized />
+  <DeleteData />
+  <CloudSync />
+  {#if $showViews}
+    <TaskList />
+    <Timeline />
+    <Agenda />
+  {/if}
 </main>
 <Footer />
 

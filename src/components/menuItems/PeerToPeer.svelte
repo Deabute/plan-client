@@ -89,6 +89,7 @@
       refreshPeers();
       $firstSync = null;
       $showPeerSync = false;
+      toggleSettingDialog('peerSync');
     }
   });
 

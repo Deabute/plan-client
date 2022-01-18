@@ -52,6 +52,7 @@ const showHistory: Writable<boolean> = writable(false);
 const showDuration: Writable<boolean> = writable(false);
 const showFreshStart: Writable<boolean> = writable(false);
 const showCloudSync: Writable<boolean> = writable(false);
+const showViews: Writable<boolean> = writable(true);
 
 const settingDialogs: { name: settingNames; store: Writable<boolean> }[] = [
   { name: 'peerSync', store: showPeerSync },
@@ -63,12 +64,18 @@ const settingDialogs: { name: settingNames; store: Writable<boolean> }[] = [
 
 const toggleSettingDialog = (name: settingNames) => {
   return () => {
+    let toggleAllSettingsOff = true;
     settingDialogs.forEach((setting) => {
       setting.store.update((showing) => {
-        if (setting.name === name && !showing) return true;
+        if (setting.name === name && !showing) {
+          showViews.set(false);
+          toggleAllSettingsOff = false;
+          return true;
+        }
         return false;
       });
     });
+    if (toggleAllSettingsOff) showViews.set(true);
   };
 };
 const newProfile: Writable<boolean> = writable(false);
@@ -106,4 +113,5 @@ export {
   toggleSettingDialog,
   newProfile,
   editToggle,
+  showViews,
 };
