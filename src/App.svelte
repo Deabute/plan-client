@@ -1,7 +1,6 @@
 <!-- App.svelte Copyright 2021 Paul Beaudet MIT Licence -->
 <script lang="ts">
   import Timeline from './components/mainViews/Timeline.svelte';
-  import Messages from './components/menuItems/Messages.svelte';
   import { getBudget } from './stores/budgetStore';
   import BudgetSetings from './components/menuItems/BudgetSetings.svelte';
   import { loadTask } from './stores/taskStore';
@@ -72,7 +71,6 @@
   };
 </script>
 
-<Messages />
 <ToolTipBar />
 <main class={`scroll-container${getHeight($showAddFolder, tabletMode)}`}>
   {#if tabletMode}
