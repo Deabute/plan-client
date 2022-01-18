@@ -307,7 +307,12 @@ type allDataTypes =
   | eventI
   | pskI;
 
-type settingNames = 'multiDevice' | 'history' | 'duration' | 'freshStart';
+type settingNames =
+  | 'multiDevice'
+  | 'history'
+  | 'duration'
+  | 'freshStart'
+  | 'backup';
 
 export type {
   taskI,

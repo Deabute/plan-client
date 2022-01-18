@@ -124,7 +124,7 @@
     <ProfileList />
     <div class="row">
       <button
-        class="btn btn-outline-danger"
+        class="btn btn-danger"
         on:click={toggleSettingDialog('multiDevice')}
         aria-expanded="false"
         aria-controls="peerSyncDialog"

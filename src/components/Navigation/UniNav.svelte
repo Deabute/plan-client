@@ -34,6 +34,7 @@
   import InfoCircle from 'svelte-bootstrap-icons/lib/InfoCircle';
   import Phone from 'svelte-bootstrap-icons/lib/Phone';
   import Laptop from 'svelte-bootstrap-icons/lib/Laptop';
+  import Hdd from 'svelte-bootstrap-icons/lib/Hdd';
   import Trash from 'svelte-bootstrap-icons/lib/Trash';
   import Cloud from 'svelte-bootstrap-icons/lib/Cloud';
   import CloudArrowUp from 'svelte-bootstrap-icons/lib/CloudArrowUp';
@@ -249,6 +250,20 @@
         <span class={`rounded not-selected p-1 ${getSyncStatus($rtcPeers)}`}>
           <Phone />&nbsp; Multi-Device
         </span>
+      {/if}
+    </li>
+    <li
+      class={`nav-item p-1 ms-1`}
+      type="button"
+      data-bs-toggle={offcanvas ? 'offcanvas' : ''}
+      data-bs-target={offcanvas ? '#mobileMenu' : ''}
+      on:click={toggleSettingDialog('backup')}
+      aria-expanded="false"
+      aria-controls="backup"
+    >
+      <Hdd />
+      {#if $showSideNav}
+        <span class={`rounded not-selected p-1`}> Backup </span>
       {/if}
     </li>
     <!-- <li

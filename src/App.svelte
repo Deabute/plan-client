@@ -23,6 +23,7 @@
   import { initEventsForEvents } from './indexDb/eventsOnEvents';
   import UniNav from './components/Navigation/UniNav.svelte';
   import MultiDevice from './components/menuItems/MultiDevice.svelte';
+  import Backup from './components/menuItems/Backup.svelte';
 
   // only one db store should be loaded at a time sequentialy
   // otherwise intializing data and migrations will get triggered
@@ -77,6 +78,7 @@
     </div>
   {/if}
   <MultiDevice />
+  <Backup />
   <BudgetSetings />
   <Utilized />
   <DeleteData />
