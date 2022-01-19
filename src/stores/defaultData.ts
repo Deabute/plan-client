@@ -6,12 +6,13 @@ import type {
   memStampI,
 } from '../shared/interface';
 
+const ProductName: string = 'Time Intent';
 // - budgeting -
 const frameOptions: number[] = [1, 2, 3, 4]; // Represented in weeks
 const frameValues: number[] = [604800000, 1209600000, 1814400000, 2419200000];
 const defaultFrame: number = frameValues[1]; // 1 Week in Milliseconds
 
-const activitiesColumnName: string = 'Plan';
+const activitiesColumnName: string = 'Intent';
 const timelineColumnName: string = 'Track';
 const agendaColumnName: string = 'When';
 // const peopleColumnName: string = 'People';
@@ -154,9 +155,9 @@ const arrayOfDefaults: defaultObj[] = [
     body: 'Click the recording task on another task to start another recording and stop this one',
   },
   {
-    body: 'Clicking the check mark on the running task will start recording the next task in the "Task Priority Order"',
+    body: 'Clicking the check mark on the running task will start recording the next task in the "Intent Order"',
     children: [
-      { body: 'Task Priority Order, has two factors in the following order' },
+      { body: 'Intent Order, has two priorities in the following order' },
       {
         body: `Priority one: First task set to "${agendaColumnName}" within the hour`,
       },
@@ -245,7 +246,7 @@ const arrayOfDefaults: defaultObj[] = [
         body: 'The goal is to take direction of how time is spent, from a longer term view then in the moment',
       },
       {
-        body: 'The default term is two weeks from the time of opening the app',
+        body: 'The default term is two weeks from the time of opening the app, then two weeks from that, and so on (not currently editable)',
       },
       {
         body: 'Set a budget for this period by clicking the time slider under the task name',
@@ -291,30 +292,40 @@ const arrayOfDefaults: defaultObj[] = [
         ],
       },
       {
-        body: 'Your data is stored on this device! No sign in needed! Sync with another device for a back up',
+        body: 'Your data is stored on this device! No sign in needed!',
       },
       {
-        body: 'Syncing up with another device (Open me!)',
+        body: 'Information about paid features (Multi-Device & Backup)',
         children: [
-          { body: 'Go to "setup" in the top bar and then "Peer Sync' },
           {
-            body: 'Opt-in on Device A. It will generate a long id to share with Device B',
+            body: 'Peer to peer and cloud multi-device is possible by selecting the multi device option in the side-bar',
           },
           {
-            body: "Opt-in with Device B and paste in Device B's id. Then click connect",
+            body: 'Backup regularly collects changes made and makes it possible to restore from a new client device',
           },
           {
-            body: "Device A should now ask if its okay to connect to Device B's id",
+            body: 'Currently these options are pre-release invite only, but it is also possible to request access',
           },
           {
-            body: 'Check to be sure at least the last hand full of characters match in the ID',
-          },
-          { body: "Don't accept connect request from unknown device ids" },
-          {
-            body: 'Keep in mind with peer sync both instances of the app need to be up at the same time to sync',
-          },
-          {
-            body: 'Cloud sync is our paid subscription service for convenient syncing',
+            body: 'Peer sync instructions, used in Multi-device options',
+            children: [
+              {
+                body: 'Opt-in on Device A. It will generate a long id to share with Device B',
+              },
+              {
+                body: "Opt-in with Device B and paste in Device B's id. Then click connect",
+              },
+              {
+                body: "Device A should now ask if its okay to connect to Device B's id",
+              },
+              {
+                body: 'Check to be sure at least the last hand full of characters match in the ID',
+              },
+              { body: "Don't accept connect request from unknown device ids" },
+              {
+                body: 'Keep in mind with peer sync both instances of the app need to be reloaded at the same time to sync',
+              },
+            ],
           },
         ],
       },
@@ -398,4 +409,5 @@ export {
   days31,
   days366,
   arrayOfDefaults,
+  ProductName,
 };

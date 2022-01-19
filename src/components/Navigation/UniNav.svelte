@@ -18,6 +18,7 @@
     agendaColumnName,
     DAYS_SHORT,
     MONTH_SHORT,
+    ProductName,
     timelineColumnName,
     weekInMillis,
   } from '../../stores/defaultData';
@@ -105,7 +106,7 @@
     data-bs-dismiss={offcanvas ? 'offcanvas' : ''}
   >
     {#if !offcanvas}<List />{/if}
-    {#if $showSideNav}<span class="ps-1">Deabute Plan</span>{/if}
+    {#if $showSideNav}<span class="ps-1">{ProductName}</span>{/if}
     {#if offcanvas}
       <button
         type="button"

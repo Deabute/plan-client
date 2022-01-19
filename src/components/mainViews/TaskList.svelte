@@ -40,7 +40,7 @@
       <span class="header">
         &nbsp;
         {#if $taskStore.lineage[0].parentId !== '0'}
-          {`Plan: ${$taskStore.lineage[0].body}`}
+          {`Intent: ${$taskStore.lineage[0].body}`}
         {:else}
           {activitiesColumnName}
         {/if}

@@ -1,10 +1,10 @@
-# Plan Beta (Working codename)
+# Time Intent Beta
 
 Busy? Tell your time where it goes.
 
 Work hard without sacrificing the finer points of life.
 
-"Plan" is a tool for budgeting your personal time with abilities to task track with timekeeping.
+Time Intent is a tool for setting intentions for your time armed with the tools to fulfill those intentions. Prioritize, organize, track, budget and give times to accomplish intents.
 
 ## Problems that might lead one to use this tool
 
@@ -13,12 +13,13 @@ Work hard without sacrificing the finer points of life.
 - Talking about work or working unnecessarily long hours negatively affects relationships
 - It's hard to remember appointments and keep to basic routines when busy or engaging in a complex project
 - Breaking down and identifying the most important part of a task to work on is difficult
+- Maintaining consistent habits is tough when starting with too much, too frequent, or too many different habits.
 
 ## Solution Goal
 
 Give an individual peace of mind in taking on ambitious projects in balance with other parts of a fulfilling life.
 
-One has a finite amount of time in the day. Plan shows how it gets used a gives the ability to set goals for how it will be used.
+One has a finite amount of time in the day. "Time Intent" shows how time gets used and gives the ability to set goals for how time will be used.
 
 ## Features Summary
 
@@ -36,15 +37,13 @@ Billable time accounting apps and their lack of budgeting features were an inspi
 
 After all my problem wasn't tracking billable time, it was having the anxiety that I needed to be doing something productive every moment of the day.
 
-Modern financial budgeting tools and the impact they've had in our life has been an inspiration for applying the same principles to time.
-
-Just a tip from a dilettante: When every dollar has an agreed job, it's easier to sleep at night.
+Modern financial budgeting tools and the impact they've had in our life has been an inspiration for applying the same principles to time. When married and sharing finances, every dollar having an agreed job means it's easier to sleep at night.
 
 ---
 
 Copyright 2021 ~ Paul Beaudet ~ All rights reserved on [README.md](README.md).
 
-The code of this static website is Open Source under the MIT License ~ See [LICENSE](LICENSE) for details
+The code of this web application is Open Source under the MIT License ~ See [LICENSE](LICENSE) for details
 
 Logos, sayings, presented verbiage, instructions, and, help ~ All rights reserved
 
@@ -64,13 +63,7 @@ All that being said, I want to make it clear in plain words what I intended to p
 - Ability to audit the source that gets run on their computer.
 - The opportunity to repair and augment code that gets run on their computer.
 - Ability to share improved code freely
-- Ability to pick up the torch upon author abandonment
-
-Things I do not intend to provide anyone (Complete product-wise). Licensees or not.
-
-- Ability to copycat, rebadge, and capture the same market segment
-  - Individually none of those things are all that concerning. Stand-alone they are either part of open source or business. However, to see it all happen to a project in concert by a competitor with just a bit more marketing power or funding is a threat to this ecosystem in general.
-- modifying the code for the purposes of unlawful acts
+- Ability to pick up the torch if there is such a time when I am unable to continue the project.
 
 Keep in mind the software is constantly improving and I can change the license at any time to solely serve members of our community either contributors or users. Violating "the spirit" of open source is legal, violating copyright is prosecutable in my jurisdiction. Keep in mind laws spell out the rights of authorship more than they explain how a license should be interpreted. The dirty secret of open source is that the licenses are easy to enforce because of the power authorship has.
 
