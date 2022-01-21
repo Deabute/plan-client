@@ -70,8 +70,8 @@
 
   const optIn = async () => {
     await initDeviceID();
+    // This sets up websocket connection for the first time, otherwise no connection is made
     initConnectionSignaling();
-    // Set up websocket connection, because it only got set up if opt-in
     addEvent('peerSyncOptIn', { id: '', optIn: true });
     const { id, connections } = await getConnections();
     connectionArray = connections;
