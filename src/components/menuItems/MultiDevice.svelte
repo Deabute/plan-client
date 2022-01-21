@@ -7,7 +7,6 @@
   } from '../../connections/dataChannels';
   import PeersPending from '../../connections/PeersPending.svelte';
   import { wsOn, wsSend } from '../../connections/WebSocket';
-  import { checkPeerSyncEnabled } from '../../indexDb/connectionDB';
   import {
     getPrimary,
     initProfile,
@@ -35,6 +34,7 @@
   import { refreshTime, secondTick } from '../../stores/timeStore';
   import PeerToPeer from './PeerToPeer.svelte';
   import ProfileList from './ProfileList.svelte';
+  import { checkPeerSyncEnabled } from '../../indexDb/connectionDB';
 
   let status: string = 'Not Authorized to sync';
   let submitedInterest: boolean = false;
@@ -84,11 +84,11 @@
     }
   });
 
-  const validEmail = (email: string): boolean => {
-    const regex =
-      /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return regex.test(String(email).toLocaleLowerCase());
-  };
+  let validMail: boolean = false;
+  $: validMail =
+    /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
+      String(email).toLowerCase(),
+    );
 
   const requestSyncDown = async () => {
     if (peersConnected()) return;
@@ -103,6 +103,7 @@
     });
   };
 
+  // only request sync down after its confirmed by server no peers are online
   wsOn('noPeers', requestSyncDown);
 
   initProfile().then(async (result) => {
@@ -164,20 +165,24 @@
 {#if $showMultiDevice}
   <div class="card card-body m-1" id="multiDeviceDialog">
     <PeersPending />
-    <PeerToPeer />
     <div class="row my-2">
-      <span class="fs-3 text-center"
-        >Device On / Device Off sync (EE2E Cloud)</span
-      >
+      <p class="fs-3 text-center">Multi-device operation status</p>
+      <p class="text-center">
+        Express interest with the device that has the data you want to sync, the
+        other will device be overwritten. Only express interest on one of the
+        devices.
+      </p>
     </div>
     <div class="row">
-      <span class="text-center">{`Status: ${status}`}</span>
+      <span class="text-center">{status}</span>
     </div>
-    <div class="row mb-1">
-      <span class="text-center">
-        Sync data out of band with peer connected devices
-      </span>
-    </div>
+    {#if !$peerSyncEnabled}
+      <div class="row mb-1">
+        <b class="text-center">
+          * Intial Peer Sync required to exchange encyption keys *
+        </b>
+      </div>
+    {/if}
     {#if submitedInterest && !dismissedAlert}
       <div class="row">
         <div
@@ -210,26 +215,33 @@
             aria-label="Email"
           />
           <label for="interest-email">
-            Enter email to express interest in async cloud sync
+            Enter email to express interest in multi-device
           </label>
         </div>
-        {#if validEmail(email)}
-          <button
-            type="button"
-            id="express-interest-button"
-            on:click={signUp}
-            class="btn btn-outline-dark"
-          >
-            Express interest
-          </button>
-        {/if}
+        <button
+          type="button"
+          disabled={!validMail}
+          id="express-interest-button"
+          on:click={signUp}
+          class="btn btn-success"
+        >
+          Express interest
+        </button>
       </div>
     {/if}
-    {#if !$peerSyncEnabled}
-      <div class="row mb-1">
-        <b class="text-center"> * Intial Peer Sync required * </b>
-      </div>
-    {/if}
+    <hr />
+    <PeerToPeer />
+    <hr />
+    <div class="row my-2">
+      <span class="fs-3 text-center"> Cloud Sync </span>
+    </div>
+    <div class="row mb-1">
+      <p class="text-center">Beta, opt-in, invite only.</p>
+      <p class="text-center">
+        Sync data out of band with peer connected devices. End to End Encypted
+        (EE2E) data stored in Time Intent database.
+      </p>
+    </div>
     <ProfileList />
     <div class="row">
       <button

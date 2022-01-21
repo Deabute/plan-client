@@ -85,7 +85,15 @@
 </script>
 
 <div class="row mb-2">
-  <span class="fs-3 text-center">Both Device On Sync (WebRTC P2P)</span>
+  <span class="fs-3 text-center"> Real-time Sync </span>
+</div>
+<div class="row mb-1">
+  <p class="text-center">Pre-release, limited open beta</p>
+  <p class="text-center">
+    Sync data peer to peer when both clients are active. WebRTC, Real Time Chat
+    data channel connection between both clients, data stored only on your
+    devices.
+  </p>
 </div>
 {#if sharingId}
   <div class="row gy-2 mb-1">
