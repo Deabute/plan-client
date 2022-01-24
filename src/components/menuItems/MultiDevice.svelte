@@ -35,6 +35,7 @@
   import PeerToPeer from './PeerToPeer.svelte';
   import ProfileList from './ProfileList.svelte';
   import { checkPeerSyncEnabled } from '../../indexDb/connectionDB';
+  import Backup from './Backup.svelte';
 
   let status: string = 'Not Authorized to sync';
   let submitedInterest: boolean = false;
@@ -163,95 +164,128 @@
 </script>
 
 {#if $showMultiDevice}
-  <div class="card card-body m-1" id="multiDeviceDialog">
-    <PeersPending />
-    <div class="row my-2">
-      <p class="fs-3 text-center">Multi-device operation status</p>
-      <p class="text-center">
-        Express interest with the device that has the data you want to sync, the
-        other will device be overwritten. Only express interest on one of the
-        devices.
-      </p>
-    </div>
-    <div class="row">
-      <span class="text-center">{status}</span>
-    </div>
-    {#if !$peerSyncEnabled}
-      <div class="row mb-1">
-        <b class="text-center">
-          * Intial Peer Sync required to exchange encyption keys *
-        </b>
-      </div>
-    {/if}
-    {#if submitedInterest && !dismissedAlert}
+  <div class="d-flex flex-column">
+    <div class="card card-body m-1 scroll" id="multiDeviceDialog">
+      <PeersPending />
       <div class="row">
-        <div
-          class="text-center alert alert-success alert-dismissible fade show"
-          role="alert"
-        >
-          Thanks for your interest
-          <button
-            on:click={() => {
-              dismissedAlert = true;
-            }}
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="alert"
-            aria-label="close"
-          />
-        </div>
-      </div>
-    {/if}
-    {#if !submitedInterest && $peerSyncEnabled && profile}
-      <div class="row mb-1">
-        <div class="form-floating mb-1 gy-2">
-          <input
-            type="text"
-            class="form-control"
-            id="interest-email"
-            placeholder="Email"
-            bind:value={email}
-            aria-describedby="express-interest-button"
-            aria-label="Email"
-          />
-          <label for="interest-email">
-            Enter email to express interest in multi-device
-          </label>
-        </div>
         <button
-          type="button"
-          disabled={!validMail}
-          id="express-interest-button"
-          on:click={signUp}
-          class="btn btn-success"
+          class="btn btn-danger"
+          on:click={toggleSettingDialog('multiDevice')}
+          aria-expanded="false"
+          aria-controls="peerSyncDialog"
         >
-          Express interest
+          Back
         </button>
       </div>
-    {/if}
-    <hr />
-    <PeerToPeer />
-    <hr />
-    <div class="row my-2">
-      <span class="fs-3 text-center"> Cloud Sync </span>
-    </div>
-    <div class="row mb-1">
-      <p class="text-center">Beta, opt-in, invite only.</p>
-      <p class="text-center">
-        Sync data out of band with peer connected devices. End to End Encypted
-        (EE2E) data stored in Time Intent database.
-      </p>
-    </div>
-    <ProfileList />
-    <div class="row">
-      <button
-        class="btn btn-danger"
-        on:click={toggleSettingDialog('multiDevice')}
-        aria-expanded="false"
-        aria-controls="peerSyncDialog"
-      >
-        Back
-      </button>
+      <div class="row my-2">
+        <p class="fs-3 text-center">Multi-device operation status</p>
+        <p class="text-center">
+          Express interest with the device that has the data you want to sync,
+          the other will device be overwritten. Only express interest on one of
+          the devices.
+        </p>
+      </div>
+      <div class="row">
+        <span class="text-center">{status}</span>
+      </div>
+      {#if !$peerSyncEnabled}
+        <div class="row mb-1">
+          <b class="text-center">
+            * Intial Peer Sync required to exchange encyption keys *
+          </b>
+        </div>
+      {/if}
+      {#if submitedInterest && !dismissedAlert}
+        <div class="row">
+          <div
+            class="text-center alert alert-success alert-dismissible fade show"
+            role="alert"
+          >
+            Thanks for your interest
+            <button
+              on:click={() => {
+                dismissedAlert = true;
+              }}
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="alert"
+              aria-label="close"
+            />
+          </div>
+        </div>
+      {/if}
+      {#if !submitedInterest && $peerSyncEnabled && profile}
+        <div class="row mb-1">
+          <div class="form-floating mb-1 gy-2">
+            <input
+              type="text"
+              class="form-control"
+              id="interest-email"
+              placeholder="Email"
+              bind:value={email}
+              aria-describedby="express-interest-button"
+              aria-label="Email"
+            />
+            <label for="interest-email">
+              Enter email to express interest in multi-device
+            </label>
+          </div>
+          <button
+            type="button"
+            disabled={!validMail}
+            id="express-interest-button"
+            on:click={signUp}
+            class="btn btn-success"
+          >
+            Express interest
+          </button>
+        </div>
+      {/if}
+      <hr />
+      <PeerToPeer />
+      <hr />
+      <div class="row my-2">
+        <span class="fs-3 text-center"> Cloud Sync </span>
+      </div>
+      <div class="row mb-1">
+        <p class="text-center">Beta, opt-in, invite only.</p>
+        <p class="text-center">
+          Sync data out of band with peer connected devices. End to End Encypted
+          (EE2E) data stored in Time Intent database.
+        </p>
+      </div>
+      <ProfileList />
+      <hr />
+      <Backup />
     </div>
   </div>
 {/if}
+
+<style>
+  .scroll {
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .scroll::-webkit-scrollbar {
+    width: 1.25em;
+    height: 0.5em;
+  }
+
+  .scroll::-webkit-scrollbar-track {
+    background: white;
+  }
+
+  .scroll::-webkit-scrollbar-thumb {
+    background: grey;
+  }
+
+  .scroll::-webkit-scrollbar-thumb:hover {
+    background: black;
+  }
+
+  @supports (scrollbar-color: grey white) {
+    * {
+      scrollbar-color: grey white;
+    }
+  }
+</style>
