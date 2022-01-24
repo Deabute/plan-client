@@ -115,7 +115,6 @@ interface pskI {
 // in memory data for task
 // topChild: determined greatest priority grandchild
 interface memTaskI extends taskI {
-  // utilized: number;
   topChild?: taskI | null;
 }
 
