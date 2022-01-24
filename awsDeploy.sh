@@ -35,8 +35,9 @@ npm run build
 # aws route53 change-resource-record-sets --hosted-zone-id $HOSTED_ZONE_ID --change-batch file://dnsRecords.json
 
 # Sync to S3
-echo "syncing website to $BUCKET_NAME"
+echo "syncing website to $BUCKET_NAME_2"
 aws s3 sync public/ s3://$BUCKET_NAME/ --delete --exclude "*.sh"
+aws s3 sync public/ s3://$BUCKET_NAME_2/ --delete --exclude "*.sh"
 echo "done syncing"
 
 
