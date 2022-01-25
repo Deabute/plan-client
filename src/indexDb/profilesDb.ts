@@ -1,6 +1,6 @@
 // profileDb.ts ~ Copyright 2021 Paul Beaudet MIT License
 
-import { KEY_PAIR_CONFIG } from '../stores/defaultData';
+import { allStores, KEY_PAIR_CONFIG } from '../stores/defaultData';
 import { getDb } from './dbCore';
 import { getDeviceId } from '../shared/conversions';
 import { createOid, generatePassword } from '../isomorphic/oid';
@@ -149,6 +149,15 @@ const removeDataToBeSecondary = async () => {
   await tach.clear();
 };
 
+const clearData = async () => {
+  const db = await getDb();
+  const transaction = db.transaction(allStores, 'readwrite');
+  for (let i = 0; i < allStores.length; i++) {
+    const store = transaction.objectStore(allStores[i]);
+    await store.clear();
+  }
+};
+
 export {
   generateProfile,
   initProfile,
@@ -157,4 +166,5 @@ export {
   setPrimary,
   getPrimary,
   removeDataToBeSecondary,
+  clearData,
 };

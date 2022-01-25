@@ -1,6 +1,10 @@
 <!-- Backup ~ Copyright 2022 Paul Beaudet MIT License -->
 <script lang="ts">
-  import { exportData } from '../../indexDb/backupRestoreDb';
+  import {
+    exportData,
+    showRestore,
+    restore,
+  } from '../../indexDb/backupRestoreDb';
 
   let backupServer: string = 'ws://localhost:3010';
 
@@ -30,14 +34,27 @@
       />
       <label for="backupSever"> Backup server address </label>
     </div>
-    <button
-      type="button"
-      disabled={!validServer}
-      id="export-button"
-      on:click={exportData(backupServer)}
-      class="btn btn-info"
-    >
-      Export Data
-    </button>
+    <div class="col-6">
+      <button
+        type="button"
+        disabled={!validServer}
+        id="export-button"
+        on:click={exportData(backupServer)}
+        class="m-2 btn btn-info"
+      >
+        Backup
+      </button>
+    </div>
+    <div class="col-6">
+      <button
+        type="button"
+        disabled={!validServer}
+        id="show-restore-button"
+        on:click={restore(backupServer)}
+        class="m-2 btn btn-info"
+      >
+        Restore
+      </button>
+    </div>
   </div>
 </div>
