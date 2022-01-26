@@ -1,9 +1,14 @@
 // backupRestoreDb Copyright 2022 Paul Beaudet MIT License
-
-import { Dpad, Info } from 'svelte-bootstrap-icons';
 import { allStores } from '../stores/defaultData';
 import { getDb } from './dbCore';
 import { clearData } from './profilesDb';
+import { writable, Writable } from 'svelte/store';
+
+const backupStatus: Writable<string> = writable('Not connected');
+const showBackupOptions: Writable<boolean> = writable(false);
+const availableBackups: Writable<{ value: string; name: string }[]> = writable(
+  [],
+);
 
 const handlers = [
   {
@@ -95,10 +100,12 @@ const openServerConnection = async (serverUrl: string): Promise<boolean> => {
         ws.onmessage = incoming;
         ws.onerror = console.error;
         ws.onclose = () => {
-          console.log('Backup restore connection closed');
+          backupStatus.set('not connected');
+          showBackupOptions.set(false);
           ws = null;
         };
-        console.log('setting connection to open');
+        showBackupOptions.set(true);
+        backupStatus.set('Connected');
       };
     } catch (error) {
       console.error('Not a valid server to connect to');
@@ -108,10 +115,9 @@ const openServerConnection = async (serverUrl: string): Promise<boolean> => {
   return true;
 };
 
-const exportData = (serverUrl: string) => {
+const backupData = (name: string) => {
   return async () => {
-    if (!(await openServerConnection(serverUrl))) return;
-    wsSend('start', { value: Date.now() });
+    wsSend('backupStart', { value: Date.now(), name });
     const db = await getDb();
     const transaction = db.transaction(allStores);
     for (let i = 0; i < allStores.length; i++) {
@@ -127,7 +133,7 @@ const exportData = (serverUrl: string) => {
         cursor = await cursor.continue();
       }
     }
-    wsSend('done', { value: Date.now() });
+    wsSend('backupDone', { value: Date.now() });
   };
 };
 
@@ -140,18 +146,22 @@ const showRestore = (serverUrl: string) => {
 };
 
 wsOn('lsRestore', ({ value }) => {
-  console.log(value);
+  availableBackups.update((restorePoints) => {
+    const valueParts = value.split('_');
+    const name = `${valueParts[2]} ${new Date(
+      Number(valueParts[1]),
+    ).toDateString()}`;
+    return [...restorePoints, { value, name }];
+  });
 });
 
 wsOn('lsRestoreNone', () => {
-  console.log('Issue with finding restore files');
+  backupStatus.set('no restore files');
 });
 
-const restore = (serverUrl: string) => {
-  return async () => {
-    const serverSetup = await openServerConnection(serverUrl);
-    if (!serverSetup) return;
-    wsSend('restore');
+const restore = (value: string) => {
+  return () => {
+    wsSend('restore', { value });
   };
 };
 
@@ -174,4 +184,24 @@ wsOn('restore', async ({ value }) => {
   db.put(valueParts[0], JSON.parse(valueParts[1]));
 });
 
-export { exportData, showRestore, restore };
+const connectBackupServer = (serverUrl: string) => {
+  return async () => {
+    const serverSetup = await openServerConnection(serverUrl);
+    if (!serverSetup) {
+      backupStatus.set('Connection failed');
+      return;
+    }
+    wsSend('lsRestore');
+    backupStatus.set('Connecting');
+  };
+};
+
+export {
+  backupData,
+  showRestore,
+  restore,
+  connectBackupServer,
+  backupStatus,
+  availableBackups,
+  showBackupOptions,
+};
