@@ -117,6 +117,7 @@ const openServerConnection = async (serverUrl: string): Promise<boolean> => {
 
 const backupData = (name: string) => {
   return async () => {
+    backupStatus.set(`Backup ${name} Started`);
     wsSend('backupStart', { value: Date.now(), name });
     const db = await getDb();
     const transaction = db.transaction(allStores);
@@ -134,6 +135,7 @@ const backupData = (name: string) => {
       }
     }
     wsSend('backupDone', { value: Date.now() });
+    backupStatus.set(`Backup ${name} Complete`);
   };
 };
 
@@ -168,13 +170,13 @@ const restore = (value: string) => {
 let restoreReady: boolean = false;
 
 wsOn('restoreStart', async () => {
+  backupStatus.set('Restoring...');
   await clearData();
   restoreReady = true;
 });
 
 wsOn('restore', async ({ value }) => {
   while (!restoreReady) continue;
-  // console.log(value);
   const db = await getDb();
   const valueParts = value.split('~');
   if (valueParts.length > 2) {
@@ -182,6 +184,12 @@ wsOn('restore', async ({ value }) => {
     return;
   }
   db.put(valueParts[0], JSON.parse(valueParts[1]));
+});
+
+wsOn('restoreEnd', () => {
+  while (!restoreReady) continue;
+  backupStatus.set('restoration complete');
+  restoreReady = false;
 });
 
 const connectBackupServer = (serverUrl: string) => {
