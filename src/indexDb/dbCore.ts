@@ -15,6 +15,7 @@ const freshSetup = (db: IDBPDatabase<PlanDB>) => {
     keyPath: 'id',
   });
   taskObjStore.createIndex('byDueDate', 'dueDate');
+  taskObjStore.createIndex('position', ['parentId', 'position']);
   taskObjStore.createIndex('priority', ['parentId', 'status', 'position']);
   const timeObjStore = db.createObjectStore('timeline', {
     keyPath: 'id',
@@ -89,6 +90,10 @@ const initDB = async (): Promise<IDBPDatabase<PlanDB>> => {
         if (oldVersion < 15) {
           const keyStore = db.createObjectStore('psks', { keyPath: 'cacheId' });
           keyStore.createIndex('device', ['deviceId', 'number']);
+        }
+        if (oldVersion < 17) {
+          const tasksStore = transaction.objectStore('tasks');
+          tasksStore.createIndex('position', ['parentId', 'position']);
         }
       },
       blocked() {

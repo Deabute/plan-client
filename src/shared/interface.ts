@@ -203,6 +203,7 @@ interface PlanDB extends DBSchema {
     indexes: {
       byDueDate: number;
       priority: [string, string, number];
+      position: [string, number];
     };
   };
   timeline: {

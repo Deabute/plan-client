@@ -5,6 +5,7 @@ import {
   getPriorityIndexRange,
   shownStamps,
   minInMillis,
+  MAX_CHILDREN,
 } from '../stores/defaultData';
 import type {
   memTaskI,
@@ -13,6 +14,70 @@ import type {
   taskListData,
 } from '../shared/interface';
 import { peerBroadcast } from '../connections/dataChannels';
+
+const getGreatestGrandChild = async (
+  index: any,
+  parent: string,
+): Promise<taskI> => {
+  let cursor = await index.openCursor(getPriorityIndexRange(parent));
+  // loop down to the greatest grandchild
+  let child: taskI | null = null;
+  while (cursor) {
+    child = cursor.value;
+    cursor = await index.openCursor(getPriorityIndexRange(child.id));
+  }
+  return !child || child.id === parent ? null : child;
+};
+
+const getLineage = async (parentId: string, tasksDb: any): Promise<taskI[]> => {
+  // Figure out direct parent in lineage hierarchy
+  let parent: taskI =
+    parentId === '1' ? genesisTask : await tasksDb.get(parentId);
+  if (!parent) return null;
+  // set direct parent
+  let lineage: taskI[] = [{ ...parent }];
+  // compile parents and parents of parent ect.
+  while (parent && parent.parentId !== '1') {
+    parent = await tasksDb.get(parent.parentId);
+    if (parent) lineage = [...lineage, parent];
+  }
+  // return list with genesis as top level task if not top level
+  return lineage[0].id === '1' ? lineage : [...lineage, genesisTask];
+};
+
+const getChildren = async (taskId: string): Promise<taskListData> => {
+  const db = await getDb();
+  const transaction = db.transaction(['tasks', 'views'], 'readwrite');
+  const viewsDb = transaction.objectStore('views');
+  const tasksDb = transaction.objectStore('tasks');
+  const posIndex = tasksDb.index('position');
+  const priorIndex = tasksDb.index('priority');
+  await viewsDb.put({ name: 'parentTask', showing: taskId });
+
+  const tasks: memTaskI[] = [];
+  let cursor = await posIndex.openCursor(
+    IDBKeyRange.bound([taskId, 0], [taskId, MAX_CHILDREN]),
+  );
+  while (cursor) {
+    if (cursor.value.status !== 'hide') {
+      tasks.push({
+        ...cursor.value,
+        topChild: await getGreatestGrandChild(priorIndex, cursor.value.id),
+      });
+    }
+    cursor = await cursor.continue();
+  }
+  return {
+    tasks,
+    lineage: await getLineage(taskId, tasksDb),
+  };
+};
+
+const getSiblings = async (taskId: string): Promise<taskListData> => {
+  const parent = await (await getDb()).get('tasks', taskId);
+  if (!parent) return null;
+  return await getChildren(parent.parentId);
+};
 
 const getSubtask = async (
   refParent: taskI = genesisTask,
