@@ -62,7 +62,10 @@ const getChildren = async (taskId: string): Promise<taskListData> => {
     if (cursor.value.status !== 'hide') {
       tasks.push({
         ...cursor.value,
-        topChild: await getGreatestGrandChild(priorIndex, cursor.value.id),
+        topChild:
+          cursor.value.status === 'todo'
+            ? await getGreatestGrandChild(priorIndex, cursor.value.id)
+            : null,
       });
     }
     cursor = await cursor.continue();
@@ -504,6 +507,12 @@ const onAgenda = async (time: number): Promise<boolean> => {
   return result ? true : false;
 };
 
+const getUndid = (id: string) => {
+  return () => {
+    updateTaskSafe({ id, status: 'todo' });
+  };
+};
+
 export {
   getTaskById,
   getSubtask,
@@ -520,4 +529,5 @@ export {
   updateTaskSafe,
   getSiblingTaskById,
   nextOnAgenda,
+  getUndid,
 };

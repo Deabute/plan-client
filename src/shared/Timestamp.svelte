@@ -17,27 +17,22 @@
   import type { memStampI, timestampI } from './interface';
   import StampEdit from './StampEdit.svelte';
   import { canUndo, getTaskById } from '../indexDb/taskDb';
-  import {
-    undoAndPlace,
-    checkOff,
-    openFolder,
-    refreshTask,
-  } from '../stores/taskStore';
-  import { loadAgenda, reloadNextTask } from '../stores/agendaStore';
+  import { checkOff, openFolder, refreshTask } from '../stores/taskStore';
   import Gear from 'svelte-bootstrap-icons/lib/Gear';
   import Check from 'svelte-bootstrap-icons/lib/Check';
   import Trash from 'svelte-bootstrap-icons/lib/Trash';
   import XLg from 'svelte-bootstrap-icons/lib/XLg';
-  import Recycle from 'svelte-bootstrap-icons/lib/Recycle';
   import RecordBtn from 'svelte-bootstrap-icons/lib/RecordBtn';
   import FolderSymlink from 'svelte-bootstrap-icons/lib/FolderSymlink';
   import { moveTask } from '../stores/settingsStore';
+  import RecycleButton from '../components/ActionButtons/RecycleButton.svelte';
   // Exposed component props
   export let timestamp: memStampI;
   export let inProgress: boolean = false;
 
   let editing: boolean = false;
   let editedStamp: Writable<number> = writable(timestamp.start.valueOf());
+  let done: boolean = timestamp.done;
 
   const makeEdit = async () => {
     const { body, duration, done, ...stamp } = timestamp;
@@ -82,19 +77,12 @@
   };
 
   const undoable: Writable<boolean> = writable(false);
-  if (timestamp.done) {
+  if (done) {
     // check if this timestamp is undoable
     canUndo(timestamp.taskId).then((value) => {
       $undoable = value;
     });
   }
-
-  const getUndid = async () => {
-    await undoAndPlace(timestamp.taskId);
-    timestamp.done = false;
-    reloadNextTask();
-    loadAgenda();
-  };
 
   const complete = async () => {
     await checkOff(timestamp.taskId)();
@@ -114,7 +102,7 @@
 
 <div class={`pb-1 border-bottom`} id={timestamp.id}>
   <div class="row mb-1 text-center">
-    {#if timestamp.done || $timeStore.now.taskId === timestamp.taskId}
+    {#if done || $timeStore.now.taskId === timestamp.taskId}
       {#if inProgress}
         <span class="col-2 text-danger">Tracking</span>
       {:else}
@@ -126,20 +114,18 @@
       </div>
     {/if}
     <span
-      class={`col-8 text-center ${timestamp.done ? ' done' : ''}`}
+      class={`col-8 text-center ${done ? ' done' : ''}`}
       type="button"
       on:click={openThisFolder}
     >
       {timestamp.body}
     </span>
-    {#if !timestamp.done}
+    {#if !done}
       <div class="col-2 text-success" type="button" on:click={complete}>
         <Check />
       </div>
     {:else if $undoable}
-      <div class="col-2" type="button" on:click={getUndid}>
-        <Recycle />
-      </div>
+      <RecycleButton colSize="2" id={timestamp.taskId} bind:done view="track" />
     {/if}
   </div>
 

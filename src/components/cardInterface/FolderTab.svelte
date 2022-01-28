@@ -7,6 +7,7 @@
   import Check from 'svelte-bootstrap-icons/lib/Check';
   import { recordTime, timeStore } from '../../stores/timeStore';
   import FolderSymlink from 'svelte-bootstrap-icons/lib/FolderSymlink';
+  import RecycleButton from '../ActionButtons/RecycleButton.svelte';
 
   export let task: memTaskI | null = null;
   export let topChildMode: boolean = false;
@@ -86,10 +87,12 @@
       {task.body}
     </span>
   {:else}
-    {#if !recording($timeStore.now.taskId, topChildShowing)}
+    {#if task.status === 'todo' && !recording($timeStore.now.taskId, topChildShowing)}
       <div class="col-1 text-danger" type="button" on:click={record}>
         <RecordBtn />
       </div>
+    {:else if task.status === 'done'}
+      <RecycleButton id={task.id} />
     {:else}
       <div class="col-1" />
     {/if}
@@ -100,7 +103,11 @@
       contenteditable
       on:input={onNameChange}
     >
-      {task.body}
+      {#if task.status === 'todo'}
+        {task.body}
+      {:else}
+        <s>{task.body}</s>
+      {/if}
     </span>
     <div class="text-success col-1" type="button" on:click={checkOff(task.id)}>
       <Check />
