@@ -16,8 +16,8 @@
   } from '../stores/timeStore';
   import type { memStampI, timestampI } from './interface';
   import StampEdit from './StampEdit.svelte';
-  import { canUndo, getTaskById } from '../indexDb/taskDb';
-  import { checkOff, openFolder, refreshTask } from '../stores/taskStore';
+  import { getTaskById } from '../indexDb/taskDb';
+  import { openFolder, refreshTask } from '../stores/taskStore';
   import Gear from 'svelte-bootstrap-icons/lib/Gear';
   import Check from 'svelte-bootstrap-icons/lib/Check';
   import Trash from 'svelte-bootstrap-icons/lib/Trash';
@@ -26,6 +26,8 @@
   import FolderSymlink from 'svelte-bootstrap-icons/lib/FolderSymlink';
   import { moveTask } from '../stores/settingsStore';
   import RecycleButton from '../components/ActionButtons/RecycleButton.svelte';
+  import { hiddenBody } from '../stores/defaultData';
+  import CheckOffButton from '../components/ActionButtons/CheckOffButton.svelte';
   // Exposed component props
   export let timestamp: memStampI;
   export let inProgress: boolean = false;
@@ -33,6 +35,7 @@
   let editing: boolean = false;
   let editedStamp: Writable<number> = writable(timestamp.start.valueOf());
   let done: boolean = timestamp.done;
+  const hidden = timestamp.body === hiddenBody ? true : false;
 
   const makeEdit = async () => {
     const { body, duration, done, ...stamp } = timestamp;
@@ -76,19 +79,6 @@
     refreshTime();
   };
 
-  const undoable: Writable<boolean> = writable(false);
-  if (done) {
-    // check if this timestamp is undoable
-    canUndo(timestamp.taskId).then((value) => {
-      $undoable = value;
-    });
-  }
-
-  const complete = async () => {
-    await checkOff(timestamp.taskId)();
-    $undoable = true;
-  };
-
   const recordThisTask = async () => {
     const task = await getTaskById(timestamp.taskId);
     recordTime(task);
@@ -121,10 +111,8 @@
       {timestamp.body}
     </span>
     {#if !done}
-      <div class="col-2 text-success" type="button" on:click={complete}>
-        <Check />
-      </div>
-    {:else if $undoable}
+      <CheckOffButton id={timestamp.taskId} size="2" />
+    {:else if !hidden}
       <RecycleButton colSize="2" id={timestamp.taskId} bind:done view="track" />
     {/if}
   </div>

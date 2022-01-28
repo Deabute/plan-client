@@ -463,15 +463,6 @@ const pageAgenda = async (
   };
 };
 
-const canUndo = async (taskId: string): Promise<boolean> => {
-  const db = await getDb();
-  const task = await db.get('tasks', taskId);
-  if (task.parentId === '1') return true;
-  if (task.status === 'hide') return false;
-  const parent = await db.get('tasks', task.parentId);
-  return parent.status === 'todo' ? true : false;
-};
-
 // returns id of currant sibling with a running task or null
 const decedentOfWhich = async (
   nowId: string,
@@ -517,7 +508,6 @@ export {
   backfillPositions,
   getAgendaDb,
   pageAgenda,
-  canUndo,
   decedentOfWhich,
   onAgenda,
   updateTaskSafe,

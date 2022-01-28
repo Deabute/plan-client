@@ -376,6 +376,8 @@ const defaultNow: memStampI = {
   done: false,
 };
 
+const hiddenBody: string = '* Task Removed *';
+
 export {
   genesisTask,
   startingVelocity,
@@ -410,4 +412,5 @@ export {
   days366,
   arrayOfDefaults,
   ProductName,
+  hiddenBody,
 };

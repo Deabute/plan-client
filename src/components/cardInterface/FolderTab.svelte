@@ -2,12 +2,12 @@
 <script lang="ts">
   import type { memTaskI } from '../../shared/interface';
   import { moveTask } from '../../stores/settingsStore';
-  import { modifyBody, checkOff, openFolder } from '../../stores/taskStore';
+  import { modifyBody, openFolder } from '../../stores/taskStore';
   import RecordBtn from 'svelte-bootstrap-icons/lib/RecordBtn';
-  import Check from 'svelte-bootstrap-icons/lib/Check';
   import { recordTime, timeStore } from '../../stores/timeStore';
   import FolderSymlink from 'svelte-bootstrap-icons/lib/FolderSymlink';
   import RecycleButton from '../ActionButtons/RecycleButton.svelte';
+  import CheckOffButton from '../ActionButtons/CheckOffButton.svelte';
 
   export let task: memTaskI | null = null;
   export let topChildMode: boolean = false;
@@ -109,9 +109,7 @@
         <s>{task.body}</s>
       {/if}
     </span>
-    <div class="text-success col-1" type="button" on:click={checkOff(task.id)}>
-      <Check />
-    </div>
+    <CheckOffButton id={task.id} />
   {/if}
   {#if showUpdate}
     <button class="btn btn-outline-dark" on:click={onRename}> update </button>

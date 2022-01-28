@@ -7,7 +7,7 @@ import type {
   taskI,
   memTaskI,
 } from '../shared/interface';
-import { defaultNow, shownStamps } from '../stores/defaultData';
+import { defaultNow, hiddenBody, shownStamps } from '../stores/defaultData';
 
 const changeUtilization = async (
   increment: boolean,
@@ -89,7 +89,13 @@ const getStamps = async (end: number = 0): Promise<timeLineData> => {
   let history: memStampI[] = await Promise.all(
     rawStamps.map(async (stamp) => {
       let task = await db.get('tasks', stamp.taskId);
-      const { body, status } = task;
+      let body = hiddenBody;
+      let status = 'hide';
+      if (task) {
+        body = task.body;
+        status = task.status;
+        if (status === 'hide') body = hiddenBody;
+      }
       return {
         ...stamp,
         duration: 0,

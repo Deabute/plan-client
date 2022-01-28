@@ -8,12 +8,11 @@ import {
   removeStamp,
 } from './timelineDb';
 import { refreshTime } from '../stores/timeStore';
-import { refreshTask } from '../stores/taskStore';
+import { refreshTask, updateNextOrDone } from '../stores/taskStore';
 import { backfillPositions, placeFolderDb, updateTaskSafe } from './taskDb';
 import { getBooleanStatus, syncingDown } from '../stores/peerStore';
 import { loadAgenda } from '../stores/agendaStore';
 import { eventsOn } from './eventsDb';
-import { nextOccurrence } from '../components/time/CadenceFunctions';
 
 const initEventsForEvents = () => {
   eventsOn('removeConnection', async ({ data }: eventI) => {
@@ -41,18 +40,7 @@ const initEventsForEvents = () => {
   });
 
   eventsOn('checkOff', async ({ data }: eventI) => {
-    if (data.task.cadence === 'zero') {
-      await updateTaskSafe({ id: data.task.id, status: 'done' });
-      await backfillPositions(data.task.parentId);
-    } else {
-      await updateTaskSafe({
-        id: data.task.id,
-        dueDate:
-          data.task.cadence === 'many'
-            ? 0
-            : nextOccurrence(data.task.cadence, data.task.dueDate),
-      });
-    }
+    await updateNextOrDone(data.task);
     if (!getBooleanStatus(syncingDown)) {
       refreshTask();
       refreshTime();

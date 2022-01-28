@@ -278,32 +278,35 @@ const undoAndPlace = async (taskId: string) => {
   );
 };
 
+// logic for state updates to a checked off task
+const updateNextOrDone = async (task: taskI) => {
+  const { cadence, dueDate, id } = task;
+  if (cadence === 'zero') {
+    await updateTaskSafe({ id, status: 'done' });
+  } else {
+    await updateTaskSafe({
+      id,
+      dueDate: cadence === 'many' ? 0 : nextOccurrence(cadence, dueDate),
+    });
+  }
+};
+
 // returns a click event, holds task id in closure
+// called on task completion
 const checkOff = (taskId: string) => {
   return async () => {
-    const checkTask: taskI = await getTaskById(taskId);
+    const task: taskI = await getTaskById(taskId);
     let now = get(timeStore).now;
     let currentRunningTask = now.taskId === taskId ? true : false;
     let nextRecord = await nextRecording(taskId);
+    // abort if there is no task to replace the one running task
     if (currentRunningTask && !nextRecord) return;
+    await updateNextOrDone(task);
+    await addEvent('checkOff', { task });
 
-    if (checkTask.cadence === 'zero') {
-      await updateTaskSafe({ id: taskId, status: 'done' });
-      await backfillPositions(checkTask.parentId);
-    } else {
-      await updateTaskSafe({
-        id: taskId,
-        dueDate:
-          checkTask.cadence === 'many'
-            ? 0
-            : nextOccurrence(checkTask.cadence, checkTask.dueDate),
-      });
-    }
-    // TODO: below mark peer as done where it might be just set to next
-    await addEvent('checkOff', { task: checkTask });
-
+    // manually refresh time in memory
     timeStore.update((timeline) => {
-      if (checkTask.cadence === 'zero') {
+      if (task.cadence === 'zero') {
         timeline.history = timeline.history.map((stamp) => {
           return {
             ...stamp,
@@ -312,12 +315,13 @@ const checkOff = (taskId: string) => {
         });
       }
       if (currentRunningTask) {
+        // The following behavior is why this update is used instead of refreshTime
         timeline.now = newTimeStamp(nextRecord);
         timeline.history = [
           {
             ...now,
             duration: timeline.now.start - now.start,
-            done: checkTask.cadence === 'zero' ? true : false,
+            done: task.cadence === 'zero' ? true : false,
           },
           ...timeline.history,
         ];
@@ -394,4 +398,5 @@ export {
   checkOff,
   hideTask,
   openFolder,
+  updateNextOrDone,
 };

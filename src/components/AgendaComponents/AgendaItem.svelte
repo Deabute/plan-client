@@ -2,12 +2,12 @@
 <script lang="ts">
   import type { taskI } from '../../shared/interface';
   import DueDate from '../cardInterface/DueDate.svelte';
-  import Check from 'svelte-bootstrap-icons/lib/Check';
   import RecordBtn from 'svelte-bootstrap-icons/lib/RecordBtn';
   import { nowTimeStamp, recordTime, timeStore } from '../../stores/timeStore';
   import { moveTask } from '../../stores/settingsStore';
-  import { checkOff, openFolder } from '../../stores/taskStore';
+  import { openFolder } from '../../stores/taskStore';
   import RecycleButton from '../ActionButtons/RecycleButton.svelte';
+  import CheckOffButton from '../ActionButtons/CheckOffButton.svelte';
   export let task: taskI;
   let done: boolean = task.status !== 'todo' ? true : false;
 
@@ -38,13 +38,7 @@
       {#if done}
         <RecycleButton id={task.id} colSize="2" bind:done view="when" />
       {:else}
-        <div
-          class="col-2 text-success"
-          type="button"
-          on:click={checkOff(task.id)}
-        >
-          <Check />
-        </div>
+        <CheckOffButton id={task.id} size="2" />
       {/if}
     </div>
     <DueDate {task} activtyColumn={false} />
