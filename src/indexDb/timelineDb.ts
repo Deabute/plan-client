@@ -7,7 +7,7 @@ import type {
   taskI,
   memTaskI,
 } from '../shared/interface';
-import { defaultNow, hiddenBody, shownStamps } from '../stores/defaultData';
+import { hiddenBody, shownStamps } from '../stores/defaultData';
 
 const changeUtilization = async (
   increment: boolean,

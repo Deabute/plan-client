@@ -40,7 +40,7 @@ const initEventsForEvents = () => {
   });
 
   eventsOn('checkOff', async ({ data }: eventI) => {
-    await updateNextOrDone(data.task);
+    await updateNextOrDone(data.task, false);
     if (!getBooleanStatus(syncingDown)) {
       refreshTask();
       refreshTime();
@@ -49,11 +49,15 @@ const initEventsForEvents = () => {
   });
 
   eventsOn('hideTask', async ({ data }: eventI) => {
-    await updateTaskSafe({
-      id: data.task.id,
-      status: 'hide',
-    });
-    await backfillPositions(data.task.parentId);
+    await updateTaskSafe(
+      {
+        id: data.task.id,
+        status: 'hide',
+      },
+      false,
+      false,
+    );
+    await backfillPositions(data.task.parentId, data.task.lastModified);
     if (!getBooleanStatus(syncingDown)) {
       refreshTask();
       refreshTime();
@@ -64,7 +68,7 @@ const initEventsForEvents = () => {
   eventsOn('moveTask', async ({ data }: eventI) => {
     await placeFolderDb(data.task);
     if (data.backfill) {
-      await backfillPositions(data.backfill);
+      await backfillPositions(data.backfill, data.task.lastModified);
       moveUtilization(data.task.id, data.task.parentId);
     }
     if (!getBooleanStatus(syncingDown)) refreshTask();

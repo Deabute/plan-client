@@ -8,6 +8,7 @@ import {
   MAX_CHILDREN,
 } from '../stores/defaultData';
 import type {
+  incomingTaskI,
   memTaskI,
   optionalTaskI,
   taskI,
@@ -221,16 +222,18 @@ const getTaskById = async (taskId: memTaskI | string): Promise<taskI> => {
 const updateTaskSafe = async (
   task: optionalTaskI,
   done: boolean = true,
+  sync: boolean = true,
 ): Promise<taskI> => {
   const db = await getDb();
   const trueTask = await db.get('tasks', task.id);
+  // mark a time of mod when syncing, if not just take it for what it is
   const data: taskI = {
     ...trueTask,
     ...task,
-    lastModified: Date.now(),
+    lastModified: sync ? Date.now() : task.lastModified,
   };
   await db.put('tasks', data);
-  peerBroadcast('sync-tasks', { data, done });
+  if (sync) peerBroadcast('sync-tasks', { data, done });
   return data;
 };
 
@@ -256,15 +259,15 @@ const placeFolderDb = async (task: taskI) => {
   const trans = db.transaction(['tasks'], 'readwrite');
   const tasks = trans.objectStore('tasks');
   const taskIndex = tasks.index('priority');
-  let cursor = await taskIndex.openCursor(getPriorityIndexRange(task.parentId));
-  const lastModified = Date.now();
+  let range = IDBKeyRange.bound([task.parentId, 0], [task.parentId, Infinity]);
+  let cursor = await taskIndex.openCursor(range);
   let position = 0;
   const changes: taskI[] = [];
   const pushChange = (taskToPush: taskI) => {
     changes.push({
       ...taskToPush,
       position,
-      lastModified,
+      lastModified: task.lastModified,
     });
   };
   let changedTask: boolean = false;
@@ -293,14 +296,14 @@ const placeFolderDb = async (task: taskI) => {
 };
 
 // Used for correcting positions when an item is checked off or moved from one folder to another
-const backfillPositions = async (parentId: string) => {
+const backfillPositions = async (parent: string, lastModified: number) => {
   const db = await getDb();
   const trans = db.transaction(['tasks'], 'readwrite');
   const tasksStore = trans.objectStore('tasks');
   const taskIndex = tasksStore.index('priority');
   let position = 0;
-  let cursor = await taskIndex.openCursor(getPriorityIndexRange(parentId));
-  const lastModified = Date.now();
+  let range = IDBKeyRange.bound([parent, 0], [parent, Infinity]);
+  let cursor = await taskIndex.openCursor(range);
   const changes: taskI[] = [];
   while (cursor) {
     changes.push({
@@ -316,56 +319,11 @@ const backfillPositions = async (parentId: string) => {
   }
 };
 
-// used for correcting positional discrepancies on sync
-const resolvePositions = async () => {
-  const db = await getDb();
-  const trans = db.transaction(['tasks'], 'readwrite');
-  const taskStore = trans.objectStore('tasks');
-  const taskIndex = taskStore.index('priority');
-  let cursor = await taskIndex.openCursor();
-  let childCollector: taskI[] = [];
-  let lastParent = '';
-
-  const correctChildren = async () => {
-    childCollector = childCollector.sort((a, b) => {
-      // issue here is we actually want to special sort all recent entries
-      // but that would create a special case that could very among peer interconnects
-      if (a.position === b.position) {
-        return b.lastModified - a.lastModified;
-      }
-      return a.position - b.position;
-    });
-    for (let i = 0; i < childCollector.length; i++) {
-      await taskStore.put({
-        ...childCollector[i],
-        position: i,
-      });
-    }
-    childCollector = [];
-  };
-  // first pass figure corrections
-  while (cursor) {
-    const { status, parentId } = cursor.value;
-    if (status === 'todo') {
-      if (lastParent !== parentId) {
-        await correctChildren();
-      }
-      childCollector.push(cursor.value);
-      lastParent = parentId;
-    }
-    cursor = await cursor.continue();
-  }
-  await correctChildren();
-};
-
 // handles stream of peer's data
 const incomingTasks = async ({
   data,
   done,
-}: {
-  done: boolean;
-  data: taskI;
-}): Promise<boolean> => {
+}: incomingTaskI): Promise<boolean> => {
   const db = await getDb();
   const localData = await db.get('tasks', data.id);
   if (localData) {
@@ -374,9 +332,6 @@ const incomingTasks = async ({
     }
   } else {
     await db.add('tasks', data);
-  }
-  if (done) {
-    await resolvePositions();
   }
   return done;
 };
@@ -498,7 +453,6 @@ export {
   getTaskById,
   getSubtask,
   createActivity,
-  resolvePositions,
   incomingTasks,
   placeFolderDb,
   backfillPositions,
@@ -509,4 +463,6 @@ export {
   updateTaskSafe,
   getSiblingTaskById,
   nextOnAgenda,
+  getSiblings,
+  getChildren,
 };

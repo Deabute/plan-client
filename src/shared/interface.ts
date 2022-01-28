@@ -32,6 +32,11 @@ interface taskI {
   utilization: number; // temp: total time used per this sprint
 }
 
+interface incomingTaskI {
+  data: taskI;
+  done: boolean;
+}
+
 interface optionalTaskI {
   id: string; // Way to uniquely identify task
   parentId?: string; // Parent of task
@@ -350,4 +355,5 @@ export type {
   settingNames,
   pskI,
   optionalTaskI,
+  incomingTaskI,
 };

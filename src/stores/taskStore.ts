@@ -1,6 +1,11 @@
 // taskStore.ts Copyright 2021 Paul Beaudet MIT License
 import { get, Writable, writable } from 'svelte/store';
-import type { taskI, memTaskI, taskListData } from '../shared/interface';
+import type {
+  taskI,
+  memTaskI,
+  taskListData,
+  incomingTaskI,
+} from '../shared/interface';
 import {
   genesisTask,
   getColdStartData,
@@ -111,8 +116,9 @@ const allocateTimeAmongChildren = async ({
         fraction = siblingsToDivideAmong <= 0 ? 0 : fraction;
         siblingsToDivideAmong--;
         getsRemainder = false;
-        if (fraction !== task.fraction)
-          updateTaskSafe({ id: task.id, fraction });
+        if (fraction !== task.fraction) {
+          updateTaskSafe({ id: task.id, fraction }, false, false);
+        }
       } else {
         fraction = task.fraction;
       }
@@ -168,9 +174,8 @@ const refreshTask = async (currentParent: taskI | null = null) => {
   await loadTask(currentParent, false);
 };
 
-onEvent('sync-tasks', async (data: { data: taskI; done: boolean }) => {
-  const done = await incomingTasks(data);
-  if (done) {
+onEvent('sync-tasks', async (data: incomingTaskI) => {
+  if (await incomingTasks(data)) {
     await refreshTask();
     await loadAgenda();
     await refreshTime(false);
@@ -222,32 +227,25 @@ const placeFolder = async (
   after: boolean = true, // after this destination or inside destination
 ) => {
   const task = await getTaskById(sourceId);
-  const changedTask: taskI = {
+  const changed: taskI = {
     ...task,
     parentId: after ? dest.parentId : dest.id,
     position: after ? dest.position : -1,
+    lastModified: Date.now(),
   };
-  await placeFolderDb(changedTask);
-  const backfill = task.parentId !== changedTask.parentId ? task.parentId : '';
+  await placeFolderDb(changed);
+  const backfill = task.parentId !== changed.parentId ? task.parentId : '';
   // utilization only needs to change in backfill case (moved from one folder to another)
   // utilization doesn't need to be removed or added to TLD
   if (backfill) {
-    await backfillPositions(task.parentId);
-    await moveUtilization(task, changedTask.parentId);
+    await moveUtilization(task, changed.parentId);
+    await backfillPositions(task.parentId, changed.lastModified);
   }
   refreshTask();
   moveTask.set(null);
   addEvent('moveTask', {
-    task: changedTask,
+    task: changed,
     backfill,
-  });
-};
-
-const modifyParentBody = (body: string) => {
-  taskStore.update((store) => {
-    store.lineage[0].body = body;
-    updateTaskSafe({ id: store.lineage[0].id, body });
-    return store;
   });
 };
 
@@ -265,29 +263,20 @@ const modifyBody = (task: memTaskI, body: string) => {
   });
 };
 
-const undoAndPlace = async (taskId: string) => {
-  const task: taskI = await getTaskById(taskId);
-  await updateTaskSafe({ id: taskId, status: 'todo' });
-  await placeFolder(
-    taskId,
-    {
-      ...task,
-      id: task.parentId,
-    },
-    false,
-  );
-};
-
 // logic for state updates to a checked off task
-const updateNextOrDone = async (task: taskI) => {
+const updateNextOrDone = async (task: taskI, sync: boolean = true) => {
   const { cadence, dueDate, id } = task;
   if (cadence === 'zero') {
-    await updateTaskSafe({ id, status: 'done' });
+    await updateTaskSafe({ id, status: 'done' }, sync, sync);
   } else {
-    await updateTaskSafe({
-      id,
-      dueDate: cadence === 'many' ? 0 : nextOccurrence(cadence, dueDate),
-    });
+    await updateTaskSafe(
+      {
+        id,
+        dueDate: cadence === 'many' ? 0 : nextOccurrence(cadence, dueDate),
+      },
+      sync,
+      sync,
+    );
   }
 };
 
@@ -341,10 +330,11 @@ const hideTask = (task: memTaskI) => {
     let currentRunningTask = now.taskId === task.id ? true : false;
     let nextRecord = await nextRecording(task.id);
     if (currentRunningTask && !nextRecord) return;
-
-    task.status = 'hide';
-    await updateTaskSafe({ id: task.id, status: 'hide' });
-    await backfillPositions(task.parentId);
+    task = await updateTaskSafe({
+      id: task.id,
+      status: 'hide',
+    });
+    await backfillPositions(task.parentId, task.lastModified);
     addEvent('hideTask', { task });
 
     timeStore.update((timeline) => {
@@ -391,9 +381,7 @@ export {
   loadTask,
   refreshTask,
   newActivity,
-  modifyParentBody,
   placeFolder,
-  undoAndPlace,
   modifyBody,
   checkOff,
   hideTask,

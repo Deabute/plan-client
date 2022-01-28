@@ -7,7 +7,6 @@ import type { sendFuncI } from './connectInterface';
 
 const incomingConnect = async ({
   data,
-  done,
 }: {
   done: boolean;
   data: connectionI;
@@ -25,13 +24,7 @@ const incomingConnect = async ({
   }
 };
 
-const incomingBudget = async ({
-  data,
-  done,
-}: {
-  done: boolean;
-  data: budgetI;
-}) => {
+const incomingBudget = async ({ data }: { done: boolean; data: budgetI }) => {
   const db = await getDb();
   const localData = await db.getFromIndex('budget', 'budgetOrder', data.number);
   const budgetDb = db.transaction('budget', 'readwrite').objectStore('budget');
