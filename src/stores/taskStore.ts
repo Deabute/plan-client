@@ -68,6 +68,7 @@ const allocateTimeAmongChildren = async ({
   let budgetToShare: number = 0;
   let timeToAllocate: number = amount.valueOf();
   tasks.forEach((task) => {
+    if (task.status === 'done') return;
     if (task.autoAssigned) {
       siblingsToDivideAmong++;
     } else {
@@ -111,7 +112,7 @@ const allocateTimeAmongChildren = async ({
   return {
     tasks: tasks.map((task) => {
       let fraction = getsRemainder ? budgetToShare + remainder : budgetToShare;
-      if (task.autoAssigned) {
+      if (task.autoAssigned && task.status === 'todo') {
         // Stop handing out shares, once we run out of siblings to divide among
         fraction = siblingsToDivideAmong <= 0 ? 0 : fraction;
         siblingsToDivideAmong--;
@@ -120,7 +121,7 @@ const allocateTimeAmongChildren = async ({
           updateTaskSafe({ id: task.id, fraction }, false, false);
         }
       } else {
-        fraction = task.fraction;
+        fraction = task.status === 'todo' ? task.fraction : task.utilization;
       }
       return {
         ...task,
