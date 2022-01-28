@@ -507,12 +507,6 @@ const onAgenda = async (time: number): Promise<boolean> => {
   return result ? true : false;
 };
 
-const getUndid = (id: string) => {
-  return () => {
-    updateTaskSafe({ id, status: 'todo' });
-  };
-};
-
 export {
   getTaskById,
   getSubtask,
@@ -529,5 +523,4 @@ export {
   updateTaskSafe,
   getSiblingTaskById,
   nextOnAgenda,
-  getUndid,
 };
