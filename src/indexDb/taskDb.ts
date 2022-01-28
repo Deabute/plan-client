@@ -234,16 +234,12 @@ const updateTaskSafe = async (
   return data;
 };
 
-const createActivity = async (task: taskI) => {
-  const db = await getDb();
-  const trans = db.transaction(['tasks'], 'readwrite');
-  const tasksStore = trans.objectStore('tasks');
-  const taskIndex = tasksStore.index('priority');
-  let cursor = await taskIndex.openCursor(
-    getPriorityIndexRange(task.parentId),
-    'prev',
-  );
-  const lastModified = Date.now();
+const createActivity = async (task: taskI, lastModified: number) => {
+  const trans = (await getDb()).transaction(['tasks'], 'readwrite');
+  const tasksDb = trans.objectStore('tasks');
+  const index = tasksDb.index('position');
+  const rng = IDBKeyRange.bound([task.parentId, 0], [task.parentId, Infinity]);
+  let cursor = await index.openCursor(rng);
   while (cursor) {
     cursor.update({
       ...cursor.value,
@@ -252,7 +248,7 @@ const createActivity = async (task: taskI) => {
     });
     cursor = await cursor.continue();
   }
-  await tasksStore.put(task);
+  await tasksDb.put(task);
 };
 
 const placeFolderDb = async (task: taskI) => {

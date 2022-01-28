@@ -206,7 +206,7 @@ const newActivity = async (
     timeCreated: currentTimestamp,
   };
   // increment all potential siblings in storage
-  await createActivity(newTask);
+  await createActivity(newTask, currentTimestamp);
   await refreshTask();
 };
 
