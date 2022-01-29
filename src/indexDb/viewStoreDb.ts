@@ -1,8 +1,6 @@
 // viewStore.ts copyright 2021 Paul Beaudet MIT License
 
 import { writable, Writable } from 'svelte/store';
-import type { taskI } from '../shared/interface';
-import { genesisTask } from '../stores/defaultData';
 import { getDb } from './dbCore';
 
 const showActivityColumn: Writable<boolean> = writable(true);
@@ -80,15 +78,15 @@ const loadViewSettings = async () => {
   });
 };
 
-const getParentView = async (): Promise<taskI> => {
+const getParentView = async (): Promise<string> => {
   const db = await getDb();
   const parent = await db.get('views', 'parentTask');
-  let task = genesisTask;
+  let id = '1';
   if (parent?.showing && typeof parent.showing === 'string') {
-    task = await db.get('tasks', parent.showing);
-    if (!task) task = genesisTask;
+    const task = await db.get('tasks', parent.showing);
+    id = task ? task.id : '1';
   }
-  return task;
+  return id;
 };
 
 export {

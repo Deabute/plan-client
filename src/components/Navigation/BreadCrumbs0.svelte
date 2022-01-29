@@ -1,26 +1,26 @@
 <!-- BreadCrumbs.svelt Copyright 2021 Paul Beaudet MIT Licence -->
 <script lang="ts">
-  import { loadTask, taskStore } from '../../stores/taskStore';
+  import { loadChildren, taskStore } from '../../stores/taskStore';
 </script>
 
 {#if $taskStore.lineage[0].parentId !== '0'}
   <nav class="window-lineage">
-    {#each [...$taskStore.lineage].reverse() as ancestor, i}
+    {#each [...$taskStore.lineage].reverse() as { body, id }, i}
       {#if i}
         <span>{'/'}</span>
       {/if}
       {#if i + 1 === $taskStore.lineage.length}
         <span class="active-folder">
-          {ancestor.body}
+          {body}
         </span>
       {:else}
         <button
           class="btn-lineage"
           on:click={() => {
-            loadTask(ancestor, false);
+            loadChildren(id);
           }}
         >
-          {ancestor.body}
+          {body}
         </button>
       {/if}
     {/each}

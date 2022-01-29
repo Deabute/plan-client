@@ -22,6 +22,7 @@ import {
   backfillPositions,
   getTaskById,
   decedentOfWhich,
+  getChildren,
 } from '../indexDb/taskDb';
 import { getCurrentBudget } from '../indexDb/budgetDb';
 import { peerBroadcast, onEvent } from '../connections/dataChannels';
@@ -132,13 +133,8 @@ const allocateTimeAmongChildren = async ({
   };
 };
 
-// renderParent true -> uses parentId prop to make list of task with that parentId
-// renderParent false -> uses ID prop to make list of task with that parentId
-const loadTask = async (
-  refTask: taskI = genesisTask,
-  renderParent: boolean = true,
-) => {
-  let taskList = await getSubtask(refTask, renderParent);
+const loadChildren = async (id: string = '1') => {
+  let taskList = await getChildren(id);
   // Create a default task if this is the first load or the last task was completed
   if (!taskList.tasks.length) {
     if (taskList.lineage[0].id === genesisTask.id) {
@@ -147,7 +143,7 @@ const loadTask = async (
       for (let i = 0; i < defaultTasks.length; i++) {
         await db.add('tasks', defaultTasks[i]);
       }
-      taskList = await getSubtask(refTask, renderParent);
+      taskList = await getChildren(id);
     }
   }
 
@@ -165,6 +161,10 @@ const loadTask = async (
   });
 };
 
+const loadSiblings = async (task: taskI) => {
+  loadChildren(task.parentId);
+};
+
 const refreshTask = async (currentParent: taskI | null = null) => {
   if (currentParent === null) {
     taskStore.update((store) => {
@@ -172,7 +172,7 @@ const refreshTask = async (currentParent: taskI | null = null) => {
       return store;
     });
   }
-  await loadTask(currentParent, false);
+  await loadChildren(currentParent.id);
 };
 
 onEvent('sync-tasks', async (data: incomingTaskI) => {
@@ -364,12 +364,16 @@ const hideTask = (task: memTaskI) => {
   };
 };
 
-const openFolder = (task: taskI, moveTask: taskI, openThis: boolean = true) => {
+const openFolder = (task: taskI, moveTask: taskI, parent: boolean = true) => {
   return () => {
     // don't allow folder to self insert
     if (moveTask?.id === task.id) return;
     cancelFund();
-    loadTask(task, openThis);
+    if (parent) {
+      loadChildren(task.id);
+    } else {
+      loadSiblings(task);
+    }
     editTask.set(null);
   };
 };
@@ -379,7 +383,6 @@ export {
   overBudget,
   toAllocate,
   budgetAvail,
-  loadTask,
   refreshTask,
   newActivity,
   placeFolder,
@@ -388,4 +391,5 @@ export {
   hideTask,
   openFolder,
   updateNextOrDone,
+  loadChildren,
 };

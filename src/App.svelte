@@ -3,7 +3,7 @@
   import Timeline from './components/mainViews/Timeline.svelte';
   import { getBudget } from './stores/budgetStore';
   import BudgetSetings from './components/menuItems/BudgetSetings.svelte';
-  import { loadTask } from './stores/taskStore';
+  import { loadChildren } from './stores/taskStore';
   import { getTime } from './stores/timeStore';
   import { initConnectionSignaling } from './connections/signaling';
   import { migrateData } from './indexDb/migrations';
@@ -33,8 +33,7 @@
     try {
       await migrateData();
       await getBudget();
-      const task = await getParentView();
-      await loadTask(task, false);
+      await loadChildren(await getParentView());
       await getTime();
       await loadAgenda();
       loadViewSettings();
