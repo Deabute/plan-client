@@ -161,10 +161,6 @@ const loadChildren = async (id: string = '1') => {
   });
 };
 
-const loadSiblings = async (task: taskI) => {
-  loadChildren(task.parentId);
-};
-
 const refreshTask = async (currentParent: taskI | null = null) => {
   if (currentParent === null) {
     taskStore.update((store) => {
@@ -364,20 +360,6 @@ const hideTask = (task: memTaskI) => {
   };
 };
 
-const openFolder = (task: taskI, moveTask: taskI, parent: boolean = true) => {
-  return () => {
-    // don't allow folder to self insert
-    if (moveTask?.id === task.id) return;
-    cancelFund();
-    if (parent) {
-      loadChildren(task.id);
-    } else {
-      loadSiblings(task);
-    }
-    editTask.set(null);
-  };
-};
-
 export {
   taskStore,
   overBudget,
@@ -389,7 +371,6 @@ export {
   modifyBody,
   checkOff,
   hideTask,
-  openFolder,
   updateNextOrDone,
   loadChildren,
 };

@@ -1,6 +1,6 @@
 <!-- Timeline.svelt Copyright 2021 Paul Beaudet MIT Licence -->
 <script lang="ts">
-  import { genesisTask, timelineColumnName } from '../../stores/defaultData';
+  import { timelineColumnName } from '../../stores/defaultData';
   import Timestamp from '../../shared/Timestamp.svelte';
   import { recordTime, timeStore } from '../../stores/timeStore';
   import { page } from '../../indexDb/timelineDb';
@@ -12,11 +12,9 @@
   import ArrowDown from 'svelte-bootstrap-icons/lib/ArrowDown';
   import Stopwatch from 'svelte-bootstrap-icons/lib/Stopwatch';
   import { nextUp } from '../../stores/agendaStore';
-  import { openFolder } from '../../stores/taskStore';
-  import { moveTask } from '../../stores/settingsStore';
   import RecordBtn from 'svelte-bootstrap-icons/lib/RecordBtn';
-  import FolderSymlink from 'svelte-bootstrap-icons/lib/FolderSymlink';
-  import type { taskI } from '../../shared/interface';
+  import OpenFolderButton from '../ActionButtons/OpenFolderButton.svelte';
+  import BodyAndAction from '../ActionButtons/BodyAndAction.svelte';
 
   let canPageDown = true;
   let canPageUp = false;
@@ -51,21 +49,19 @@
     }
   };
 
-  let next: taskI = {
-    ...genesisTask,
-    body: 'loading...',
-  };
+  let id = '1';
+  let parentId = '1';
+  let body = 'loading...';
   nextUp.subscribe(async (nextTask) => {
-    next = nextTask
-      ? nextTask
-      : {
-          ...genesisTask,
-          body: 'Make some more folders or this is the only one that can be worked on',
-        };
+    id = nextTask ? nextTask.id : '1';
+    parentId = nextTask ? nextTask.parentId : '1';
+    body = nextTask
+      ? nextTask.body
+      : 'Make some more folders or this is the only one that can be worked on';
   });
 
   const recordNextTask = async () => {
-    recordTime(next);
+    recordTime($nextUp);
   };
 </script>
 
@@ -86,21 +82,11 @@
   </svelte:fragment>
   <svelte:fragment slot="staticHeader">
     <div class="border-bottom border-dark">
-      <div
-        type="button"
-        on:click={openFolder($nextUp, $moveTask)}
-        class="pb-1 border-bottom"
-      >
+      <div class="pb-1 border-bottom">
         <div class="row mb-1 text-center">
           <div class="col-2 align-self-end">
-            {#if next.id !== '1'}
-              <div
-                type="button"
-                class="row pb-2"
-                on:click={openFolder(next, $moveTask)}
-              >
-                <FolderSymlink />
-              </div>
+            {#if id !== '1'}
+              <OpenFolderButton id={parentId} size="12 row pb-2" />
               <div
                 type="button"
                 on:click={recordNextTask}
@@ -110,7 +96,7 @@
               </div>
             {/if}
           </div>
-          <div class="col-8 text-secondary">{next.body}</div>
+          <BodyAndAction {body} id={parentId} size="8 text-secondary" />
           <div class="col-2 text-success align-self-end">
             <div class="row pb-2 ps-3">Next</div>
             <div class="row"><ArrowDown /></div>

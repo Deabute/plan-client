@@ -17,25 +17,27 @@
   import type { memStampI, timestampI } from './interface';
   import StampEdit from './StampEdit.svelte';
   import { getTaskById } from '../indexDb/taskDb';
-  import { openFolder, refreshTask } from '../stores/taskStore';
+  import { refreshTask } from '../stores/taskStore';
   import Gear from 'svelte-bootstrap-icons/lib/Gear';
   import Check from 'svelte-bootstrap-icons/lib/Check';
   import Trash from 'svelte-bootstrap-icons/lib/Trash';
   import XLg from 'svelte-bootstrap-icons/lib/XLg';
   import RecordBtn from 'svelte-bootstrap-icons/lib/RecordBtn';
-  import FolderSymlink from 'svelte-bootstrap-icons/lib/FolderSymlink';
-  import { moveTask } from '../stores/settingsStore';
   import RecycleButton from '../components/ActionButtons/RecycleButton.svelte';
   import { hiddenBody } from '../stores/defaultData';
   import CheckOffButton from '../components/ActionButtons/CheckOffButton.svelte';
+  import OpenFolderButton from '../components/ActionButtons/OpenFolderButton.svelte';
+  import BodyAndAction from '../components/ActionButtons/BodyAndAction.svelte';
   // Exposed component props
   export let timestamp: memStampI;
   export let inProgress: boolean = false;
 
+  const id = timestamp.taskId;
+  const body = timestamp.body;
   let editing: boolean = false;
   let editedStamp: Writable<number> = writable(timestamp.start.valueOf());
   let done: boolean = timestamp.done;
-  const hidden = timestamp.body === hiddenBody ? true : false;
+  const hidden = body === hiddenBody ? true : false;
 
   const makeEdit = async () => {
     const { body, duration, done, ...stamp } = timestamp;
@@ -80,19 +82,14 @@
   };
 
   const recordThisTask = async () => {
-    const task = await getTaskById(timestamp.taskId);
+    const task = await getTaskById(id);
     recordTime(task);
-  };
-
-  const openThisFolder = async () => {
-    const task = await getTaskById(timestamp.taskId);
-    openFolder(task, $moveTask)();
   };
 </script>
 
-<div class={`pb-1 border-bottom`} id={timestamp.id}>
+<div class={`pb-1 border-bottom`} {id}>
   <div class="row mb-1 text-center">
-    {#if done || $timeStore.now.taskId === timestamp.taskId}
+    {#if done || $timeStore.now.taskId === id}
       {#if inProgress}
         <span class="col-2 text-danger">Tracking</span>
       {:else}
@@ -103,17 +100,11 @@
         <RecordBtn />
       </div>
     {/if}
-    <span
-      class={`col-8 text-center ${done ? ' done' : ''}`}
-      type="button"
-      on:click={openThisFolder}
-    >
-      {timestamp.body}
-    </span>
+    <BodyAndAction {id} {body} {done} sib={true} size="8" />
     {#if !done}
-      <CheckOffButton id={timestamp.taskId} size="2" />
+      <CheckOffButton {id} size="2" />
     {:else if !hidden}
-      <RecycleButton colSize="2" id={timestamp.taskId} bind:done view="track" />
+      <RecycleButton colSize="2" {id} bind:done view="track" />
     {/if}
   </div>
 
@@ -126,9 +117,7 @@
         />
       </div>
     {:else}
-      <div class="col-2" type="button" on:click={openThisFolder}>
-        <FolderSymlink />
-      </div>
+      <OpenFolderButton {id} siblings={true} size="2" />
       <span class="col-6" on:click={toggleEdit}>
         {getHumanReadableStamp(timestamp.start, false)}
       </span>
@@ -178,9 +167,6 @@
 </div>
 
 <style>
-  .done {
-    text-decoration: line-through;
-  }
   .start-edit {
     font-size: 0.55em;
     align-items: center;

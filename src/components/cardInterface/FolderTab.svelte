@@ -2,17 +2,20 @@
 <script lang="ts">
   import type { memTaskI } from '../../shared/interface';
   import { moveTask } from '../../stores/settingsStore';
-  import { modifyBody, openFolder } from '../../stores/taskStore';
+  import { modifyBody } from '../../stores/taskStore';
   import RecordBtn from 'svelte-bootstrap-icons/lib/RecordBtn';
   import { recordTime, timeStore } from '../../stores/timeStore';
-  import FolderSymlink from 'svelte-bootstrap-icons/lib/FolderSymlink';
   import RecycleButton from '../ActionButtons/RecycleButton.svelte';
   import CheckOffButton from '../ActionButtons/CheckOffButton.svelte';
+  import OpenFolderButton from '../ActionButtons/OpenFolderButton.svelte';
+  import BodyAndAction from '../ActionButtons/BodyAndAction.svelte';
 
   export let task: memTaskI | null = null;
   export let topChildMode: boolean = false;
   export let topChildShowing: boolean;
 
+  const { id, body, parentId, status } = task;
+  const done = status === 'todo' ? false : true;
   let grey: boolean = topChildMode ? true : false;
   let showUpdate: boolean = false;
   let renameInput: string = '';
@@ -37,7 +40,7 @@
     if (topChild) {
       if (task.topChild && task.topChild.id === runningTask) return true;
     } else {
-      if (task.id === runningTask) return true;
+      if (id === runningTask) return true;
     }
     return false;
   };
@@ -59,57 +62,38 @@
 
 <div class={`row text-center py-1${grey ? ' text-secondary' : ''}`}>
   {#if $moveTask}
-    {#if !topChildMode && $moveTask?.id !== task.id}
-      <div
-        class="col-1"
-        type="button"
-        on:click={openFolder(task, $moveTask, false)}
-      >
-        <FolderSymlink />
-      </div>
+    {#if !topChildMode && $moveTask?.id !== id}
+      <OpenFolderButton {id} />
     {:else}
       <div class="col-1" />
     {/if}
-    <span
-      class="col-10"
-      type="button"
-      on:click={openFolder(task, $moveTask, false)}
-    >
-      {task.body}
-    </span>
+    <BodyAndAction {id} {body} size="10" {done} />
   {:else if topChildMode}
-    <span
-      id={`topTask-${task.id}`}
-      class="text-center col-12"
-      on:click={openFolder(task, $moveTask)}
-      role="button"
-    >
-      {task.body}
-    </span>
+    <BodyAndAction id={parentId} {body} size="12" />
   {:else}
-    {#if task.status === 'todo' && !recording($timeStore.now.taskId, topChildShowing)}
+    {#if status === 'todo' && !recording($timeStore.now.taskId, topChildShowing)}
       <div class="col-1 text-danger" type="button" on:click={record}>
         <RecordBtn />
       </div>
-    {:else if task.status === 'done'}
-      <RecycleButton id={task.id} />
+    {:else if done}
+      <RecycleButton {id} />
     {:else}
       <div class="col-1" />
     {/if}
     <span
-      id={`folder-${task.id}`}
+      id={`folder-${id}`}
       class="text-center col-10"
       role="textbox"
       contenteditable
       on:input={onNameChange}
     >
-      {#if task.status === 'todo'}
-        {task.body}
+      {#if done}
+        <s>{body}</s>
       {:else}
-        <s>{task.body}</s>
+        {body}
       {/if}
     </span>
-    <CheckOffButton id={task.id} />
+    <CheckOffButton {id} />
   {/if}
   {#if showUpdate}
     <button class="btn btn-outline-dark" on:click={onRename}> update </button>

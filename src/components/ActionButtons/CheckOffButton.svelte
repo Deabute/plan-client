@@ -5,8 +5,6 @@
 
   export let id: string;
   export let size = '1';
-  // export let view = 'intent';
-  // export let done: boolean = true;
 </script>
 
 <div class={`col-${size} text-success`} type="button" on:click={checkOff(id)}>

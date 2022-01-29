@@ -77,12 +77,6 @@ const getChildren = async (taskId: string): Promise<taskListData> => {
   };
 };
 
-const getSiblings = async (taskId: string): Promise<taskListData> => {
-  const parent = await (await getDb()).get('tasks', taskId);
-  if (!parent) return null;
-  return await getChildren(parent.parentId);
-};
-
 const getSubtask = async (
   refParent: taskI = genesisTask,
   renderParent: boolean = false,
@@ -463,6 +457,5 @@ export {
   updateTaskSafe,
   getSiblingTaskById,
   nextOnAgenda,
-  getSiblings,
   getChildren,
 };

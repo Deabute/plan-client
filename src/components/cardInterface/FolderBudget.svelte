@@ -6,20 +6,15 @@
     fundSetting,
     openFundSettings,
   } from '../../stores/fundingStore';
-  import { budgetAvail, openFolder } from '../../stores/taskStore';
+  import { budgetAvail } from '../../stores/taskStore';
   import MoveTime from './MoveTime.svelte';
   import BudgetSlider from './BudgetSlider.svelte';
   import UtilizedText from './UtilizedText.svelte';
-  import {
-    editRecur,
-    editTask,
-    editToggle,
-    moveTask,
-  } from '../../stores/settingsStore';
+  import { editRecur, editTask, editToggle } from '../../stores/settingsStore';
   import Gear from 'svelte-bootstrap-icons/lib/Gear';
-  import FolderSymlink from 'svelte-bootstrap-icons/lib/FolderSymlink';
   import Sliders from 'svelte-bootstrap-icons/lib/Sliders';
   import EditBar from './EditBar.svelte';
+  import OpenFolderButton from '../ActionButtons/OpenFolderButton.svelte';
 
   export let task: memTaskI;
   export let topChildShowing: boolean;
@@ -33,13 +28,7 @@
 </script>
 
 <div class="text-center text-small row">
-  <div
-    class="col-1"
-    type="button"
-    on:click={openFolder(task, $moveTask, false)}
-  >
-    <FolderSymlink />
-  </div>
+  <OpenFolderButton id={task.id} />
   {#if $fundSetting.task?.id === task.id}
     <div class="col-10">
       <MoveTime bind:fraction>

@@ -12,7 +12,6 @@
     editDue,
     editRecur,
     editTask,
-    moveTask,
     toggleEditDue,
   } from '../../stores/settingsStore';
   import { secondTick } from '../../stores/timeStore';
@@ -23,9 +22,8 @@
   import Check from 'svelte-bootstrap-icons/lib/Check';
   import XLg from 'svelte-bootstrap-icons/lib/XLg';
   import Gear from 'svelte-bootstrap-icons/lib/Gear';
-  import FolderSymlink from 'svelte-bootstrap-icons/lib/FolderSymlink';
-  import { openFolder } from '../../stores/taskStore';
   import CalendarEvent from 'svelte-bootstrap-icons/lib/CalendarEvent';
+  import OpenFolderButton from '../ActionButtons/OpenFolderButton.svelte';
 
   export let task: memTaskI;
   export let activtyColumn: boolean = true;
@@ -139,9 +137,7 @@
         </span>
       {/if}
     {:else}
-      <span class="col-2" type="button" on:click={openFolder(task, $moveTask)}>
-        <FolderSymlink />
-      </span>
+      <OpenFolderButton id={task.parentId} size="2" />
       <span
         class={`col-8 ${stampColor}`}
         type="button"
