@@ -181,8 +181,7 @@ wsOn('restore', async ({ value }) => {
   const valueParts = value.split('~');
   if (valueParts.length > 2) {
     valueParts.forEach((part, i) => {
-      if (i < 2) return;
-      valueParts[1] = valueParts[1] + '~' + valueParts[i];
+      if (i > 1) valueParts[1] += `~${part}`;
     });
     return;
   }
