@@ -9,7 +9,6 @@ import type {
 import {
   genesisTask,
   getColdStartData,
-  shownStamps,
   startingVelocity,
   defaultFrame,
 } from '../stores/defaultData';
@@ -181,32 +180,31 @@ const newActivity = async (
   body: string,
   lineage: taskI[],
   creationTime: number = 0,
-  id: string = '',
+  taskId: string = '',
 ) => {
+  const { id, fraction, cadence } = lineage[0];
   const currentTimestamp = creationTime ? creationTime : Date.now();
-  const taskId = id ? id : createOid();
+  taskId = taskId ? taskId : createOid();
   // broadcast to all peers if created with this device
   if (!creationTime) {
     peerBroadcast('task', {
       data: { body, lineage, currentTimestamp, taskId },
     });
   }
-  let cadence: string =
-    !lineage[0].fraction && lineage[0].cadence !== 'zero'
-      ? lineage[0].cadence
-      : 'zero';
-  const newTask: taskI = {
-    ...genesisTask,
-    id: taskId,
-    parentId: lineage[0].id,
-    body,
-    fraction: 0,
-    cadence,
-    lastModified: currentTimestamp,
-    timeCreated: currentTimestamp,
-  };
-  // increment all potential siblings in storage
-  await createActivity(newTask, currentTimestamp);
+  await createActivity(
+    {
+      ...genesisTask,
+      id: taskId,
+      parentId: id,
+      body,
+      fraction: 0,
+      position: 0,
+      cadence: !fraction && cadence !== 'zero' ? cadence : 'zero',
+      lastModified: currentTimestamp,
+      timeCreated: currentTimestamp,
+    },
+    currentTimestamp,
+  );
   await refreshTask();
 };
 

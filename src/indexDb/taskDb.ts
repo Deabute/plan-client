@@ -236,9 +236,9 @@ const createActivity = async (task: taskI, lastModified: number) => {
   const tasksDb = trans.objectStore('tasks');
   const index = tasksDb.index('position');
   const rng = IDBKeyRange.bound([task.parentId, 0], [task.parentId, Infinity]);
-  let cursor = await index.openCursor(rng);
+  let cursor = await index.openCursor(rng, 'prev');
   while (cursor) {
-    cursor.update({
+    await cursor.update({
       ...cursor.value,
       position: cursor.value.position + 1,
       lastModified,
