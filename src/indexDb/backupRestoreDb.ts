@@ -183,7 +183,6 @@ wsOn('restore', async ({ value }) => {
     valueParts.forEach((part, i) => {
       if (i > 1) valueParts[1] += `~${part}`;
     });
-    return;
   }
   db.put(valueParts[0], JSON.parse(valueParts[1]));
 });
