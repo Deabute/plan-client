@@ -180,7 +180,10 @@ wsOn('restore', async ({ value }) => {
   const db = await getDb();
   const valueParts = value.split('~');
   if (valueParts.length > 2) {
-    valueParts[1] = valueParts[1] + '~' + valueParts[2];
+    valueParts.forEach((part, i) => {
+      if (i < 2) return;
+      valueParts[1] = valueParts[1] + '~' + valueParts[i];
+    });
     return;
   }
   db.put(valueParts[0], JSON.parse(valueParts[1]));
