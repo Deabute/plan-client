@@ -104,12 +104,12 @@ const getStamps = async (end: number = 0): Promise<timeLineData> => {
       };
     }),
   );
-  const { body, status } = await db.get('tasks', nowVal.taskId);
+  const { body } = await db.get('tasks', nowVal.taskId);
   const now: memStampI = {
     ...nowVal,
     body,
     duration: currentTime - nowVal.start,
-    done: status !== 'todo' ? true : false,
+    done: false,
   };
   history = history.map((stamp) => {
     let duration = currentTime - stamp.start;

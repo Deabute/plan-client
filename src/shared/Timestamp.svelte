@@ -1,7 +1,5 @@
 <!-- Timestamp.svelte Copyright 2021 Paul Beaudet MIT License -->
 <script lang="ts">
-  import { writable } from 'svelte/store';
-  import type { Writable } from 'svelte/store';
   import {
     getDurationStamp,
     getHumanReadableStamp,
@@ -32,18 +30,19 @@
   export let timestamp: memStampI;
   export let inProgress: boolean = false;
 
-  const id = timestamp.taskId;
-  const body = timestamp.body;
+  let id = timestamp.taskId;
+  let { body, done, start } = timestamp;
+  $: body = timestamp.body;
+  $: id = timestamp.taskId;
+  $: done = timestamp.done;
   let editing: boolean = false;
-  let editedStamp: Writable<number> = writable(timestamp.start.valueOf());
-  let done: boolean = timestamp.done;
   const hidden = body === hiddenBody ? true : false;
 
   const makeEdit = async () => {
     const { body, duration, done, ...stamp } = timestamp;
     const newTimestamp: timestampI = {
       ...stamp,
-      start: $editedStamp.valueOf(),
+      start,
       lastModified: Date.now(),
     };
     await editStamp(newTimestamp);
@@ -65,10 +64,8 @@
       : true;
   };
 
-  const validEdit: Writable<boolean> = writable(true);
-  editedStamp.subscribe((newStamp) => {
-    $validEdit = validateEdit(newStamp);
-  });
+  let validEdit = true;
+  $: validEdit = validateEdit(start);
 
   const toggleEdit = () => {
     editing = !editing;
@@ -111,10 +108,7 @@
   <div class="row text-center">
     {#if editing}
       <div class="col-12 start-edit">
-        <StampEdit
-          bind:stamp={timestamp.start}
-          bind:editedStamp={$editedStamp}
-        />
+        <StampEdit bind:stamp={timestamp.start} bind:editedStamp={start} />
       </div>
     {:else}
       <OpenFolderButton {id} siblings={true} size="2" />
@@ -143,9 +137,9 @@
         <button
           class="btn btn-outline-dark"
           type="button"
-          on:click={$validEdit ? makeEdit : () => {}}
+          on:click={validEdit ? makeEdit : () => {}}
         >
-          {#if $validEdit}
+          {#if validEdit}
             <Check />
             Change
           {:else}
