@@ -64,7 +64,7 @@
       : true;
   };
 
-  let validEdit = true;
+  let validEdit = false;
   $: validEdit = validateEdit(start);
 
   const toggleEdit = () => {
