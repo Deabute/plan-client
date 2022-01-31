@@ -8,31 +8,31 @@
   import CheckOffButton from '../ActionButtons/CheckOffButton.svelte';
   import BodyAndAction from '../ActionButtons/BodyAndAction.svelte';
   export let task: taskI;
-  const { status, body, id, parentId } = task;
-  let done: boolean = status !== 'todo' ? true : false;
+  let done: boolean = task.status !== 'todo' ? true : false;
+  $: done = task.status !== 'todo' ? true : false;
 
   const record = () => {
     recordTime(task);
   };
 </script>
 
-{#if status !== 'hide'}
+{#if task.status !== 'hide'}
   <div class="pb-1 border-bottom">
     <div class="row text-center">
       {#if done}
         <div class="col-2" />
-      {:else if $timeStore.now.taskId === id}
+      {:else if $timeStore.now.taskId === task.id}
         <span class="col-2 text-danger">{$nowTimeStamp}</span>
       {:else}
         <div class="col-2 text-danger" type="button" on:click={record}>
           <RecordBtn />
         </div>
       {/if}
-      <BodyAndAction id={parentId} {body} size="8" {done} />
+      <BodyAndAction id={task.parentId} body={task.body} size="8" {done} />
       {#if done}
-        <RecycleButton {id} colSize="2" bind:done view="when" />
+        <RecycleButton id={task.id} colSize="2" />
       {:else}
-        <CheckOffButton {id} size="2" />
+        <CheckOffButton id={task.id} size="2" />
       {/if}
     </div>
     <DueDate {task} activtyColumn={false} />

@@ -15,7 +15,7 @@
   export let topChildShowing: boolean;
 
   const { id, body, parentId, status } = task;
-  const done = status === 'todo' ? false : true;
+  let done = status === 'todo' ? false : true;
   let grey: boolean = topChildMode ? true : false;
   let showUpdate: boolean = false;
   let renameInput: string = '';
@@ -71,12 +71,10 @@
   {:else if topChildMode}
     <BodyAndAction id={parentId} {body} size="12" />
   {:else}
-    {#if status === 'todo' && !recording($timeStore.now.taskId, topChildShowing)}
+    {#if !done && !recording($timeStore.now.taskId, topChildShowing)}
       <div class="col-1 text-danger" type="button" on:click={record}>
         <RecordBtn />
       </div>
-    {:else if done}
-      <RecycleButton {id} />
     {:else}
       <div class="col-1" />
     {/if}
@@ -93,7 +91,11 @@
         {body}
       {/if}
     </span>
-    <CheckOffButton {id} />
+    {#if done}
+      <RecycleButton {id} />
+    {:else}
+      <CheckOffButton {id} />
+    {/if}
   {/if}
   {#if showUpdate}
     <button class="btn btn-outline-dark" on:click={onRename}> update </button>

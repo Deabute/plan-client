@@ -29,14 +29,10 @@
   // Exposed component props
   export let timestamp: memStampI;
   export let inProgress: boolean = false;
+  let { start } = timestamp;
 
-  let id = timestamp.taskId;
-  let { body, done, start } = timestamp;
-  $: body = timestamp.body;
-  $: id = timestamp.taskId;
-  $: done = timestamp.done;
   let editing: boolean = false;
-  const hidden = body === hiddenBody ? true : false;
+  const hidden = timestamp.body === hiddenBody ? true : false;
 
   const makeEdit = async () => {
     const { body, duration, done, ...stamp } = timestamp;
@@ -72,21 +68,19 @@
   };
 
   const deleteStamp = async () => {
-    const { id } = timestamp;
-    await removeStamp(id);
-    await addEvent('removeTimestamp', { id });
+    await removeStamp(timestamp.id);
+    await addEvent('removeTimestamp', { id: timestamp.id });
     refreshTime();
   };
 
   const recordThisTask = async () => {
-    const task = await getTaskById(id);
-    recordTime(task);
+    recordTime(await getTaskById(timestamp.taskId));
   };
 </script>
 
-<div class={`pb-1 border-bottom`} {id}>
+<div class={`pb-1 border-bottom`} id={timestamp.id}>
   <div class="row mb-1 text-center">
-    {#if done || $timeStore.now.taskId === id}
+    {#if timestamp.done || $timeStore.now.taskId === timestamp.taskId}
       {#if inProgress}
         <span class="col-2 text-danger">Tracking</span>
       {:else}
@@ -97,11 +91,17 @@
         <RecordBtn />
       </div>
     {/if}
-    <BodyAndAction {id} {body} {done} sib={true} size="8" />
-    {#if !done}
-      <CheckOffButton {id} size="2" />
+    <BodyAndAction
+      id={timestamp.taskId}
+      body={timestamp.body}
+      done={timestamp.done}
+      sib={true}
+      size="8"
+    />
+    {#if !timestamp.done}
+      <CheckOffButton id={timestamp.taskId} size="2" />
     {:else if !hidden}
-      <RecycleButton colSize="2" {id} bind:done view="track" />
+      <RecycleButton id={timestamp.taskId} colSize="2" />
     {/if}
   </div>
 
@@ -111,7 +111,7 @@
         <StampEdit bind:stamp={timestamp.start} bind:editedStamp={start} />
       </div>
     {:else}
-      <OpenFolderButton {id} siblings={true} size="2" />
+      <OpenFolderButton id={timestamp.taskId} siblings={true} size="2" />
       <span class="col-6" on:click={toggleEdit}>
         {getHumanReadableStamp(timestamp.start, false)}
       </span>

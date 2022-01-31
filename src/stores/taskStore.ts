@@ -15,7 +15,6 @@ import {
 } from '../stores/defaultData';
 import {
   updateTaskSafe,
-  getSubtask,
   createActivity,
   incomingTasks,
   placeFolderDb,
@@ -27,7 +26,7 @@ import {
 import { getCurrentBudget } from '../indexDb/budgetDb';
 import { peerBroadcast, onEvent } from '../connections/dataChannels';
 import { createOid } from '../isomorphic/oid';
-import { editTask, moveTask } from './settingsStore';
+import { moveTask } from './settingsStore';
 import { getDb } from '../indexDb/dbCore';
 import { loadAgenda, nextRecording } from './agendaStore';
 import {
@@ -37,7 +36,6 @@ import {
   timeStore,
 } from './timeStore';
 import { addEvent } from '../indexDb/eventsDb';
-import { cancelFund } from './fundingStore';
 import type { taskPayload } from '../connections/connectInterface';
 import { nextOccurrence } from '../components/time/CadenceFunctions';
 import { moveUtilization } from '../indexDb/timelineDb';
@@ -277,6 +275,12 @@ const updateNextOrDone = async (task: taskI, sync: boolean = true) => {
   }
 };
 
+const refreshAllViews = async () => {
+  await refreshTime();
+  await refreshTask();
+  await loadAgenda();
+};
+
 // returns a click event, holds task id in closure
 // called on task completion
 const checkOff = (taskId: string) => {
@@ -289,34 +293,8 @@ const checkOff = (taskId: string) => {
     if (currentRunningTask && !nextRecord) return;
     await updateNextOrDone(task);
     await addEvent('checkOff', { task });
-
-    // manually refresh time in memory
-    timeStore.update((timeline) => {
-      if (task.cadence === 'zero') {
-        timeline.history = timeline.history.map((stamp) => {
-          return {
-            ...stamp,
-            done: stamp.done || stamp.taskId === taskId ? true : false,
-          };
-        });
-      }
-      if (currentRunningTask) {
-        // The following behavior is why this update is used instead of refreshTime
-        timeline.now = newTimeStamp(nextRecord);
-        timeline.history = [
-          {
-            ...now,
-            duration: timeline.now.start - now.start,
-            done: task.cadence === 'zero' ? true : false,
-          },
-          ...timeline.history,
-        ];
-        if (timeline.history.length > shownStamps) timeline.history.pop();
-      }
-      return timeline;
-    });
-    await refreshTask();
-    await loadAgenda();
+    if (currentRunningTask) await newTimeStamp(nextRecord);
+    await refreshAllViews();
   };
 };
 
@@ -333,30 +311,8 @@ const hideTask = (task: memTaskI) => {
     });
     await backfillPositions(task.parentId, task.lastModified);
     addEvent('hideTask', { task });
-
-    timeStore.update((timeline) => {
-      timeline.history = timeline.history.map((stamp) => {
-        return {
-          ...stamp,
-          done: stamp.done || stamp.taskId === task.id ? true : false,
-        };
-      });
-      if (currentRunningTask) {
-        timeline.now = newTimeStamp(nextRecord);
-        timeline.history = [
-          {
-            ...now,
-            duration: timeline.now.start - now.start,
-            done: true,
-          },
-          ...timeline.history,
-        ];
-        if (timeline.history.length > shownStamps) timeline.history.pop();
-      }
-      return timeline;
-    });
-    await refreshTask();
-    await loadAgenda();
+    if (currentRunningTask) await newTimeStamp(nextRecord);
+    await refreshAllViews();
   };
 };
 
@@ -373,4 +329,5 @@ export {
   hideTask,
   updateNextOrDone,
   loadChildren,
+  refreshAllViews,
 };

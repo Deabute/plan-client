@@ -58,7 +58,7 @@ secondTick.subscribe((currentTime) => {
   }
 });
 
-const newTimeStamp = ({ id, body }: taskI): memStampI => {
+const newTimeStamp = async ({ id, body }: taskI): Promise<memStampI> => {
   const now = Date.now();
   const stamp: timestampI = {
     id: createOid(),
@@ -67,7 +67,7 @@ const newTimeStamp = ({ id, body }: taskI): memStampI => {
     type: 'todo',
     lastModified: now,
   };
-  addStamp(stamp); // async fire and forget
+  await addStamp(stamp);
   addEvent('newTimestamp', { stamp });
   const inMemStamp: memStampI = {
     ...stamp,
@@ -83,7 +83,7 @@ const getTime = async () => {
   let { history, now } = await getStamps();
   if (!now) {
     const { body } = arrayOfDefaults[0];
-    now = newTimeStamp({ ...genesisTask, id: body.slice(0, 24), body });
+    now = await newTimeStamp({ ...genesisTask, id: body.slice(0, 24), body });
   }
   timeStore.set({
     now,
@@ -102,21 +102,11 @@ const refreshTime = async (sticky: boolean = true) => {
   timeStore.set(await getStamps(end));
 };
 
-const recordTime = (task: memTaskI) => {
+const recordTime = async (task: memTaskI) => {
   const { topChild, ...baseTask } = task;
   const refTask = task.topChild ? topChild : baseTask;
-  timeStore.update((time) => {
-    // no need to record the same task multiple times in a row
-    if (time.now.taskId === refTask.id) return time;
-    time.history = [
-      { ...time.now, duration: Date.now() - time.now.start },
-      ...time.history,
-    ];
-    // History overflow hide (in memory)
-    if (time.history.length > 8) time.history.pop();
-    time.now = newTimeStamp(refTask);
-    return time;
-  });
+  await newTimeStamp(refTask);
+  await refreshTime();
 };
 
 export {
