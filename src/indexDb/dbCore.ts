@@ -5,7 +5,7 @@ import type { PlanDB } from '../shared/interface';
 const DB_NAME = 'db0';
 let dbObject: IDBPDatabase<PlanDB> | null = null;
 let dbPromise: Promise<IDBPDatabase<PlanDB>> | null = null;
-const currentDbVersion: number = 16; // temp utilization migration
+const currentDbVersion: number = 17;
 // checking for last db version needs to be done after calling db
 // in case of upgrade
 let lastDbVersion: number = currentDbVersion;
