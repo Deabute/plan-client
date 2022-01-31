@@ -86,7 +86,7 @@
         <div class="row mb-1 text-center">
           <div class="col-2 align-self-end">
             {#if id !== '1'}
-              <OpenFolderButton id={parentId} size="12 row pb-2" />
+              <OpenFolderButton id={parentId} size=" row pb-2" />
               <div
                 type="button"
                 on:click={recordNextTask}
