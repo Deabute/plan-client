@@ -1,6 +1,6 @@
 // migrations.ts copyright 2021 Paul Beaudet MIT License
 
-import { getPriorityIndexRange } from '../stores/defaultData';
+import { getParentRange } from '../stores/defaultData';
 import { getDb, lastDbVersion } from './dbCore';
 import { figureSprintValues } from './timelineDb';
 
@@ -57,53 +57,48 @@ const migrateData = async () => {
   }
   // version 16 adds temp values for utilization to start off from
   if (lastDbVersion < 16) await figureSprintValues();
-  // version 17 needs to create an order for done items in order to show them
-  if (lastDbVersion < 17) {
-    const lastPosObj = {};
+  // version 18 needs to create an order for done items in order to show them properly
+  if (lastDbVersion < 18) {
     const trans = db.transaction(['tasks'], 'readwrite');
     const tasksDb = trans.objectStore('tasks');
-    const index = tasksDb.index('priority');
+    // const index = tasksDb.index('priority');
     const posIndex = tasksDb.index('position');
-    let parents = ['1'];
-    let pIndex = 0;
-    // Pass 1, build parents and last positions of todos
-    while (parents.length < pIndex) {
-      if (parents[pIndex] === null) {
-        pIndex++;
-        continue;
-      }
-      let cursor = await index.openCursor(
-        getPriorityIndexRange(parents[pIndex]),
-      );
-      let lastPos: number = null;
+
+    const count = async (parent: string): Promise<number> => {
+      let cursor = await posIndex.openCursor(getParentRange(parent));
+      let ct = 0;
       while (cursor) {
-        lastPos = cursor.value.position;
-        parents.push(cursor.value.id);
+        if (cursor.value.status === 'hide') {
+          await cursor.delete();
+        } else {
+          ct++;
+        }
         cursor = await cursor.continue();
       }
-      lastPosObj[parents[pIndex]] = lastPos;
-      pIndex++;
-    }
-    // Pass 2: change positions of done items
-    for (let i = 0; i < parents.length; i++) {
-      let dCursor = await index.openCursor(
-        IDBKeyRange.bound(
-          [parents[i], 'done', 0],
-          [parents[i], 'done', Infinity],
-        ),
-      );
-      let position =
-        lastPosObj[parents[i]] === null ? 0 : lastPosObj[parents[i]];
-      while (dCursor) {
-        // Pass 3 Done introspection
-        await orderKids(dCursor.value.id, posIndex);
-        dCursor.update({
-          ...dCursor.value,
-          position,
-        });
-        position++;
-        dCursor = await dCursor.continue();
+      return ct;
+    };
+
+    const order = async (parent: string, position: number) => {
+      if (!position) return;
+      let cursor = await posIndex.openCursor(getParentRange(parent), 'prev');
+      while (cursor) {
+        if (cursor.value.status === 'hide') {
+          cursor = await cursor.continue();
+          continue;
+        }
+        await order(cursor.value.id, await count(cursor.value.id));
+        position--;
+        cursor.update({ ...cursor.value, position });
+        cursor = await cursor.continue();
       }
+    };
+
+    await order('1', await count('1'));
+    // remove old "done" data
+    let cursor = await posIndex.openCursor(getParentRange('2'), 'prev');
+    while (cursor) {
+      cursor.delete();
+      cursor = await cursor.continue();
     }
   }
 };

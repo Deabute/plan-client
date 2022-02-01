@@ -75,6 +75,10 @@ const getPriorityIndexRange = (parentId: string): IDBKeyRange => {
   return IDBKeyRange.bound(lowerBound, upperBound);
 };
 
+const getParentRange = (parent: string): IDBKeyRange => {
+  return IDBKeyRange.bound([parent, 0], [parent, Infinity]);
+};
+
 const KEY_PAIR_CONFIG: EcKeyGenParams = {
   name: 'ECDSA',
   namedCurve: 'P-384',
@@ -413,4 +417,5 @@ export {
   arrayOfDefaults,
   ProductName,
   hiddenBody,
+  getParentRange,
 };
