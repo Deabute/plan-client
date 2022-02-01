@@ -91,9 +91,9 @@ const getTime = async () => {
   });
 };
 
-const refreshTime = async (sticky: boolean = true) => {
+const refreshTime = async (holdPosition: boolean = true) => {
   let end: number = 0;
-  if (sticky) {
+  if (holdPosition) {
     timeStore.update((time) => {
       if (time.history.length) end = time.history[0].start;
       return time;
@@ -106,7 +106,7 @@ const recordTime = async (task: memTaskI) => {
   const { topChild, ...baseTask } = task;
   const refTask = task.topChild ? topChild : baseTask;
   await newTimeStamp(refTask);
-  await refreshTime();
+  await refreshTime(false);
 };
 
 export {

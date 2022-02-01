@@ -273,8 +273,8 @@ const updateNextOrDone = async (task: taskI, sync: boolean = true) => {
   }
 };
 
-const refreshAllViews = async () => {
-  await refreshTime();
+const refreshAllViews = async (holdPosition: boolean = true) => {
+  await refreshTime(holdPosition);
   await refreshTask();
   await loadAgenda();
 };
@@ -292,7 +292,7 @@ const checkOff = (taskId: string) => {
     await updateNextOrDone(task);
     await addEvent('checkOff', { task });
     if (currentRunningTask) await newTimeStamp(nextRecord);
-    await refreshAllViews();
+    await refreshAllViews(!currentRunningTask);
   };
 };
 
@@ -310,7 +310,7 @@ const hideTask = (task: memTaskI) => {
     await backfillPositions(task.parentId, task.lastModified);
     addEvent('hideTask', { task });
     if (currentRunningTask) await newTimeStamp(nextRecord);
-    await refreshAllViews();
+    await refreshAllViews(!currentRunningTask);
   };
 };
 
