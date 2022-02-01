@@ -6,7 +6,7 @@
   import { editTask, moveTask } from '../stores/settingsStore';
   import MoveTaskOptions from '../components/cardInterface/MoveTaskOptions.svelte';
   import RecurEditBar from '../components/cardInterface/RecurEditBar.svelte';
-  import { showTopChild } from '../indexDb/viewStoreDb';
+  import { showDone, showTopChild } from '../indexDb/viewStoreDb';
   import DueDate from '../components/cardInterface/DueDate.svelte';
   // Exposed component props
   export let task: memTaskI;
@@ -18,19 +18,21 @@
   });
 </script>
 
-<div class="pb-1 border-bottom container-fluid" id={task.id}>
-  <FolderTab {task} bind:topChildShowing />
-  {#if !$moveTask}
-    <FolderBudget {task} bind:topChildShowing />
-    <RecurEditBar {task} />
-    <DueDate {task} />
-    {#if topChildShowing && task.topChild && $editTask?.id !== task.id}
-      <FolderTab
-        task={task.topChild}
-        topChildMode={true}
-        bind:topChildShowing
-      />
+{#if task.status !== 'done' || $showDone}
+  <div class="pb-1 border-bottom container-fluid" id={task.id}>
+    <FolderTab {task} bind:topChildShowing />
+    {#if !$moveTask}
+      <FolderBudget {task} bind:topChildShowing />
+      <RecurEditBar {task} />
+      <DueDate {task} />
+      {#if topChildShowing && task.topChild && $editTask?.id !== task.id}
+        <FolderTab
+          task={task.topChild}
+          topChildMode={true}
+          bind:topChildShowing
+        />
+      {/if}
     {/if}
-  {/if}
-  <MoveTaskOptions {task} />
-</div>
+    <MoveTaskOptions {task} />
+  </div>
+{/if}

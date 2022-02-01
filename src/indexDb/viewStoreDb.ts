@@ -11,6 +11,7 @@ const showActivityMobile: Writable<boolean> = writable(true);
 const showTimelineMobile: Writable<boolean> = writable(false);
 const showAgendaMobile: Writable<boolean> = writable(false);
 const showSideNav: Writable<boolean> = writable(true);
+const showDone: Writable<boolean> = writable(true);
 const desktopMode: Writable<boolean> = writable(true);
 
 const views: {
@@ -26,6 +27,7 @@ const views: {
   { name: 'timelineMobile', store: showTimelineMobile, default: false },
   { name: 'topChild', store: showTopChild, default: false },
   { name: 'sideNav', store: showSideNav, default: true },
+  { name: 'showDone', store: showDone, default: true },
 ];
 
 const toggleView = (name: string) => {
@@ -103,4 +105,5 @@ export {
   showSideNav,
   getParentView,
   desktopMode,
+  showDone,
 };

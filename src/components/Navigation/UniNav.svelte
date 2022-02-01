@@ -12,6 +12,7 @@
     showAgendaMobile,
     mobileToggle,
     desktopMode,
+    showDone,
   } from '../../indexDb/viewStoreDb';
   import {
     activitiesColumnName,
@@ -157,6 +158,7 @@
       </li>
     </ul>
   {/if}
+  <!-- Views -->
   <hr />
   {#if $showSideNav}<span class="ms-1 fs-5">Views</span>{/if}
   <ul class="nav nav-pills flex-column mb-auto">
@@ -220,7 +222,20 @@
         <span> Top sub-folder </span>
       {/if}
     </li>
+    <li
+      data-bs-toggle={offcanvas ? 'offcanvas' : ''}
+      data-bs-target={offcanvas ? '#mobileMenu' : ''}
+      class={`nav-item p-1 ${$showDone ? 'selected' : 'not-selected'}`}
+      type="button"
+      on:click={toggleView('showDone')}
+    >
+      <span class={`p-1`}><ListTask /></span>
+      {#if $showSideNav}
+        <span>{`${$showDone ? 'Hide' : 'Show'} done`}</span>
+      {/if}
+    </li>
   </ul>
+  <!-- Settings -->
   <hr />
   {#if $showSideNav}<span class="ms-1 fs-5">Settings</span>{/if}
   <ul class="nav nav-pills flex-column mb-auto">
@@ -273,6 +288,7 @@
       {/if}
     </li>
   </ul>
+  <!-- Learn Links -->
   <hr />
   {#if $showSideNav}
     <span class="ms-1 fs-5" type="button" on:click={toggleLearn}>
