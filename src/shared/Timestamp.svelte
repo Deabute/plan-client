@@ -20,12 +20,14 @@
   import Check from 'svelte-bootstrap-icons/lib/Check';
   import Trash from 'svelte-bootstrap-icons/lib/Trash';
   import XLg from 'svelte-bootstrap-icons/lib/XLg';
+  import ChevronExpand from 'svelte-bootstrap-icons/lib/ChevronExpand';
   import RecordBtn from 'svelte-bootstrap-icons/lib/RecordBtn';
   import RecycleButton from '../components/ActionButtons/RecycleButton.svelte';
   import { hiddenBody } from '../stores/defaultData';
   import CheckOffButton from '../components/ActionButtons/CheckOffButton.svelte';
   import OpenFolderButton from '../components/ActionButtons/OpenFolderButton.svelte';
   import BodyAndAction from '../components/ActionButtons/BodyAndAction.svelte';
+  import { showDone, toggleView } from '../indexDb/viewStoreDb';
   // Exposed component props
   export let timestamp: memStampI;
   export let inProgress: boolean = false;
@@ -79,31 +81,33 @@
 </script>
 
 <div class={`pb-1 border-bottom`} id={timestamp.id}>
-  <div class="row mb-1 text-center">
-    {#if timestamp.done || $timeStore.now.taskId === timestamp.taskId}
-      {#if inProgress}
-        <span class="col-2 text-danger">Tracking</span>
+  {#if !timestamp.done || $showDone}
+    <div class="row mb-1 text-center">
+      {#if timestamp.done || $timeStore.now.taskId === timestamp.taskId}
+        {#if inProgress}
+          <span class="col-2 text-danger">Tracking</span>
+        {:else}
+          <span class="col-2" />
+        {/if}
       {:else}
-        <span class="col-2" />
+        <div class="col-2 text-danger" type="button" on:click={recordThisTask}>
+          <RecordBtn />
+        </div>
       {/if}
-    {:else}
-      <div class="col-2 text-danger" type="button" on:click={recordThisTask}>
-        <RecordBtn />
-      </div>
-    {/if}
-    <BodyAndAction
-      id={timestamp.taskId}
-      body={timestamp.body}
-      done={timestamp.done}
-      sib={true}
-      size="8"
-    />
-    {#if !timestamp.done}
-      <CheckOffButton id={timestamp.taskId} size="2" />
-    {:else if !hidden}
-      <RecycleButton id={timestamp.taskId} colSize="2" />
-    {/if}
-  </div>
+      <BodyAndAction
+        id={timestamp.taskId}
+        body={timestamp.body}
+        done={timestamp.done}
+        sib={true}
+        size="8"
+      />
+      {#if !timestamp.done}
+        <CheckOffButton id={timestamp.taskId} size="2" />
+      {:else if !hidden}
+        <RecycleButton id={timestamp.taskId} colSize="2" />
+      {/if}
+    </div>
+  {/if}
 
   <div class="row text-center">
     {#if editing}
@@ -111,7 +115,13 @@
         <StampEdit bind:stamp={timestamp.start} bind:editedStamp={start} />
       </div>
     {:else}
-      <OpenFolderButton id={timestamp.taskId} siblings={true} size="2" />
+      {#if !timestamp.done || $showDone}
+        <OpenFolderButton id={timestamp.taskId} siblings={true} size="2" />
+      {:else}
+        <div class="col-2" type="button" on:click={toggleView('showDone')}>
+          <ChevronExpand />
+        </div>
+      {/if}
       <span class="col-6" on:click={toggleEdit}>
         {getHumanReadableStamp(timestamp.start, false)}
       </span>
