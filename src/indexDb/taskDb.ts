@@ -342,8 +342,12 @@ const getAgendaDb = async (): Promise<taskI[]> => {
   let pastDue = 5;
   let cursor = await taskIndex.openCursor(IDBKeyRange.bound(1, now), 'prev');
   while (cursor && pastDue) {
+    if (cursor.value.status === 'hide') {
+      cursor = await cursor.continue();
+      continue;
+    }
     agenda.push(cursor.value);
-    entries--;
+    if (cursor.value.status === 'todo') entries--;
     pastDue--;
     cursor = await cursor.continue();
   }
@@ -352,8 +356,12 @@ const getAgendaDb = async (): Promise<taskI[]> => {
     IDBKeyRange.bound(now, Infinity, false, false),
   );
   while (cursor && entries) {
+    if (cursor.value.status === 'hide') {
+      cursor = await cursor.continue();
+      continue;
+    }
     agenda.push(cursor.value);
-    entries--;
+    if (cursor.value.status === 'todo') entries--;
     cursor = await cursor.continue();
   }
   return agenda;

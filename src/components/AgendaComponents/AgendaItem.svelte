@@ -7,6 +7,7 @@
   import RecycleButton from '../ActionButtons/RecycleButton.svelte';
   import CheckOffButton from '../ActionButtons/CheckOffButton.svelte';
   import BodyAndAction from '../ActionButtons/BodyAndAction.svelte';
+  import { showDone } from '../../indexDb/viewStoreDb';
   export let task: taskI;
   let done: boolean = task.status !== 'todo' ? true : false;
   $: done = task.status !== 'todo' ? true : false;
@@ -16,7 +17,7 @@
   };
 </script>
 
-{#if task.status !== 'hide'}
+{#if task.status === 'todo' || $showDone}
   <div class="pb-1 border-bottom">
     <div class="row text-center">
       {#if done}

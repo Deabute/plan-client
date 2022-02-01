@@ -306,6 +306,7 @@ const hideTask = (task: memTaskI) => {
     task = await updateTaskSafe({
       id: task.id,
       status: 'hide',
+      dueDate: 0,
     });
     await backfillPositions(task.parentId, task.lastModified);
     addEvent('hideTask', { task });

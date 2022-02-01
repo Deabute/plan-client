@@ -53,6 +53,7 @@ const initEventsForEvents = () => {
       {
         id: data.task.id,
         status: 'hide',
+        dueDate: 0,
       },
       false,
       false,
