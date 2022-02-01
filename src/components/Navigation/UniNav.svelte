@@ -37,6 +37,8 @@
   import Laptop from 'svelte-bootstrap-icons/lib/Laptop';
   import Trash from 'svelte-bootstrap-icons/lib/Trash';
   import Cloud from 'svelte-bootstrap-icons/lib/Cloud';
+  import CaretDown from 'svelte-bootstrap-icons/lib/CaretDown';
+  import CaretRight from 'svelte-bootstrap-icons/lib/CaretRight';
   import CloudArrowUp from 'svelte-bootstrap-icons/lib/CloudArrowUp';
   import HourglassSplit from 'svelte-bootstrap-icons/lib/HourglassSplit';
   import {
@@ -92,6 +94,11 @@
     return `End: ${DAYS_SHORT[endDate.getDay()]} ${
       MONTH_SHORT[endDate.getMonth()]
     } ${endDate.getDate()}, ${hour}${meridium}`;
+  };
+
+  let showLearnLinks: boolean = false;
+  const toggleLearn = () => {
+    showLearnLinks = !showLearnLinks;
   };
 </script>
 
@@ -268,24 +275,33 @@
   </ul>
   <hr />
   {#if $showSideNav}
-    <span class="ms-1 fs-5">Learn Links</span>
-    <ul class="nav nav-pills flex-column mb-auto">
-      {#each learnLinks as { link, icon, text }}
-        <li class="nav-item p-1 ms-1" type="link">
-          <a class="text-white" href={link}>
-            {#if icon === 'GitHub'}
-              <Github />
-            {:else}
-              <InfoCircle />
-            {/if}
-            &nbsp;
-            <span>{text}</span>
-            &nbsp;
-            <BoxArrowUpRight />
-          </a>
-        </li>
-      {/each}
-    </ul>
+    <span class="ms-1 fs-5" type="button" on:click={toggleLearn}>
+      {#if showLearnLinks}
+        <CaretDown />
+      {:else}
+        <CaretRight />
+      {/if}
+      Learn Links
+    </span>
+    {#if showLearnLinks}
+      <ul class="nav nav-pills flex-column mb-auto">
+        {#each learnLinks as { link, icon, text }}
+          <li class="nav-item p-1 ms-1" type="link">
+            <a class="text-white" href={link}>
+              {#if icon === 'GitHub'}
+                <Github />
+              {:else}
+                <InfoCircle />
+              {/if}
+              &nbsp;
+              <span>{text}</span>
+              &nbsp;
+              <BoxArrowUpRight />
+            </a>
+          </li>
+        {/each}
+      </ul>
+    {/if}
   {/if}
 
   {#if $showSideNav}
