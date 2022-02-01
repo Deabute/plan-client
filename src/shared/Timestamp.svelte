@@ -20,7 +20,7 @@
   import Check from 'svelte-bootstrap-icons/lib/Check';
   import Trash from 'svelte-bootstrap-icons/lib/Trash';
   import XLg from 'svelte-bootstrap-icons/lib/XLg';
-  import ChevronExpand from 'svelte-bootstrap-icons/lib/ChevronExpand';
+  import CheckSquare from 'svelte-bootstrap-icons/lib/CheckSquare';
   import RecordBtn from 'svelte-bootstrap-icons/lib/RecordBtn';
   import RecycleButton from '../components/ActionButtons/RecycleButton.svelte';
   import { hiddenBody } from '../stores/defaultData';
@@ -119,7 +119,7 @@
         <OpenFolderButton id={timestamp.taskId} siblings={true} size="2" />
       {:else}
         <div class="col-2" type="button" on:click={toggleView('showDone')}>
-          <ChevronExpand />
+          <CheckSquare />
         </div>
       {/if}
       <span class="col-6" on:click={toggleEdit}>

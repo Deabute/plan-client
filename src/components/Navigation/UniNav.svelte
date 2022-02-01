@@ -41,6 +41,7 @@
   import CaretDown from 'svelte-bootstrap-icons/lib/CaretDown';
   import CaretRight from 'svelte-bootstrap-icons/lib/CaretRight';
   import CloudArrowUp from 'svelte-bootstrap-icons/lib/CloudArrowUp';
+  import CheckSquare from 'svelte-bootstrap-icons/lib/CheckSquare';
   import HourglassSplit from 'svelte-bootstrap-icons/lib/HourglassSplit';
   import {
     showFreshStart,
@@ -229,7 +230,7 @@
       type="button"
       on:click={toggleView('showDone')}
     >
-      <span class={`p-1`}><ListTask /></span>
+      <span class={`p-1`}><CheckSquare /></span>
       {#if $showSideNav}
         <span>{`${$showDone ? 'Hide' : 'Show'} done`}</span>
       {/if}
