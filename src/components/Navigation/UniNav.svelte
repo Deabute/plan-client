@@ -55,6 +55,7 @@
   import { get12Hour } from '../time/timeConvert';
   import { budgetStore } from '../../stores/budgetStore';
   import type { budgetI } from '../../shared/interface';
+  import { learnLinks } from './navLanguage';
 
   export let offcanvas: boolean = false;
   const getViewClass = (
@@ -269,33 +270,21 @@
   {#if $showSideNav}
     <span class="ms-1 fs-5">Learn Links</span>
     <ul class="nav nav-pills flex-column mb-auto">
-      <li class="nav-item p-1 ms-1" type="link">
-        <a class="text-white" href="https://deabute.com/products/plan/">
-          <InfoCircle />
-          &nbsp;
-          <span>Budgeting</span>
-          &nbsp;
-          <BoxArrowUpRight />
-        </a>
-      </li>
-      <li class="nav-item p-1 ms-1" type="link">
-        <a class="text-white" href="https://deabute.com/plan-get-involved/">
-          <InfoCircle />
-          &nbsp;
-          <span>Contributing</span>
-          &nbsp;
-          <BoxArrowUpRight />
-        </a>
-      </li>
-      <li class="nav-item p-1 ms-1" type="link">
-        <a class="text-white" href="https://github.com/Deabute/plan-client">
-          <Github />
-          &nbsp;
-          <span>Source Code</span>
-          &nbsp;
-          <BoxArrowUpRight />
-        </a>
-      </li>
+      {#each learnLinks as { link, icon, text }}
+        <li class="nav-item p-1 ms-1" type="link">
+          <a class="text-white" href={link}>
+            {#if icon === 'GitHub'}
+              <Github />
+            {:else}
+              <InfoCircle />
+            {/if}
+            &nbsp;
+            <span>{text}</span>
+            &nbsp;
+            <BoxArrowUpRight />
+          </a>
+        </li>
+      {/each}
     </ul>
   {/if}
 
