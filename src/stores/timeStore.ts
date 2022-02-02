@@ -58,11 +58,14 @@ secondTick.subscribe((currentTime) => {
   }
 });
 
-const newTimeStamp = async ({ id, body }: taskI): Promise<memStampI> => {
+const newTimeStamp = async (
+  taskId: string,
+  body: string,
+): Promise<memStampI> => {
   const now = Date.now();
   const stamp: timestampI = {
     id: createOid(),
-    taskId: id,
+    taskId,
     start: now,
     type: 'todo',
     lastModified: now,
@@ -83,7 +86,7 @@ const getTime = async () => {
   let { history, now } = await getStamps();
   if (!now) {
     const { body } = arrayOfDefaults[0];
-    now = await newTimeStamp({ ...genesisTask, id: body.slice(0, 24), body });
+    now = await newTimeStamp(body.slice(0, 24), body);
   }
   timeStore.set({
     now,
@@ -102,18 +105,10 @@ const refreshTime = async (holdPosition: boolean = true) => {
   timeStore.set(await getStamps(end));
 };
 
-const recordTime = async (task: memTaskI) => {
-  const { topChild, ...baseTask } = task;
-  const refTask = task.topChild ? topChild : baseTask;
-  await newTimeStamp(refTask);
-  await refreshTime(false);
-};
-
 export {
   newTimeStamp,
   getTime,
   timeStore,
-  recordTime,
   refreshTime,
   secondTick,
   nowTimeStamp,

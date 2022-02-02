@@ -3,12 +3,12 @@
   import type { memTaskI } from '../../shared/interface';
   import { moveTask } from '../../stores/settingsStore';
   import { modifyBody } from '../../stores/taskStore';
-  import RecordBtn from 'svelte-bootstrap-icons/lib/RecordBtn';
-  import { recordTime, timeStore } from '../../stores/timeStore';
+  import { timeStore } from '../../stores/timeStore';
   import RecycleButton from '../ActionButtons/RecycleButton.svelte';
   import CheckOffButton from '../ActionButtons/CheckOffButton.svelte';
   import OpenFolderButton from '../ActionButtons/OpenFolderButton.svelte';
   import BodyAndAction from '../ActionButtons/BodyAndAction.svelte';
+  import RecordActionButton from '../ActionButtons/RecordActionButton.svelte';
 
   export let task: memTaskI | null = null;
   export let topChildMode: boolean = false;
@@ -45,13 +45,6 @@
     return false;
   };
 
-  const record = () => {
-    const { topChild, ...baseTask } = task;
-    // Note: This is if topChild is showing not if it exist
-    // The later is handled internally to record time
-    recordTime(topChildShowing ? topChild : baseTask);
-  };
-
   const onRename = () => {
     if (renameInput) {
       modifyBody(task, renameInput);
@@ -72,9 +65,7 @@
     <BodyAndAction id={parentId} {body} size="12" />
   {:else}
     {#if !done && !recording($timeStore.now.taskId, topChildShowing)}
-      <div class="col-1 text-danger" type="button" on:click={record}>
-        <RecordBtn />
-      </div>
+      <RecordActionButton id={task.id} body={task.body} />
     {:else}
       <div class="col-1" />
     {/if}

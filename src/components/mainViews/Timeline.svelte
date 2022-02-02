@@ -2,7 +2,7 @@
 <script lang="ts">
   import { timelineColumnName } from '../../stores/defaultData';
   import Timestamp from '../../shared/Timestamp.svelte';
-  import { recordTime, timeStore } from '../../stores/timeStore';
+  import { timeStore } from '../../stores/timeStore';
   import { page } from '../../indexDb/timelineDb';
   import {
     showTimelineColumn,
@@ -15,6 +15,7 @@
   import RecordBtn from 'svelte-bootstrap-icons/lib/RecordBtn';
   import OpenFolderButton from '../ActionButtons/OpenFolderButton.svelte';
   import BodyAndAction from '../ActionButtons/BodyAndAction.svelte';
+  import RecordActionButton from '../ActionButtons/RecordActionButton.svelte';
 
   let canPageDown = true;
   let canPageUp = false;
@@ -59,10 +60,6 @@
       ? nextTask.body
       : 'Make some more folders or this is the only one that can be worked on';
   });
-
-  const recordNextTask = async () => {
-    recordTime($nextUp);
-  };
 </script>
 
 <ViewContainer
@@ -87,13 +84,11 @@
           <div class="col-2 align-self-end">
             {#if id !== '1'}
               <OpenFolderButton id={parentId} size=" row pb-2" />
-              <div
-                type="button"
-                on:click={recordNextTask}
-                class="row text-danger align-self-end"
-              >
-                <RecordBtn />
-              </div>
+              <RecordActionButton
+                id={$nextUp.id}
+                body={$nextUp.body}
+                size=" row align-self-end"
+              />
             {/if}
           </div>
           <BodyAndAction {body} id={parentId} size="8 text-secondary" />

@@ -6,28 +6,22 @@
   } from '../components/time/timeConvert';
   import { addEvent } from '../indexDb/eventsDb';
   import { editStamp, removeStamp } from '../indexDb/timelineDb';
-  import {
-    nowTimeStamp,
-    recordTime,
-    refreshTime,
-    timeStore,
-  } from '../stores/timeStore';
+  import { nowTimeStamp, refreshTime, timeStore } from '../stores/timeStore';
   import type { memStampI, timestampI } from './interface';
   import StampEdit from './StampEdit.svelte';
-  import { getTaskById } from '../indexDb/taskDb';
   import { refreshTask } from '../stores/taskStore';
   import Gear from 'svelte-bootstrap-icons/lib/Gear';
   import Check from 'svelte-bootstrap-icons/lib/Check';
   import Trash from 'svelte-bootstrap-icons/lib/Trash';
   import XLg from 'svelte-bootstrap-icons/lib/XLg';
   import CheckSquare from 'svelte-bootstrap-icons/lib/CheckSquare';
-  import RecordBtn from 'svelte-bootstrap-icons/lib/RecordBtn';
   import RecycleButton from '../components/ActionButtons/RecycleButton.svelte';
   import { hiddenBody } from '../stores/defaultData';
   import CheckOffButton from '../components/ActionButtons/CheckOffButton.svelte';
   import OpenFolderButton from '../components/ActionButtons/OpenFolderButton.svelte';
   import BodyAndAction from '../components/ActionButtons/BodyAndAction.svelte';
   import { showDone, toggleView } from '../indexDb/viewStoreDb';
+  import RecordActionButton from '../components/ActionButtons/RecordActionButton.svelte';
   // Exposed component props
   export let timestamp: memStampI;
   export let inProgress: boolean = false;
@@ -74,10 +68,6 @@
     await addEvent('removeTimestamp', { id: timestamp.id });
     refreshTime();
   };
-
-  const recordThisTask = async () => {
-    recordTime(await getTaskById(timestamp.taskId));
-  };
 </script>
 
 <div class={`pb-1 border-bottom`} id={timestamp.id}>
@@ -90,9 +80,11 @@
           <span class="col-2" />
         {/if}
       {:else}
-        <div class="col-2 text-danger" type="button" on:click={recordThisTask}>
-          <RecordBtn />
-        </div>
+        <RecordActionButton
+          id={timestamp.taskId}
+          body={timestamp.body}
+          size="2"
+        />
       {/if}
       <BodyAndAction
         id={timestamp.taskId}

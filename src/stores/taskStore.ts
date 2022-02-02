@@ -291,7 +291,7 @@ const checkOff = (taskId: string) => {
     if (currentRunningTask && !nextRecord) return;
     await updateNextOrDone(task);
     await addEvent('checkOff', { task });
-    if (currentRunningTask) await newTimeStamp(nextRecord);
+    if (currentRunningTask) await newTimeStamp(nextRecord.id, nextRecord.body);
     await refreshAllViews(!currentRunningTask);
   };
 };
@@ -310,7 +310,7 @@ const hideTask = (task: memTaskI) => {
     });
     await backfillPositions(task.parentId, task.lastModified);
     addEvent('hideTask', { task });
-    if (currentRunningTask) await newTimeStamp(nextRecord);
+    if (currentRunningTask) await newTimeStamp(nextRecord.id, nextRecord.body);
     await refreshAllViews(!currentRunningTask);
   };
 };
