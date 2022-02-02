@@ -252,7 +252,7 @@ const placeFolderDb = async (task: taskI) => {
   const db = await getDb();
   const trans = db.transaction(['tasks'], 'readwrite');
   const tasks = trans.objectStore('tasks');
-  const taskIndex = tasks.index('priority');
+  const taskIndex = tasks.index('position');
   let range = IDBKeyRange.bound([task.parentId, 0], [task.parentId, Infinity]);
   let cursor = await taskIndex.openCursor(range);
   let position = 0;
@@ -266,6 +266,10 @@ const placeFolderDb = async (task: taskI) => {
   };
   let changedTask: boolean = false;
   while (cursor) {
+    if (cursor.value.status === 'hide') {
+      cursor = await cursor.continue();
+      continue;
+    }
     if (cursor.value.position - 1 === task.position) {
       pushChange(task);
       changedTask = true;
