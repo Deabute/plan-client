@@ -14,11 +14,13 @@
   import Gear from 'svelte-bootstrap-icons/lib/Gear';
   import Sliders from 'svelte-bootstrap-icons/lib/Sliders';
   import EditBar from './EditBar.svelte';
-  import OpenFolderButton from '../ActionButtons/OpenFolderButton.svelte';
+  import RecordActionButton from '../ActionButtons/RecordActionButton.svelte';
+  import { nowTimeStamp, timeStore } from '../../stores/timeStore';
+  import { showTopChild } from '../../indexDb/viewStoreDb';
 
   export let task: memTaskI;
-  export let topChildShowing: boolean;
 
+  // !! this is a bug !!! Will show last task fraction
   let { fraction, autoAssigned } = task;
 
   const editInsteadOfFund = () => {
@@ -28,7 +30,18 @@
 </script>
 
 <div class="text-center text-small row">
-  <OpenFolderButton id={task.id} />
+  {#if task.status === 'todo'}
+    {#if $timeStore.now.taskId === task.id || task?.topChild?.id === $timeStore.now.taskId}
+      <span class="col-1 text-danger">{$nowTimeStamp}</span>
+    {:else}
+      <RecordActionButton
+        id={$showTopChild && task.topChild ? task.topChild.id : task.id}
+        body={task.body}
+      />
+    {/if}
+  {:else}
+    <div class="col-1" />
+  {/if}
   {#if $fundSetting.task?.id === task.id}
     <div class="col-10">
       <MoveTime bind:fraction>
@@ -47,7 +60,7 @@
   {:else}
     {#if $editTask?.id === task.id && !$editRecur}
       <div class="col-10">
-        <EditBar {task} bind:topChildShowing />
+        <EditBar {task} />
       </div>
     {:else}
       <div

@@ -28,7 +28,8 @@
   let { start } = timestamp;
 
   let editing: boolean = false;
-  const hidden = timestamp.body === hiddenBody ? true : false;
+  let hidden = false;
+  $: hidden = timestamp.body === hiddenBody ? true : false;
 
   const makeEdit = async () => {
     const { body, duration, done, ...stamp } = timestamp;
@@ -73,31 +74,17 @@
 <div class={`pb-1 border-bottom`} id={timestamp.id}>
   {#if !timestamp.done || $showDone}
     <div class="row mb-1 text-center">
-      {#if timestamp.done || $timeStore.now.taskId === timestamp.taskId}
-        {#if inProgress}
-          <span class="col-2 text-danger">Tracking</span>
-        {:else}
-          <span class="col-2" />
-        {/if}
-      {:else}
-        <RecordActionButton
-          id={timestamp.taskId}
-          body={timestamp.body}
-          size="2"
-        />
+      {#if !timestamp.done}
+        <CheckOffButton id={timestamp.taskId} size="2" />
+      {:else if !hidden}
+        <RecycleButton id={timestamp.taskId} colSize="2" />
       {/if}
       <BodyAndAction
         id={timestamp.taskId}
         body={timestamp.body}
         done={timestamp.done}
         sib={true}
-        size="8"
       />
-      {#if !timestamp.done}
-        <CheckOffButton id={timestamp.taskId} size="2" />
-      {:else if !hidden}
-        <RecycleButton id={timestamp.taskId} colSize="2" />
-      {/if}
     </div>
   {/if}
 
@@ -107,8 +94,16 @@
         <StampEdit bind:stamp={timestamp.start} bind:editedStamp={start} />
       </div>
     {:else}
-      {#if !timestamp.done || $showDone}
-        <OpenFolderButton id={timestamp.taskId} siblings={true} size="2" />
+      {#if inProgress}
+        <span class="col-2 text-danger">Tracking</span>
+      {:else if !timestamp.done}
+        <RecordActionButton
+          id={timestamp.taskId}
+          body={timestamp.body}
+          size="2"
+        />
+      {:else if $showDone}
+        <span class="col-2" />
       {:else}
         <div class="col-2" type="button" on:click={toggleView('showDone')}>
           <CheckSquare />

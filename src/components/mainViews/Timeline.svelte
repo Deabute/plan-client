@@ -91,7 +91,7 @@
               />
             {/if}
           </div>
-          <BodyAndAction {body} id={parentId} size="8 text-secondary" />
+          <BodyAndAction {body} id={parentId} grey={true} />
           <div class="col-2 text-success align-self-end">
             <div class="row pb-2 ps-3">Next</div>
             <div class="row"><ArrowDown /></div>

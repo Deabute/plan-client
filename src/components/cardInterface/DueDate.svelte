@@ -14,7 +14,7 @@
     editTask,
     toggleEditDue,
   } from '../../stores/settingsStore';
-  import { secondTick } from '../../stores/timeStore';
+  import { nowTimeStamp, secondTick, timeStore } from '../../stores/timeStore';
   import { getHumanReadableStamp } from '../time/timeConvert';
   import PeriodEdit from '../time/PeriodEdit.svelte';
   import { addEvent } from '../../indexDb/eventsDb';
@@ -23,7 +23,8 @@
   import XLg from 'svelte-bootstrap-icons/lib/XLg';
   import Gear from 'svelte-bootstrap-icons/lib/Gear';
   import CalendarEvent from 'svelte-bootstrap-icons/lib/CalendarEvent';
-  import OpenFolderButton from '../ActionButtons/OpenFolderButton.svelte';
+  import RecordActionButton from '../ActionButtons/RecordActionButton.svelte';
+  import { now } from 'svelte/internal';
 
   export let task: memTaskI;
   export let activtyColumn: boolean = true;
@@ -137,7 +138,15 @@
         </span>
       {/if}
     {:else}
-      <OpenFolderButton id={task.parentId} size="2" />
+      {#if task.status === 'todo'}
+        {#if $timeStore.now.taskId === task.id}
+          <span class="col-2 text-danger">{$nowTimeStamp}</span>
+        {:else}
+          <RecordActionButton id={task.id} body={task.body} size="2" />
+        {/if}
+      {:else}
+        <div class="col-2" />
+      {/if}
       <span
         class={`col-8 ${stampColor}`}
         type="button"

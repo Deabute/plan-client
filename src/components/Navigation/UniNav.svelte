@@ -220,7 +220,7 @@
     >
       <span class={`p-1`}><ListTask /></span>
       {#if $showSideNav}
-        <span> Top sub-folder </span>
+        <span> Top-Task </span>
       {/if}
     </li>
     <li
@@ -254,7 +254,7 @@
       <Laptop />
       {#if $showSideNav}
         <span class={`p-1 ${getSyncStatus($rtcPeers)}`}>
-          <Phone />&nbsp; Multi-Device
+          <Phone />&nbsp; Devices
         </span>
       {/if}
     </li>

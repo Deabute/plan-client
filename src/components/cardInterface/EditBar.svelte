@@ -14,7 +14,6 @@
   import { agendaColumnName } from '../../stores/defaultData';
 
   export let task: memTaskI;
-  export let topChildShowing: boolean;
 
   let showDeleteConfirm = false;
   const DeleteConfirmationToggle = () => {
@@ -23,7 +22,6 @@
 
   const move = () => {
     $moveTask = task;
-    topChildShowing = false;
   };
 </script>
 

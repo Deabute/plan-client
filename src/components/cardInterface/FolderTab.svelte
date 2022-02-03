@@ -3,19 +3,16 @@
   import type { memTaskI } from '../../shared/interface';
   import { moveTask } from '../../stores/settingsStore';
   import { modifyBody } from '../../stores/taskStore';
-  import { timeStore } from '../../stores/timeStore';
   import RecycleButton from '../ActionButtons/RecycleButton.svelte';
   import CheckOffButton from '../ActionButtons/CheckOffButton.svelte';
   import OpenFolderButton from '../ActionButtons/OpenFolderButton.svelte';
   import BodyAndAction from '../ActionButtons/BodyAndAction.svelte';
-  import RecordActionButton from '../ActionButtons/RecordActionButton.svelte';
 
   export let task: memTaskI | null = null;
   export let topChildMode: boolean = false;
-  export let topChildShowing: boolean;
 
-  const { id, body, parentId, status } = task;
-  let done = status === 'todo' ? false : true;
+  let done = task.status === 'todo' ? false : true;
+  $: done = task.status === 'todo' ? false : true;
   let grey: boolean = topChildMode ? true : false;
   let showUpdate: boolean = false;
   let renameInput: string = '';
@@ -36,15 +33,6 @@
     showUpdate = renameInput && renameInput !== task.body ? true : false;
   };
 
-  const recording = (runningTask: string, topChild: boolean): boolean => {
-    if (topChild) {
-      if (task.topChild && task.topChild.id === runningTask) return true;
-    } else {
-      if (id === runningTask) return true;
-    }
-    return false;
-  };
-
   const onRename = () => {
     if (renameInput) {
       modifyBody(task, renameInput);
@@ -55,38 +43,33 @@
 
 <div class={`row text-center py-1${grey ? ' text-secondary' : ''}`}>
   {#if $moveTask}
-    {#if !topChildMode && $moveTask?.id !== id}
-      <OpenFolderButton {id} />
+    {#if !topChildMode && $moveTask?.id !== task.id}
+      <OpenFolderButton id={task.id} />
     {:else}
       <div class="col-1" />
     {/if}
-    <BodyAndAction {id} {body} size="10" {done} />
+    <BodyAndAction id={task.id} body={task.body} size="10" {done} />
   {:else if topChildMode}
-    <BodyAndAction id={parentId} {body} size="12" />
+    <BodyAndAction id={task.parentId} body={task.body} size="12" {grey} />
   {:else}
-    {#if !done && !recording($timeStore.now.taskId, topChildShowing)}
-      <RecordActionButton id={task.id} body={task.body} />
+    {#if done}
+      <RecycleButton id={task.id} />
     {:else}
-      <div class="col-1" />
+      <CheckOffButton id={task.id} />
     {/if}
     <span
-      id={`folder-${id}`}
+      id={`folder-${task.id}`}
       class="text-center col-10"
       role="textbox"
       contenteditable
       on:input={onNameChange}
     >
       {#if done}
-        <s>{body}</s>
+        <s>{task.body}</s>
       {:else}
-        {body}
+        {task.body}
       {/if}
     </span>
-    {#if done}
-      <RecycleButton {id} />
-    {:else}
-      <CheckOffButton {id} />
-    {/if}
   {/if}
   {#if showUpdate}
     <button class="btn btn-outline-dark" on:click={onRename}> update </button>
