@@ -5,6 +5,7 @@
   import { editTask, moveTask } from '../../stores/settingsStore';
   import { loadChildren, refreshAllViews } from '../../stores/taskStore';
   import PencilSquare from 'svelte-bootstrap-icons/lib/PencilSquare';
+  import FolderSymlink from 'svelte-bootstrap-icons/lib/FolderSymlink';
 
   export let id: string;
   export let body: string;
@@ -82,7 +83,7 @@
     {#if done}
       <s>{body}</s>
     {:else}
-      {body}
+      {body} &nbsp; <FolderSymlink />
     {/if}
   </div>
 {/if}
