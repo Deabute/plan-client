@@ -48,7 +48,6 @@
         <BodyAndAction
           id={task.id}
           body={task.body}
-          size="10"
           done={task.status === 'todo' ? false : true}
         />
       </div>
@@ -62,7 +61,6 @@
             id={task.topChild.id}
             body={task.topChild.body}
             grey={true}
-            size="10"
           />
         </div>
       {/if}

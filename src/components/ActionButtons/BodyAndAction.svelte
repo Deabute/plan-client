@@ -8,7 +8,7 @@
 
   export let id: string;
   export let body: string;
-  export let size: string = '8';
+  export let size: string = '10';
   export let sib: boolean = false;
   export let done: boolean = false;
   export let grey: boolean = $moveTask?.id === id ? true : false;

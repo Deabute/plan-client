@@ -6,7 +6,7 @@
   import { refreshAllViews } from '../../stores/taskStore';
 
   export let id: string;
-  export let colSize = '1';
+  export let size = '1';
 
   const getUndid = async () => {
     await updateTaskSafe({ id, status: 'todo' });
@@ -15,6 +15,6 @@
   };
 </script>
 
-<div class={`col-${colSize}`} type="button" on:click={getUndid}>
+<div class={`col-${size}`} type="button" on:click={getUndid}>
   <Recycle />
 </div>

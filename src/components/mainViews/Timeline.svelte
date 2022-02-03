@@ -79,9 +79,9 @@
   </svelte:fragment>
   <svelte:fragment slot="staticHeader">
     <div class="border-bottom border-dark">
-      <div class="pb-1 border-bottom">
+      <div class="pb-1 border-bottom container-fluid">
         <div class="row mb-1 text-center">
-          <div class="col-2 align-self-end">
+          <div class="col-1 align-self-end">
             {#if id !== '1'}
               <OpenFolderButton id={parentId} size=" row pb-2" />
               <RecordActionButton
@@ -92,10 +92,10 @@
             {/if}
           </div>
           <BodyAndAction {body} id={parentId} grey={true} />
-          <div class="col-2 text-success align-self-end">
+          <!-- <div class="col-1 text-success align-self-end">
             <div class="row pb-2 ps-3">Next</div>
             <div class="row"><ArrowDown /></div>
-          </div>
+          </div> -->
         </div>
       </div>
       <Timestamp timestamp={$timeStore.now} inProgress={true} />

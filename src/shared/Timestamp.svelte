@@ -71,13 +71,13 @@
   };
 </script>
 
-<div class={`pb-1 border-bottom`} id={timestamp.id}>
+<div class="pb-1 border-bottom container-fluid" id={timestamp.id}>
   {#if !timestamp.done || $showDone}
     <div class="row mb-1 text-center">
       {#if !timestamp.done}
-        <CheckOffButton id={timestamp.taskId} size="2" />
+        <CheckOffButton id={timestamp.taskId} />
       {:else if !hidden}
-        <RecycleButton id={timestamp.taskId} colSize="2" />
+        <RecycleButton id={timestamp.taskId} />
       {/if}
       <BodyAndAction
         id={timestamp.taskId}
@@ -95,27 +95,23 @@
       </div>
     {:else}
       {#if inProgress}
-        <span class="col-2 text-danger">Tracking</span>
+        <span class="col-1 text-danger">Tracking</span>
       {:else if !timestamp.done}
-        <RecordActionButton
-          id={timestamp.taskId}
-          body={timestamp.body}
-          size="2"
-        />
+        <RecordActionButton id={timestamp.taskId} body={timestamp.body} />
       {:else if $showDone}
-        <span class="col-2" />
+        <span class="col-1" />
       {:else}
-        <div class="col-2" type="button" on:click={toggleView('showDone')}>
+        <div class="col-1" type="button" on:click={toggleView('showDone')}>
           <CheckSquare />
         </div>
       {/if}
-      <span class="col-6" on:click={toggleEdit}>
+      <span class="col-8" on:click={toggleEdit}>
         {getHumanReadableStamp(timestamp.start, false)}
       </span>
       <span class={`col-2${inProgress ? ' text-danger' : ''}`}>
         {inProgress ? $nowTimeStamp : getDurationStamp(timestamp.duration)}
       </span>
-      <div class="col-2" type="button" on:click={toggleEdit}>
+      <div class="col-1" type="button" on:click={toggleEdit}>
         <Gear />
       </div>
     {/if}

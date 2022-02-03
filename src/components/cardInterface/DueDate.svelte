@@ -140,21 +140,21 @@
     {:else}
       {#if task.status === 'todo'}
         {#if $timeStore.now.taskId === task.id}
-          <span class="col-2 text-danger">{$nowTimeStamp}</span>
+          <span class="col-1 text-danger">{$nowTimeStamp}</span>
         {:else}
-          <RecordActionButton id={task.id} body={task.body} size="2" />
+          <RecordActionButton id={task.id} body={task.body} />
         {/if}
       {:else}
-        <div class="col-2" />
+        <div class="col-1" />
       {/if}
       <span
-        class={`col-8 ${stampColor}`}
+        class={`col-10 ${stampColor}`}
         type="button"
         on:click={toggleEditDue(task)}
       >
         {showDueDate(task)}
       </span>
-      <div class="col-2" type="button" on:click={toggleEditDue(task)}>
+      <div class="col-1" type="button" on:click={toggleEditDue(task)}>
         <Gear />
       </div>
     {/if}

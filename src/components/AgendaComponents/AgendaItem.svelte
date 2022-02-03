@@ -12,12 +12,12 @@
 </script>
 
 {#if task.status === 'todo' || $showDone}
-  <div class="pb-1 border-bottom">
+  <div class="pb-1 border-bottom container-fluid">
     <div class="row text-center">
       {#if done}
-        <RecycleButton id={task.id} colSize="2" />
+        <RecycleButton id={task.id} />
       {:else}
-        <CheckOffButton id={task.id} size="2" />
+        <CheckOffButton id={task.id} />
       {/if}
       <BodyAndAction id={task.parentId} body={task.body} {done} />
     </div>
