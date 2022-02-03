@@ -83,7 +83,6 @@
         id={timestamp.taskId}
         body={timestamp.body}
         done={timestamp.done}
-        sib={true}
       />
     </div>
   {/if}

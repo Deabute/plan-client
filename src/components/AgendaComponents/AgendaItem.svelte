@@ -19,7 +19,7 @@
       {:else}
         <CheckOffButton id={task.id} />
       {/if}
-      <BodyAndAction id={task.parentId} body={task.body} {done} />
+      <BodyAndAction id={task.id} body={task.body} {done} />
     </div>
     <DueDate {task} activtyColumn={false} />
   </div>

@@ -51,11 +51,9 @@
   };
 
   let id = '1';
-  let parentId = '1';
   let body = 'loading...';
   nextUp.subscribe(async (nextTask) => {
     id = nextTask ? nextTask.id : '1';
-    parentId = nextTask ? nextTask.parentId : '1';
     body = nextTask
       ? nextTask.body
       : 'Make some more folders or this is the only one that can be worked on';
@@ -83,15 +81,11 @@
         <div class="row mb-1 text-center">
           <div class="col-1 align-self-end">
             {#if id !== '1'}
-              <OpenFolderButton id={parentId} size=" row pb-2" />
-              <RecordActionButton
-                id={$nextUp.id}
-                body={$nextUp.body}
-                size=" row align-self-end"
-              />
+              <OpenFolderButton {id} size=" row pb-2" />
+              <RecordActionButton {id} {body} size=" row align-self-end" />
             {/if}
           </div>
-          <BodyAndAction {body} id={parentId} grey={true} />
+          <BodyAndAction {body} {id} grey={true} />
           <!-- <div class="col-1 text-success align-self-end">
             <div class="row pb-2 ps-3">Next</div>
             <div class="row"><ArrowDown /></div>

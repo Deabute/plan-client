@@ -242,20 +242,6 @@ const placeFolder = async (
   });
 };
 
-const modifyBody = (task: memTaskI, body: string) => {
-  taskStore.update((store) => {
-    store.tasks = store.tasks.map((t) => {
-      if (t.id === task.id) {
-        task = { ...t, body };
-        return task;
-      }
-      return t;
-    });
-    updateTaskSafe({ id: task.id, body });
-    return store;
-  });
-};
-
 // logic for state updates to a checked off task
 const updateNextOrDone = async (task: taskI, sync: boolean = true) => {
   const { cadence, dueDate, id } = task;
@@ -323,7 +309,6 @@ export {
   refreshTask,
   newActivity,
   placeFolder,
-  modifyBody,
   checkOff,
   hideTask,
   updateNextOrDone,
