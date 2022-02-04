@@ -6,6 +6,7 @@ import type {
   timeLineData,
   taskI,
   memTaskI,
+  statI,
 } from '../shared/interface';
 import { hiddenBody, shownStamps } from '../stores/defaultData';
 
@@ -90,7 +91,7 @@ const getStamps = async (end: number = 0): Promise<timeLineData> => {
     rawStamps.map(async (stamp) => {
       let task = await db.get('tasks', stamp.taskId);
       let body = hiddenBody;
-      let status = 'hide';
+      let status: statI = 'hide';
       if (task) {
         body = task.body;
         status = task.status;
@@ -100,7 +101,7 @@ const getStamps = async (end: number = 0): Promise<timeLineData> => {
         ...stamp,
         duration: 0,
         body,
-        done: status !== 'todo' ? true : false,
+        status,
       };
     }),
   );
@@ -109,7 +110,7 @@ const getStamps = async (end: number = 0): Promise<timeLineData> => {
     ...nowVal,
     body,
     duration: currentTime - nowVal.start,
-    done: false,
+    status: 'todo',
   };
   history = history.map((stamp) => {
     let duration = currentTime - stamp.start;
@@ -236,10 +237,16 @@ const page = async (
   let cursor = await timeIndex.openCursor(range, pageDown ? 'prev' : 'next');
   while (increment && cursor) {
     const task = await taskStore.get(cursor.value.taskId);
-    const { body } = task;
+    let body = hiddenBody;
+    let status: statI = 'hide';
+    if (task) {
+      body = task.body;
+      status = task.status;
+      if (status === 'hide') body = hiddenBody;
+    }
     const nextItem = {
       ...cursor.value,
-      done: task.status !== 'todo' ? true : false,
+      status,
       body,
       duration: pageDown
         ? start - cursor.value.start

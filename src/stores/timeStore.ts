@@ -2,30 +2,27 @@
 import { Unsubscriber, Writable, writable } from 'svelte/store';
 import { addStamp, getStamps } from '../indexDb/timelineDb';
 import { createOid } from '../isomorphic/oid';
-import type {
-  memTaskI,
-  timeLineData,
-  memStampI,
-  taskI,
-  timestampI,
-} from '../shared/interface';
-import {
-  arrayOfDefaults,
-  defaultNow,
-  genesisTask,
-  minInMillis,
-} from '../stores/defaultData';
+import type { timeLineData, memStampI, timestampI } from '../shared/interface';
+import { arrayOfDefaults, minInMillis } from '../stores/defaultData';
 import { getDurationStamp } from '../components/time/timeConvert';
 import { addEvent } from '../indexDb/eventsDb';
 import { reloadNextTask } from './agendaStore';
 
-const defaultHistory: memStampI[] = [];
+const now = Date.now();
 const timeStore: Writable<timeLineData> = writable({
-  now: defaultNow,
-  history: defaultHistory,
+  now: {
+    id: '0',
+    taskId: '0',
+    start: now,
+    type: 'habit',
+    lastModified: now,
+    duration: null,
+    body: 'Loading',
+    status: 'todo',
+  },
+  history: [],
 });
 
-const now = Date.now();
 const secondTick: Writable<number> = writable(now);
 const tillNextSecond = 1000 - new Date().getMilliseconds();
 setTimeout(() => {
@@ -76,7 +73,7 @@ const newTimeStamp = async (
     ...stamp,
     duration: 0,
     body,
-    done: false,
+    status: 'todo',
   };
   return inMemStamp;
 };

@@ -369,17 +369,6 @@ const getColdStartData = (): taskI[] => {
   return taskArray;
 };
 
-const defaultNow: memStampI = {
-  id: '0',
-  taskId: '0',
-  start: Date.now(),
-  type: 'habit',
-  lastModified: Date.now(),
-  duration: null,
-  body: 'Loading',
-  done: false,
-};
-
 const hiddenBody: string = '* Task Removed *';
 
 export {
@@ -387,7 +376,6 @@ export {
   startingVelocity,
   stores,
   days,
-  defaultNow,
   allStores,
   shownStamps,
   defaultFrame,

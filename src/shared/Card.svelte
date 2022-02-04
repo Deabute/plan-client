@@ -30,7 +30,7 @@
           id={task.id}
           body={task.body}
           size="10"
-          done={task.status === 'todo' ? false : true}
+          status={task.status}
         />
       </div>
     {:else}
@@ -42,11 +42,7 @@
         {:else}
           <CheckOffButton id={task.id} status={task.status} />
         {/if}
-        <BodyAndAction
-          id={task.id}
-          body={task.body}
-          done={task.status === 'todo' ? false : true}
-        />
+        <BodyAndAction id={task.id} body={task.body} status={task.status} />
       </div>
       <FolderBudget {task} />
       <RecurEditBar {task} />

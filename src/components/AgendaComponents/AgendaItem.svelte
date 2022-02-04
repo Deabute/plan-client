@@ -6,15 +6,13 @@
   import BodyAndAction from '../ActionButtons/BodyAndAction.svelte';
   import { showDone } from '../../indexDb/viewStoreDb';
   export let task: taskI;
-  let done: boolean = task.status !== 'todo' ? true : false;
-  $: done = task.status !== 'todo' ? true : false;
 </script>
 
 {#if task.status === 'todo' || $showDone}
   <div class="pb-1 border-bottom container-fluid">
     <div class="row text-center">
       <CheckOffButton id={task.id} status={task.status} />
-      <BodyAndAction id={task.id} body={task.body} {done} />
+      <BodyAndAction id={task.id} body={task.body} status={task.status} />
     </div>
     <DueDate {task} activtyColumn={false} />
   </div>

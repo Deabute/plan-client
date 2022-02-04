@@ -6,11 +6,12 @@
   import { loadChildren, refreshAllViews } from '../../stores/taskStore';
   import PencilSquare from 'svelte-bootstrap-icons/lib/PencilSquare';
   import FolderSymlink from 'svelte-bootstrap-icons/lib/FolderSymlink';
+  import type { statI } from '../../shared/interface';
 
   export let id: string;
   export let body: string;
   export let size: string = '10';
-  export let done: boolean = false;
+  export let status: statI = 'todo';
   export let grey: boolean = $moveTask?.id === id ? true : false;
 
   let editBody: boolean = false;
@@ -80,10 +81,10 @@
     type="button"
     on:click={open}
   >
-    {#if done}
-      <s>{body}</s>
-    {:else}
+    {#if status === 'todo'}
       {body} &nbsp; <FolderSymlink />
+    {:else}
+      <s>{body}</s>
     {/if}
   </div>
 {/if}

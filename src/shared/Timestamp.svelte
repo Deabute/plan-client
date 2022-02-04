@@ -15,7 +15,6 @@
   import Trash from 'svelte-bootstrap-icons/lib/Trash';
   import XLg from 'svelte-bootstrap-icons/lib/XLg';
   import CheckSquare from 'svelte-bootstrap-icons/lib/CheckSquare';
-  import { hiddenBody } from '../stores/defaultData';
   import CheckOffButton from '../components/ActionButtons/CheckOffButton.svelte';
   import BodyAndAction from '../components/ActionButtons/BodyAndAction.svelte';
   import { showDone, toggleView } from '../indexDb/viewStoreDb';
@@ -26,11 +25,9 @@
   let { start } = timestamp;
 
   let editing: boolean = false;
-  let hidden = false;
-  $: hidden = timestamp.body === hiddenBody ? true : false;
 
   const makeEdit = async () => {
-    const { body, duration, done, ...stamp } = timestamp;
+    const { body, duration, status, ...stamp } = timestamp;
     const newTimestamp: timestampI = {
       ...stamp,
       start,
@@ -70,16 +67,13 @@
 </script>
 
 <div class="pb-1 border-bottom container-fluid" id={timestamp.id}>
-  {#if !timestamp.done || $showDone}
+  {#if timestamp.status === 'todo' || $showDone}
     <div class="row mb-1 text-center">
-      <CheckOffButton
-        id={timestamp.taskId}
-        status={timestamp.done ? 'done' : hidden ? 'hide' : 'todo'}
-      />
+      <CheckOffButton id={timestamp.taskId} status={timestamp.status} />
       <BodyAndAction
         id={timestamp.taskId}
         body={timestamp.body}
-        done={timestamp.done}
+        status={timestamp.status}
       />
     </div>
   {/if}
@@ -92,7 +86,7 @@
     {:else}
       {#if inProgress}
         <span class="col-1 text-danger">Tracking</span>
-      {:else if !timestamp.done}
+      {:else if timestamp.status === 'todo'}
         <RecordActionButton id={timestamp.taskId} body={timestamp.body} />
       {:else if $showDone}
         <span class="col-1" />

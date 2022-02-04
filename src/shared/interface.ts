@@ -134,7 +134,7 @@ interface timestampI {
 interface memStampI extends timestampI {
   duration: number | null; // Note of current or past duration (for moving)
   body: string; // Place holder for associated task body
-  done: boolean; // placeholder to note completion status
+  status: statI; // placeholder to note completion status
 }
 
 interface velocityI {
