@@ -356,4 +356,5 @@ export type {
   pskI,
   optionalTaskI,
   incomingTaskI,
+  statI,
 };

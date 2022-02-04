@@ -15,10 +15,8 @@
   import Trash from 'svelte-bootstrap-icons/lib/Trash';
   import XLg from 'svelte-bootstrap-icons/lib/XLg';
   import CheckSquare from 'svelte-bootstrap-icons/lib/CheckSquare';
-  import RecycleButton from '../components/ActionButtons/RecycleButton.svelte';
   import { hiddenBody } from '../stores/defaultData';
   import CheckOffButton from '../components/ActionButtons/CheckOffButton.svelte';
-  import OpenFolderButton from '../components/ActionButtons/OpenFolderButton.svelte';
   import BodyAndAction from '../components/ActionButtons/BodyAndAction.svelte';
   import { showDone, toggleView } from '../indexDb/viewStoreDb';
   import RecordActionButton from '../components/ActionButtons/RecordActionButton.svelte';
@@ -74,11 +72,10 @@
 <div class="pb-1 border-bottom container-fluid" id={timestamp.id}>
   {#if !timestamp.done || $showDone}
     <div class="row mb-1 text-center">
-      {#if !timestamp.done}
-        <CheckOffButton id={timestamp.taskId} />
-      {:else if !hidden}
-        <RecycleButton id={timestamp.taskId} />
-      {/if}
+      <CheckOffButton
+        id={timestamp.taskId}
+        status={timestamp.done ? 'done' : hidden ? 'hide' : 'todo'}
+      />
       <BodyAndAction
         id={timestamp.taskId}
         body={timestamp.body}

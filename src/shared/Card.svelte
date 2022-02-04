@@ -9,7 +9,6 @@
   import DueDate from '../components/cardInterface/DueDate.svelte';
   import BodyAndAction from '../components/ActionButtons/BodyAndAction.svelte';
   import OpenFolderButton from '../components/ActionButtons/OpenFolderButton.svelte';
-  import RecycleButton from '../components/ActionButtons/RecycleButton.svelte';
   import CheckOffButton from '../components/ActionButtons/CheckOffButton.svelte';
   import ListTask from 'svelte-bootstrap-icons/lib/ListTask';
   import ArrowDownUp from 'svelte-bootstrap-icons/lib/ArrowDownUp';
@@ -40,10 +39,8 @@
           <div class="col-1" type="button" on:click={toggleView('topChild')}>
             <ListTask />
           </div>
-        {:else if task.status !== 'todo'}
-          <RecycleButton id={task.id} />
         {:else}
-          <CheckOffButton id={task.id} />
+          <CheckOffButton id={task.id} status={task.status} />
         {/if}
         <BodyAndAction
           id={task.id}
@@ -56,7 +53,7 @@
       <DueDate {task} />
       {#if $showTopChild && task.topChild && $editTask?.id !== task.id}
         <div class="row text-center py-1">
-          <CheckOffButton id={task.topChild.id} />
+          <CheckOffButton id={task.topChild.id} status={task.topChild.status} />
           <BodyAndAction
             id={task.topChild.id}
             body={task.topChild.body}

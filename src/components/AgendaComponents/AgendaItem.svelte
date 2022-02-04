@@ -2,7 +2,6 @@
 <script lang="ts">
   import type { taskI } from '../../shared/interface';
   import DueDate from '../cardInterface/DueDate.svelte';
-  import RecycleButton from '../ActionButtons/RecycleButton.svelte';
   import CheckOffButton from '../ActionButtons/CheckOffButton.svelte';
   import BodyAndAction from '../ActionButtons/BodyAndAction.svelte';
   import { showDone } from '../../indexDb/viewStoreDb';
@@ -14,11 +13,7 @@
 {#if task.status === 'todo' || $showDone}
   <div class="pb-1 border-bottom container-fluid">
     <div class="row text-center">
-      {#if done}
-        <RecycleButton id={task.id} />
-      {:else}
-        <CheckOffButton id={task.id} />
-      {/if}
+      <CheckOffButton id={task.id} status={task.status} />
       <BodyAndAction id={task.id} body={task.body} {done} />
     </div>
     <DueDate {task} activtyColumn={false} />
