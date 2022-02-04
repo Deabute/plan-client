@@ -91,13 +91,13 @@
     const stamp = getHumanReadableStamp(dueDate, false);
     if (status === 'todo' && $secondTick > dueDate) {
       stampColor = 'text-danger';
-      return `Late! ${stamp}`;
+      return `Done? Reschedual? ${stamp}`;
     }
     if (status === 'todo' && $secondTick + dayInMillis > dueDate) {
       stampColor = 'text-success';
-      return `Do soon ${stamp}`;
+      return `Do it ${stamp}`;
     }
-    return `Do by ${stamp}`;
+    return `Do it ${stamp}`;
   };
 
   const removeDueDate = () => {
