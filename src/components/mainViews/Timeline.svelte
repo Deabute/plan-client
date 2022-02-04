@@ -9,11 +9,8 @@
     showTimelineMobile,
   } from '../../indexDb/viewStoreDb';
   import ViewContainer from './ViewContainer.svelte';
-  import ArrowDown from 'svelte-bootstrap-icons/lib/ArrowDown';
   import Stopwatch from 'svelte-bootstrap-icons/lib/Stopwatch';
   import { nextUp } from '../../stores/agendaStore';
-  import RecordBtn from 'svelte-bootstrap-icons/lib/RecordBtn';
-  import OpenFolderButton from '../ActionButtons/OpenFolderButton.svelte';
   import BodyAndAction from '../ActionButtons/BodyAndAction.svelte';
   import RecordActionButton from '../ActionButtons/RecordActionButton.svelte';
 
@@ -79,17 +76,12 @@
     <div class="border-bottom border-dark">
       <div class="pb-1 border-bottom container-fluid">
         <div class="row mb-1 text-center">
-          <div class="col-1 align-self-end">
-            {#if id !== '1'}
-              <OpenFolderButton {id} size=" row pb-2" />
-              <RecordActionButton {id} {body} size=" row align-self-end" />
-            {/if}
-          </div>
+          {#if id !== '1'}
+            <RecordActionButton {id} {body} />
+          {:else}
+            <div class="col-1" />
+          {/if}
           <BodyAndAction {body} {id} grey={true} />
-          <!-- <div class="col-1 text-success align-self-end">
-            <div class="row pb-2 ps-3">Next</div>
-            <div class="row"><ArrowDown /></div>
-          </div> -->
         </div>
       </div>
       <Timestamp timestamp={$timeStore.now} inProgress={true} />
