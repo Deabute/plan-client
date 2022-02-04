@@ -173,7 +173,7 @@ const arrayOfDefaults: defaultObj[] = [
   },
   {
     body: 'Work',
-    fraction: hourInMillis * 40,
+    fraction: hourInMillis * 80,
     cadence: 'many',
     children: [
       { body: 'Planning', cadence: 'w,w,1,0,0,0' },
@@ -210,7 +210,7 @@ const arrayOfDefaults: defaultObj[] = [
       },
     ],
   },
-  { body: 'Sleep', fraction: hourInMillis * 8 * 7, cadence: 'w,w,1,0,0,0' },
+  { body: 'Sleep', fraction: hourInMillis * 8 * 14, cadence: 'w,w,1,0,0,0' },
   {
     body: 'Exercise',
     cadence: 'many',
