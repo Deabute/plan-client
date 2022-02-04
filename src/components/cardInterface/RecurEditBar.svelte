@@ -20,6 +20,7 @@
   import { getMillisFromDayStart, getTimeOfDay } from '../time/timeConvert';
   import { writable } from 'svelte/store';
   import type { Writable } from 'svelte/store';
+  import { refreshAllViews } from '../../stores/taskStore';
 
   export let task: memTaskI;
 
@@ -39,11 +40,12 @@
       id: task.id,
       cadence: cadenceChange,
     });
-    addEvent('setRecur', { id: task.id, cadenceChange });
+    await addEvent('setRecur', { id: task.id, cadenceChange });
     originCadence = { ...$cadence };
     validCadence = false;
     $editRecur = null;
     $editTask = null;
+    refreshAllViews();
   };
 
   editRecur.subscribe((edit) => {
@@ -66,7 +68,7 @@
     if (minutes > 59 || minutes < 0) validCadence = false;
 
     if (change.onTime === true) {
-      if (change.interval === 'many' || change.interval === 'none') {
+      if (change.interval === 'many' || change.interval === 'one-off') {
         $cadence.onTime = false;
       }
     }
@@ -76,7 +78,7 @@
 {#if $editRecur && $editRecur.id === task.id}
   <div class="row">
     <div class="input-group input-group-sm col-12" role="group">
-      {#if $cadence.interval !== 'many' && $cadence.interval !== 'none'}
+      {#if $cadence.interval !== 'many' && $cadence.interval !== 'one-off'}
         <span class="input-group-text">{`Every `}</span>
         <input
           type="number"
@@ -98,12 +100,14 @@
         {#each intervalTypes as type}
           <option value={type}>
             {`${type}${
-              $cadence.skip > 1 && type !== 'many' && type !== 'none' ? 's' : ''
+              $cadence.skip > 1 && type !== 'many' && type !== 'one-off'
+                ? 's'
+                : ''
             }`}
           </option>
         {/each}
       </select>
-      {#if $cadence.interval !== 'many' && $cadence.interval !== 'none'}
+      {#if $cadence.interval !== 'many' && $cadence.interval !== 'one-off'}
         <div class="input-group-text">
           <input
             id="timeSetter"

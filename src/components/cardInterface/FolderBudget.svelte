@@ -37,6 +37,7 @@
       <RecordActionButton
         id={$showTopChild && task.topChild ? task.topChild.id : task.id}
         body={task.body}
+        cadence={task.cadence}
       />
     {/if}
   {:else}

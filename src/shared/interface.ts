@@ -135,6 +135,7 @@ interface memStampI extends timestampI {
   duration: number | null; // Note of current or past duration (for moving)
   body: string; // Place holder for associated task body
   status: statI; // placeholder to note completion status
+  cadence: string; // placeholder for cadence
 }
 
 interface velocityI {
@@ -291,7 +292,7 @@ type AmPm = 'AM' | 'PM';
 
 type weekType = 'Sat-Sun' | 'Mon-Fri' | 'Whole';
 // none = one off / many = many times / other = once every x
-type cadenceInterval = 'none' | 'many' | 'day' | 'week' | 'month' | 'year';
+type cadenceInterval = 'one-off' | 'many' | 'day' | 'week' | 'month' | 'year';
 interface cadenceI {
   weekType: weekType; // modifier for day interval (defaults to whole)
   interval: cadenceInterval;

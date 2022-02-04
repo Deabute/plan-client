@@ -11,7 +11,11 @@
 {#if task.status === 'todo' || $showDone}
   <div class="pb-1 border-bottom container-fluid">
     <div class="row text-center">
-      <CheckOffButton id={task.id} status={task.status} />
+      <CheckOffButton
+        id={task.id}
+        status={task.status}
+        cadence={task.cadence}
+      />
       <BodyAndAction id={task.id} body={task.body} status={task.status} />
     </div>
     <DueDate {task} activtyColumn={false} />

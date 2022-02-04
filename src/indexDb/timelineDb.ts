@@ -91,24 +91,28 @@ const getStamps = async (end: number = 0): Promise<timeLineData> => {
     rawStamps.map(async (stamp) => {
       let task = await db.get('tasks', stamp.taskId);
       let body = hiddenBody;
+      let cadence = 'zero';
       let status: statI = 'hide';
       if (task) {
         body = task.body;
         status = task.status;
+        cadence = task.cadence;
         if (status === 'hide') body = hiddenBody;
       }
       return {
         ...stamp,
         duration: 0,
+        cadence,
         body,
         status,
       };
     }),
   );
-  const { body } = await db.get('tasks', nowVal.taskId);
+  const { body, cadence } = await db.get('tasks', nowVal.taskId);
   const now: memStampI = {
     ...nowVal,
     body,
+    cadence,
     duration: currentTime - nowVal.start,
     status: 'todo',
   };
@@ -239,15 +243,18 @@ const page = async (
     const task = await taskStore.get(cursor.value.taskId);
     let body = hiddenBody;
     let status: statI = 'hide';
+    let cadence = 'zero';
     if (task) {
       body = task.body;
       status = task.status;
+      cadence = task.cadence;
       if (status === 'hide') body = hiddenBody;
     }
     const nextItem = {
       ...cursor.value,
       status,
       body,
+      cadence,
       duration: pageDown
         ? start - cursor.value.start
         : cursor.value.start - start,

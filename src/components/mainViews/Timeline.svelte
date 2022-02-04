@@ -48,12 +48,14 @@
   };
 
   let id = '1';
-  let body = 'loading...';
+  let body = 'Going to need to add more task!';
+  let cadence = 'zero';
   nextUp.subscribe(async (nextTask) => {
-    id = nextTask ? nextTask.id : '1';
-    body = nextTask
-      ? nextTask.body
-      : 'Make some more folders or this is the only one that can be worked on';
+    if (nextTask) {
+      id = nextTask.id;
+      body = nextTask.body;
+      cadence = nextTask.cadence;
+    }
   });
 </script>
 
@@ -77,7 +79,7 @@
       <div class="pb-1 border-bottom container-fluid">
         <div class="row mb-1 text-center">
           {#if id !== '1'}
-            <RecordActionButton {id} {body} />
+            <RecordActionButton {id} {body} {cadence} />
           {:else}
             <div class="col-1" />
           {/if}

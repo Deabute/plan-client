@@ -142,7 +142,11 @@
         {#if $timeStore.now.taskId === task.id}
           <span class="col-1 text-danger">{$nowTimeStamp}</span>
         {:else}
-          <RecordActionButton id={task.id} body={task.body} />
+          <RecordActionButton
+            id={task.id}
+            body={task.body}
+            cadence={task.cadence}
+          />
         {/if}
       {:else}
         <div class="col-1" />

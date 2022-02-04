@@ -159,16 +159,18 @@ const arrayOfDefaults: defaultObj[] = [
     body: 'Click the recording task on another task to start another recording and stop this one',
   },
   {
-    body: 'Clicking the check mark on the running task will start recording the next task in the "Intent Order"',
+    body: 'Clicking the repeating R circle for repeating items like this one will set the next time to do it',
+    cadence: 'w,w,1,0,0,0',
+  },
+  {
+    body: 'Clicking the open or recur circle on the running task will start recording the next task in the "Intent Order"',
     children: [
       { body: 'Intent Order, has two priorities in the following order' },
       {
         body: `Priority one: First task set to "${agendaColumnName}" within the hour`,
       },
       { body: 'Priority two: Next task in the same folder' },
-      {
-        body: 'Having this system should alow quick use of the app without too much interaction',
-      },
+      { body: 'Should alow quick transitions between tasks' },
     ],
   },
   {
@@ -194,17 +196,12 @@ const arrayOfDefaults: defaultObj[] = [
       {
         body: 'Why should I track eating and sleeping? (open for answers)',
         children: [
+          { body: 'Whole time accounting is about intention setting' },
           {
-            body: 'This a whole time accounting tool, it answers the question "where did the time go?"',
+            body: 'Recording lunch seems unimportant, but it is like saying "I am not working"',
           },
           {
-            body: 'It may not be important to know how long lunch takes, but it is helpful to know what time is left for new habits and hobbies and where they fit',
-          },
-          {
-            body: 'Since eating is a non-negotiable thing that follows a specific pattern, the exact time it takes up contributes to knowing where that new cycling hobby fits into the picture',
-          },
-          {
-            body: 'Sometimes its not a matter of whether the time is there its a factor of whether it fits',
+            body: 'Tracking habitual patterns establish real available time for the rest of life',
           },
         ],
       },
@@ -226,10 +223,7 @@ const arrayOfDefaults: defaultObj[] = [
   },
   {
     body: 'Chores',
-    children: [
-      { body: 'Cleaning', cadence: 'many' },
-      { body: 'Take out Trash' },
-    ],
+    children: [{ body: 'Cleaning', cadence: 'many' }],
   },
   {
     body: 'Social',
@@ -259,7 +253,7 @@ const arrayOfDefaults: defaultObj[] = [
         body: "Don't worry about getting the budget perfect, life happens, roll with the punches. The sliders can be pulled any time",
       },
       {
-        body: 'This is about gaining realistic perspective on time use, not becoming a monk that self-flagellates',
+        body: 'Time Intent is about gaining realistic perspective on time use and adjusting plans to that perspective',
       },
       {
         body: `Set an agenda for your day by giving "${agendaColumnName}" times to your task with the "${agendaColumnName}" option in task settings`,
@@ -308,7 +302,7 @@ const arrayOfDefaults: defaultObj[] = [
             body: 'Backup regularly collects changes made and makes it possible to restore from a new client device',
           },
           {
-            body: 'Currently these options are pre-release invite only, but it is also possible to request access',
+            body: 'Currently these options are pre-release invite only, but it is possible to request access via contact.deabute.com',
           },
           {
             body: 'Peer sync instructions, used in Multi-device options',

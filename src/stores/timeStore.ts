@@ -13,6 +13,7 @@ const timeStore: Writable<timeLineData> = writable({
   now: {
     id: '0',
     taskId: '0',
+    cadence: 'zero',
     start: now,
     type: 'habit',
     lastModified: now,
@@ -58,6 +59,7 @@ secondTick.subscribe((currentTime) => {
 const newTimeStamp = async (
   taskId: string,
   body: string,
+  cadence: string,
 ): Promise<memStampI> => {
   const now = Date.now();
   const stamp: timestampI = {
@@ -73,6 +75,7 @@ const newTimeStamp = async (
     ...stamp,
     duration: 0,
     body,
+    cadence,
     status: 'todo',
   };
   return inMemStamp;
@@ -83,7 +86,8 @@ const getTime = async () => {
   let { history, now } = await getStamps();
   if (!now) {
     const { body } = arrayOfDefaults[0];
-    now = await newTimeStamp(body.slice(0, 24), body);
+    const cadence = arrayOfDefaults[0]?.cadence || 'zero';
+    now = await newTimeStamp(body.slice(0, 24), body, cadence);
   }
   timeStore.set({
     now,

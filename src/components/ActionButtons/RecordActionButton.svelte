@@ -5,10 +5,11 @@
 
   export let id: string;
   export let body: string;
+  export let cadence: string;
   export let size = '1';
 
   const record = async () => {
-    await newTimeStamp(id, body);
+    await newTimeStamp(id, body, cadence);
     await refreshTime(false);
   };
 </script>

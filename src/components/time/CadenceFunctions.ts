@@ -21,7 +21,7 @@ const intervalTypes: cadenceInterval[] = [
   'week',
   'month',
   'year',
-  'none',
+  'one-off',
 ];
 const intervalMillis: number[] = [
   dayInMillis,
@@ -45,7 +45,7 @@ const getCadence = (storedString: string): cadenceI => {
   const cadenceArray: string[] = storedString.split(',');
   const cadence: cadenceI = {
     weekType: 'Whole',
-    interval: 'none',
+    interval: 'one-off',
     skip: 1,
     timeOfDay: 0,
     onTime: false,
@@ -79,7 +79,7 @@ const getCadence = (storedString: string): cadenceI => {
 // Creates a particularly formatted CSV to flatten property to a string for storage.
 const setCadence = (setObj: cadenceI): string => {
   // no figuring needed for no recurrence case for none or many
-  if (setObj.interval === 'none') return 'zero';
+  if (setObj.interval === 'one-off') return 'zero';
   if (setObj.interval === 'many') return 'many';
   let encodeCadence: string = ''; // defaults to whole week
   for (let i = 0; i < intervalTypes.length; i++) {

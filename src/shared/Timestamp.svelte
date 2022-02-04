@@ -69,7 +69,11 @@
 <div class="pb-1 border-bottom container-fluid" id={timestamp.id}>
   {#if timestamp.status === 'todo' || $showDone}
     <div class="row mb-1 text-center">
-      <CheckOffButton id={timestamp.taskId} status={timestamp.status} />
+      <CheckOffButton
+        id={timestamp.taskId}
+        status={timestamp.status}
+        cadence={timestamp.cadence}
+      />
       <BodyAndAction
         id={timestamp.taskId}
         body={timestamp.body}
@@ -87,7 +91,11 @@
       {#if inProgress}
         <span class="col-1 text-danger">Tracking</span>
       {:else if timestamp.status === 'todo'}
-        <RecordActionButton id={timestamp.taskId} body={timestamp.body} />
+        <RecordActionButton
+          id={timestamp.taskId}
+          body={timestamp.body}
+          cadence={timestamp.cadence}
+        />
       {:else if $showDone}
         <span class="col-1" />
       {:else}

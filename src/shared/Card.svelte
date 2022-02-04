@@ -40,7 +40,11 @@
             <ListTask />
           </div>
         {:else}
-          <CheckOffButton id={task.id} status={task.status} />
+          <CheckOffButton
+            id={task.id}
+            status={task.status}
+            cadence={task.cadence}
+          />
         {/if}
         <BodyAndAction id={task.id} body={task.body} status={task.status} />
       </div>
@@ -49,7 +53,11 @@
       <DueDate {task} />
       {#if $showTopChild && task.topChild && $editTask?.id !== task.id}
         <div class="row text-center py-1">
-          <CheckOffButton id={task.topChild.id} status={task.topChild.status} />
+          <CheckOffButton
+            id={task.topChild.id}
+            status={task.topChild.status}
+            cadence={task.topChild.cadence}
+          />
           <BodyAndAction
             id={task.topChild.id}
             body={task.topChild.body}
