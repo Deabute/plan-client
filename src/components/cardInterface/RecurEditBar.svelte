@@ -13,7 +13,7 @@
     editTask,
     toggleEditRecur,
   } from '../../stores/settingsStore';
-  import { cancelFund } from '../../stores/fundingStore';
+  import { fundingTask } from '../../stores/fundingStore';
   import { addEvent } from '../../indexDb/eventsDb';
   import Check from 'svelte-bootstrap-icons/lib/Check';
   import XLg from 'svelte-bootstrap-icons/lib/XLg';
@@ -50,7 +50,7 @@
 
   editRecur.subscribe((edit) => {
     if (edit) {
-      cancelFund();
+      $fundingTask = '';
       $editDue = null;
     }
   });

@@ -7,7 +7,7 @@
   import StampEdit from '../../shared/StampEdit.svelte';
   import { loadAgenda, reloadNextTask } from '../../stores/agendaStore';
   import { dayInMillis, hourInMillis } from '../../stores/defaultData';
-  import { cancelFund } from '../../stores/fundingStore';
+  import { fundingTask } from '../../stores/fundingStore';
   import {
     editDue,
     editRecur,
@@ -24,7 +24,6 @@
   import Gear from 'svelte-bootstrap-icons/lib/Gear';
   import CalendarEvent from 'svelte-bootstrap-icons/lib/CalendarEvent';
   import RecordActionButton from '../ActionButtons/RecordActionButton.svelte';
-  import { now } from 'svelte/internal';
 
   export let task: memTaskI;
   export let activtyColumn: boolean = true;
@@ -37,7 +36,7 @@
 
   editDue.subscribe((edit) => {
     if (edit) {
-      cancelFund();
+      $fundingTask = '';
       $editRecur = null;
     }
   });

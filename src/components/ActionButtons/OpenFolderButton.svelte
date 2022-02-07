@@ -2,7 +2,7 @@
 <script lang="ts">
   import FolderSymlink from 'svelte-bootstrap-icons/lib/FolderSymlink';
   import { getTaskById } from '../../indexDb/taskDb';
-  import { cancelFund } from '../../stores/fundingStore';
+  import { fundingTask } from '../../stores/fundingStore';
   import { editTask, moveTask } from '../../stores/settingsStore';
   import { loadChildren } from '../../stores/taskStore';
 
@@ -17,7 +17,7 @@
       id = task.parentId;
     }
     if ($moveTask?.id === id) return;
-    cancelFund();
+    $fundingTask = '';
     loadChildren(id);
     $editTask = null;
   };

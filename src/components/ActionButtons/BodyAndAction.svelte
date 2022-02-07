@@ -1,7 +1,7 @@
 <!-- BodyAndAction.svelte Copyright 2022 Paul Beaudet MIT License -->
 <script lang="ts">
   import { updateTaskSafe } from '../../indexDb/taskDb';
-  import { cancelFund } from '../../stores/fundingStore';
+  import { fundingTask } from '../../stores/fundingStore';
   import { editTask, moveTask } from '../../stores/settingsStore';
   import { loadChildren, refreshAllViews } from '../../stores/taskStore';
   import PencilSquare from 'svelte-bootstrap-icons/lib/PencilSquare';
@@ -23,7 +23,7 @@
 
   const open = async () => {
     if ($moveTask?.id === id) return;
-    cancelFund();
+    $fundingTask = '';
     loadChildren(id);
     $editTask = null;
   };
