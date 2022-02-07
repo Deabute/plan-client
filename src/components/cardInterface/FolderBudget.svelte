@@ -19,8 +19,8 @@
   import { hourInMillis, minInMillis } from '../../stores/defaultData';
 
   export let task: memTaskI;
-  let sliderValue: number = 0;
-  let newValue: number = 0;
+  let sliderValue: number = task.fraction;
+  let newValue: number = task.fraction;
   let valid: boolean = false;
   let newHour = 0;
   let newMin = 0;
@@ -30,36 +30,38 @@
   let maxHour: number = 0;
   let inputEvent: boolean = false;
 
-  // const timeout = 7;
-  // let blinker = null;
-  // let count = 0;
+  const timeout = 7;
+  let blinker = null;
+  let count = 0;
   let slidersColor = 'black';
 
-  // const timerReset = () => {
-  //   if (blinker) {
-  //     count = 0;
-  //     clearInterval(blinker);
-  //     blinker = null;
-  //   }
-  // };
+  const timerReset = () => {
+    if (blinker) {
+      count = 0;
+      clearInterval(blinker);
+      blinker = null;
+    }
+  };
 
-  // const startTimer = () => {
-  //   timerReset();
-  //   blinker = setInterval(() => {
-  //     count++;
-  //     slidersColor = slidersColor === 'black' ? 'warning' : 'black';
-  //     if (count === timeout) {
-  //       fundBudget();
-  //     }
-  //   }, 500);
-  // };
+  const startTimer = () => {
+    timerReset();
+    blinker = setInterval(() => {
+      count++;
+      slidersColor = slidersColor === 'success' ? 'warning' : 'success';
+      if (count === timeout) {
+        fundBudget();
+      }
+    }, 500);
+  };
 
-  // const onValidityChange = (valid: boolean) => {
-  //   if (valid) startTimer();
-  //   else timerReset();
-  // };
+  const onValidityChange = (valid: boolean, value: number) => {
+    if ($fundingTask !== task.id) return;
+    if (!valid) timerReset();
+    if (valid) startTimer();
+  };
 
-  // $: onValidityChange($fundValid);
+  // if a newValue is comming in its just a trigger to reset the timer
+  $: onValidityChange(valid, newValue);
 
   const openFund = () => {
     $fundingTask = task.id;
@@ -215,7 +217,7 @@
         bind:value={sliderValue}
         step={minInMillis}
         aria-label="Budget Slider"
-        disabled={$budgetAvail ? false : true}
+        disabled={!$budgetAvail && task.autoAssigned ? true : false}
       />
     </div>
     <div class="col-1 text-warning" type="button" on:click={onLockChange}>
