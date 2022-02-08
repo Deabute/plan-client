@@ -90,7 +90,7 @@
     const stamp = getHumanReadableStamp(dueDate, false);
     if (status === 'todo' && $secondTick > dueDate) {
       stampColor = 'text-danger';
-      return `Done? Reschedual? ${stamp}`;
+      return `Late? ${stamp}`;
     }
     if (status === 'todo' && $secondTick + dayInMillis > dueDate) {
       stampColor = 'text-success';
