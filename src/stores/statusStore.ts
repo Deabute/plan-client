@@ -5,23 +5,16 @@ import type {
   generalStatus,
   specificStatus,
 } from '../connections/connectInterface';
-import { rtcPeers, syncingDown, syncingUp } from './peerStore';
+import { peersConnected, syncingDown, syncingUp } from './peerStore';
 
 const connectionStatus: Writable<generalStatus> = writable('Disconnected');
 const syncStatus: Writable<specificStatus> = writable('Idle');
 const wsOpen: Writable<boolean> = writable(false);
 
-rtcPeers.subscribe((peers) => {
-  let aPeerIsConnected = false;
-  for (let i = 0; i < peers.length; i++) {
-    if (peers[i].connected) {
-      aPeerIsConnected = true;
-      break;
-    }
-  }
+peersConnected.subscribe((connected) => {
   // Note that onLine doesn't assure connectivity in many cases
   // further conditions need to be tested, but this good enough for this transition
-  let newStatus: generalStatus = aPeerIsConnected
+  let newStatus: generalStatus = connected
     ? 'P2P'
     : !navigator.onLine
     ? 'Offline'

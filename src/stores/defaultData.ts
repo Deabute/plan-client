@@ -1,10 +1,5 @@
 // defaultData.ts Copyright Paul Beaudet 2021 MIT License
-import type {
-  taskStores,
-  taskI,
-  allStoreTypes,
-  memStampI,
-} from '../shared/interface';
+import type { taskStores, taskI, allStoreTypes } from '../shared/interface';
 
 const ProductName: string = 'Time Intent';
 // - budgeting -
@@ -65,13 +60,10 @@ const weekInMillis: number = 604800000;
 const dayInMillis: number = 86400000;
 const hourInMillis: number = 3600000;
 const minInMillis: number = 60000;
-const INACTIVE_MILLIS: number = minInMillis * 9;
-const FIVE_MIN = 300000;
 
-const MAX_CHILDREN: number = 1000;
 const getPriorityIndexRange = (parentId: string): IDBKeyRange => {
   const lowerBound = [parentId, 'todo', 0];
-  const upperBound = [parentId, 'todo', MAX_CHILDREN];
+  const upperBound = [parentId, 'todo', Infinity];
   return IDBKeyRange.bound(lowerBound, upperBound);
 };
 
@@ -364,6 +356,7 @@ const getColdStartData = (): taskI[] => {
 };
 
 const hiddenBody: string = '* Task Removed *';
+const IDLE_RECONNECT = hourInMillis;
 
 export {
   genesisTask,
@@ -379,10 +372,7 @@ export {
   hourInMillis,
   minInMillis,
   weekInMillis,
-  INACTIVE_MILLIS,
   getPriorityIndexRange,
-  FIVE_MIN,
-  MAX_CHILDREN,
   KEY_PAIR_CONFIG,
   SIGN_VERIFY_CONFIG,
   DAYS,
@@ -400,4 +390,5 @@ export {
   ProductName,
   hiddenBody,
   getParentRange,
+  IDLE_RECONNECT,
 };

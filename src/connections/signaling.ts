@@ -6,21 +6,11 @@ import { pendingPeers } from '../stores/settingsStore';
 import { peerSyncEnabled, rtcPeers } from '../stores/peerStore';
 import { createDataChannel } from './dataChannels';
 import { signFromStrings, verifyFromPeerId, getAnnouncement } from './crypto';
-import { lastSync } from '../stores/syncStore';
 
 const iceServers = [
   { urls: process.env.ICE_SERVER_1 },
   { urls: process.env.ICE_SERVER_2 },
 ];
-
-let firstBeat = false;
-lastSync.subscribe((syncTime) => {
-  if (firstBeat) {
-    wsSend('heartbeat');
-  } else {
-    firstBeat = true;
-  }
-});
 
 const onIceGatheringChange = (
   peerId: string,

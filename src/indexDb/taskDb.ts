@@ -5,7 +5,6 @@ import {
   getPriorityIndexRange,
   shownStamps,
   minInMillis,
-  MAX_CHILDREN,
 } from '../stores/defaultData';
 import type {
   incomingTaskI,
@@ -57,7 +56,7 @@ const getChildren = async (taskId: string): Promise<taskListData> => {
 
   const tasks: memTaskI[] = [];
   let cursor = await posIndex.openCursor(
-    IDBKeyRange.bound([taskId, 0], [taskId, MAX_CHILDREN]),
+    IDBKeyRange.bound([taskId, 0], [taskId, Infinity]),
   );
   while (cursor) {
     if (cursor.value.status !== 'hide') {

@@ -8,7 +8,6 @@ import { syncUp } from '../indexDb/tokenDb';
 import type { profileI, pskI } from '../shared/interface';
 import { firstSync, rtcPeers } from '../stores/peerStore';
 import { newProfile } from '../stores/settingsStore';
-import { activityPing } from '../stores/syncStore';
 import type {
   actionsI,
   dataOnFuncs,
@@ -204,13 +203,8 @@ const peerBroadcast = (action: actionsI, payload: sendPayload) => {
       return peer;
     });
   });
-
   // don't bother the server if these change have been synced with all connections
-  if (peersSentTo === numberOfPeers) {
-    activityPing();
-  } else {
-    syncUp(action, payload);
-  }
+  if (peersSentTo !== numberOfPeers) syncUp(action, payload);
 };
 
 // Don't connect with un-trusted users and execute this function for them.

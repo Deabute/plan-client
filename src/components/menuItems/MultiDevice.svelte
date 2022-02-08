@@ -21,6 +21,7 @@
   import type { profileI, tokenI } from '../../shared/interface';
   import { loadAgenda } from '../../stores/agendaStore';
   import {
+    lastDisconnect,
     peersConnected,
     peerSyncEnabled,
     syncingDown,
@@ -36,6 +37,8 @@
   import ProfileList from './ProfileList.svelte';
   import { checkPeerSyncEnabled } from '../../indexDb/connectionDB';
   import Backup from './Backup.svelte';
+  import { IDLE_RECONNECT } from '../../stores/defaultData';
+  import { initConnectionSignaling } from '../../connections/signaling';
 
   let status: string = 'Not Authorized to sync';
   let submitedInterest: boolean = false;
@@ -92,7 +95,7 @@
     );
 
   const requestSyncDown = async () => {
-    if (peersConnected()) return;
+    if ($peersConnected) return;
     const cacheId = await getNextConnectionCacheId();
     if (tokenPromise === null) tokenPromise = getLatestToken();
     if (recentToken === null) recentToken = await tokenPromise;
@@ -106,6 +109,13 @@
 
   // only request sync down after its confirmed by server no peers are online
   wsOn('noPeers', requestSyncDown);
+
+  secondTick.subscribe((tick) => {
+    if ($lastDisconnect === 0) return;
+    if (tick > $lastDisconnect + IDLE_RECONNECT) {
+      initConnectionSignaling();
+    }
+  });
 
   initProfile().then(async (result) => {
     profile = result;
