@@ -18,7 +18,7 @@
   export let sharingId: string = '';
   export let peers: connectionI[] = [];
   let newPeer: string = '';
-  let valid = false;
+  let valid: boolean = false;
 
   const ID_LENGTH = 71;
 

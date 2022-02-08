@@ -43,6 +43,7 @@
   import Backup from './Backup.svelte';
   import { IDLE_RECONNECT } from '../../stores/defaultData';
   import { initConnectionSignaling } from '../../connections/signaling';
+  import BoxArrowInLeft from 'svelte-bootstrap-icons/lib/BoxArrowInLeft';
 
   let status: string = 'Not Authorized to sync';
   let submitedInterest: boolean = false;
@@ -54,10 +55,23 @@
   let sharingId: string = '';
   let peers: connectionI[] = [];
   const interestExpressed: string = 'Interest expressed (Not yet authorized)';
+  let inviteMode: boolean = true;
+  let password: string = '';
 
-  const signUp = async () => {
+  const connect = async () => {
+    wsSend('login', {
+      email,
+      password,
+    });
+  };
+
+  const signUpOrConnect = async () => {
     if (!profile) {
       status = 'No profile set (Not authorized to sync)';
+      return;
+    }
+    if (!inviteMode) {
+      connect();
       return;
     }
     status = interestExpressed;
@@ -195,18 +209,17 @@
   <div class="d-flex flex-column">
     <div class="card card-body m-1 scroll" id="multiDeviceDialog">
       <PeersPending />
-      <div class="row">
+      <div class="row my-2">
         <button
-          class="btn btn-danger"
+          class="col-2 btn btn-danger m-1"
           on:click={toggleSettingDialog('multiDevice')}
           aria-expanded="false"
           aria-controls="peerSyncDialog"
         >
-          Back
+          <BoxArrowInLeft /> Back
         </button>
-      </div>
-      <div class="row my-2">
-        <p class="fs-3 text-center">Multi-device operation status</p>
+        <span class="col-8 fs-3 text-center">Multi-device operation status</span
+        >
         <p class="text-center">{status}</p>
         <p class="text-center">
           Express interest with the device that has the data you want to sync,
@@ -235,29 +248,70 @@
       {/if}
       {#if !submitedInterest && profile}
         <div class="row mb-1">
-          <div class="form-floating mb-1 gy-2">
-            <input
-              type="text"
-              class="form-control"
-              id="interest-email"
-              placeholder="Email"
-              bind:value={email}
-              aria-describedby="express-interest-button"
-              aria-label="Email"
-            />
-            <label for="interest-email">
-              Enter email to express interest in multi-device
-            </label>
+          {#if inviteMode}
+            <div class="form-floating mb-1 gy-2">
+              <input
+                type="text"
+                class="form-control"
+                id="interest-email"
+                placeholder="Email"
+                bind:value={email}
+                aria-describedby="express-interest-button"
+                aria-label="Email"
+              />
+              <label for="interest-email">
+                Enter email to express interest in multi-device
+              </label>
+            </div>
+          {:else}
+            <div class="form-floating mb3 gy-2">
+              <input
+                type="text"
+                class="form-control"
+                id="new-peer-input"
+                placeholder="Add Sync Peer ID"
+                bind:value={email}
+                aria-describedby="add-peer-button"
+                aria-label="Add peer ID to sync"
+              />
+              <label for="new-peer-input">Invited Email</label>
+            </div>
+            <div class="form-floating mb3 gy-2">
+              <input
+                type="password"
+                class="form-control"
+                id="new-peer-input"
+                placeholder="Add Sync Peer ID"
+                bind:value={password}
+                aria-describedby="add-peer-button"
+                aria-label="Add peer ID to sync"
+              />
+              <label for="new-peer-input">Password</label>
+            </div>
+          {/if}
+          <div class="row mt-1">
+            <button
+              type="button"
+              disabled={!validMail}
+              id="express-interest-button"
+              on:click={signUpOrConnect}
+              class={`m-1 col-auto btn btn-${
+                validMail ? 'success' : 'secondary'
+              }`}
+            >
+              {inviteMode ? 'Express interest' : 'Connect'}
+            </button>
+            <button
+              type="button"
+              id="switch-to-invite-mode"
+              on:click={() => {
+                inviteMode = !inviteMode;
+              }}
+              class="col-auto btn btn-info m-1"
+            >
+              {inviteMode ? 'Log-in instead' : 'Get Invite instead'}
+            </button>
           </div>
-          <button
-            type="button"
-            disabled={!validMail}
-            id="express-interest-button"
-            on:click={signUp}
-            class="btn btn-success"
-          >
-            Express interest
-          </button>
         </div>
       {/if}
       <hr />
