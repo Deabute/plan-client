@@ -113,6 +113,7 @@
   secondTick.subscribe((tick) => {
     if ($lastDisconnect === 0) return;
     if (tick > $lastDisconnect + IDLE_RECONNECT) {
+      $lastDisconnect = 0;
       initConnectionSignaling();
     }
   });
