@@ -46,19 +46,13 @@ const deleteConnection = async (id: string) => {
 
 const initDeviceID = async () => {
   const db = await getDb();
-  // Check if self-data exist
   const transaction = db.transaction('connect');
   const connectDb = transaction.objectStore('connect');
   let cursor = await connectDb.openCursor();
-  let foundSelf: boolean = false;
+  // Check if self-data exists already
   while (cursor) {
-    if (cursor.value.deviceKey !== '') {
-      foundSelf = true;
-    }
+    if (cursor.value.deviceKey !== '') return;
     cursor = await cursor.continue();
-  }
-  if (foundSelf) {
-    return;
   }
   // If not create self-data
   const keyPair: CryptoKeyPair = await crypto.subtle.generateKey(

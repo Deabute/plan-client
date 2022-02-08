@@ -18,7 +18,7 @@
     getLatestToken,
     requestToken,
   } from '../../indexDb/tokenDb';
-  import type { profileI, tokenI } from '../../shared/interface';
+  import type { connectionI, profileI, tokenI } from '../../shared/interface';
   import { loadAgenda } from '../../stores/agendaStore';
   import {
     lastDisconnect,
@@ -35,7 +35,11 @@
   import { refreshTime, secondTick } from '../../stores/timeStore';
   import PeerToPeer from './PeerToPeer.svelte';
   import ProfileList from './ProfileList.svelte';
-  import { checkPeerSyncEnabled } from '../../indexDb/connectionDB';
+  import {
+    checkPeerSyncEnabled,
+    getConnections,
+    initDeviceID,
+  } from '../../indexDb/connectionDB';
   import Backup from './Backup.svelte';
   import { IDLE_RECONNECT } from '../../stores/defaultData';
   import { initConnectionSignaling } from '../../connections/signaling';
@@ -47,17 +51,17 @@
   let recentToken: tokenI = null;
   let tokenPromise: Promise<tokenI> = null;
   let email: string = '';
+  let sharingId: string = '';
+  let peers: connectionI[] = [];
   const interestExpressed: string = 'Interest expressed (Not yet authorized)';
 
   const signUp = async () => {
-    const primary = await getPrimary();
-    if (!primary) {
-      status = 'No primary profile set (Not authorized to sync)';
+    if (!profile) {
+      status = 'No profile set (Not authorized to sync)';
       return;
     }
     status = interestExpressed;
     submitedInterest = true;
-    profile = primary;
     profile.assumedAuthTTL = 1;
     const { id, cert, password } = profile;
     // TODO: prove that this is cert you have the key for
@@ -154,6 +158,13 @@
     peerBroadcast('sync-profiles', { data: newProfile, done: true });
     status = 'Authorized to sync';
     recentToken = { token, ttl };
+    // if this is the first time token is received, create a new connection id
+    if (!sharingId) {
+      await initDeviceID();
+      const { id, connections } = await getConnections();
+      peers = connections;
+      sharingId = id;
+    }
     requestSyncDown();
   });
 
@@ -173,6 +184,11 @@
     refreshTime(false);
     loadAgenda();
   });
+
+  getConnections().then(({ connections, id }) => {
+    peers = connections;
+    sharingId = id;
+  });
 </script>
 
 {#if $showMultiDevice}
@@ -191,9 +207,7 @@
       </div>
       <div class="row my-2">
         <p class="fs-3 text-center">Multi-device operation status</p>
-        <div class="row">
-          <span class="text-center">{status}</span>
-        </div>
+        <p class="text-center">{status}</p>
         <p class="text-center">
           Express interest with the device that has the data you want to sync,
           the other will device be overwritten. Only express interest on one of
@@ -219,7 +233,7 @@
           </div>
         </div>
       {/if}
-      {#if !submitedInterest && $peerSyncEnabled && profile}
+      {#if !submitedInterest && profile}
         <div class="row mb-1">
           <div class="form-floating mb-1 gy-2">
             <input
@@ -247,18 +261,14 @@
         </div>
       {/if}
       <hr />
-      <PeerToPeer />
+      <PeerToPeer bind:sharingId bind:peers />
       <hr />
       <div class="row my-2">
-        <span class="fs-3 text-center"> Cloud Sync </span>
-      </div>
-      <div class="row mb-1">
-        <p class="text-center">Beta, opt-in, invite only.</p>
+        <p class="fs-3 text-center">Cloud Sync</p>
+        <p class="text-center">Paid Beta: Invite Only</p>
         {#if !$peerSyncEnabled}
-          <p>
-            <b class="text-center">
-              * Intial Peer Sync required to exchange encyption keys *
-            </b>
+          <p class="text-center">
+            <b> * Intial Peer Sync required to exchange encyption keys * </b>
           </p>
         {/if}
         <p class="text-center">
