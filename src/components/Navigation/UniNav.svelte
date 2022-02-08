@@ -33,6 +33,7 @@
   import BoxArrowUpRight from 'svelte-bootstrap-icons/lib/BoxArrowUpRight';
   import WifiOff from 'svelte-bootstrap-icons/lib/WifiOff';
   import Github from 'svelte-bootstrap-icons/lib/Github';
+  import Gear from 'svelte-bootstrap-icons/lib/Gear';
   import InfoCircle from 'svelte-bootstrap-icons/lib/InfoCircle';
   import Phone from 'svelte-bootstrap-icons/lib/Phone';
   import Laptop from 'svelte-bootstrap-icons/lib/Laptop';
@@ -101,6 +102,10 @@
   let showLearnLinks: boolean = false;
   const toggleLearn = () => {
     showLearnLinks = !showLearnLinks;
+  };
+  let showSettings: boolean = false;
+  const toggleSettings = () => {
+    showSettings = !showSettings;
   };
 </script>
 
@@ -238,27 +243,37 @@
   </ul>
   <!-- Settings -->
   <hr />
-  {#if $showSideNav}<span class="ms-1 fs-5">Settings</span>{/if}
-  <ul class="nav nav-pills flex-column mb-auto">
-    <li
-      class={`nav-item rounded p-1 ms-1 ${
-        $showMultiDevice ? 'selected' : 'not-selected'
-      } ${getSyncStatus($rtcPeers)}`}
-      type="button"
-      data-bs-toggle={offcanvas ? 'offcanvas' : ''}
-      data-bs-target={offcanvas ? '#mobileMenu' : ''}
-      on:click={toggleSettingDialog('multiDevice')}
-      aria-expanded="false"
-      aria-controls="multiDevice"
-    >
-      <Laptop />
-      {#if $showSideNav}
-        <span class={`p-1 ${getSyncStatus($rtcPeers)}`}>
-          <Phone />&nbsp; Devices
-        </span>
-      {/if}
-    </li>
-    <!-- <li
+  <span type="button" class="ms-1 fs-5" on:click={toggleSettings}>
+    {#if !$showSideNav}
+      <Gear />
+    {:else if showSettings}
+      <CaretDown />
+    {:else}
+      <CaretRight />
+    {/if}
+    {#if $showSideNav} Settings {/if}
+  </span>
+  {#if showSettings}
+    <ul class="nav nav-pills flex-column mb-auto">
+      <li
+        class={`nav-item rounded p-1 ms-1 ${
+          $showMultiDevice ? 'selected' : 'not-selected'
+        } ${getSyncStatus($rtcPeers)}`}
+        type="button"
+        data-bs-toggle={offcanvas ? 'offcanvas' : ''}
+        data-bs-target={offcanvas ? '#mobileMenu' : ''}
+        on:click={toggleSettingDialog('multiDevice')}
+        aria-expanded="false"
+        aria-controls="multiDevice"
+      >
+        <Laptop />
+        {#if $showSideNav}
+          <span class={`p-1 ${getSyncStatus($rtcPeers)}`}>
+            <Phone />&nbsp; Devices
+          </span>
+        {/if}
+      </li>
+      <!-- <li
       class="nav-item p-1 ms-1"
       type="button"
       data-bs-toggle={offcanvas ? 'offcanvas' : ''}
@@ -272,23 +287,24 @@
         <span class="rounded not-selected p-1"> History </span>
       {/if}
     </li> -->
-    <li
-      class={`nav-item rounded p-1 ms-1 ${
-        $showFreshStart ? 'selected' : 'not-selected'
-      }`}
-      type="button"
-      data-bs-toggle={offcanvas ? 'offcanvas' : ''}
-      data-bs-target={offcanvas ? '#mobileMenu' : ''}
-      on:click={toggleSettingDialog('freshStart')}
-      aria-expanded="false"
-      aria-controls="freshStart"
-    >
-      <Trash />
-      {#if $showSideNav}
-        <span class="p-1"> Fresh Start </span>
-      {/if}
-    </li>
-  </ul>
+      <li
+        class={`nav-item rounded p-1 ms-1 ${
+          $showFreshStart ? 'selected' : 'not-selected'
+        }`}
+        type="button"
+        data-bs-toggle={offcanvas ? 'offcanvas' : ''}
+        data-bs-target={offcanvas ? '#mobileMenu' : ''}
+        on:click={toggleSettingDialog('freshStart')}
+        aria-expanded="false"
+        aria-controls="freshStart"
+      >
+        <Trash />
+        {#if $showSideNav}
+          <span class="p-1"> Fresh Start </span>
+        {/if}
+      </li>
+    </ul>
+  {/if}
   <!-- Learn Links -->
   <hr />
   {#if $showSideNav}
