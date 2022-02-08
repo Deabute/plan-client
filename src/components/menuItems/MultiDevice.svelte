@@ -47,14 +47,15 @@
   let recentToken: tokenI = null;
   let tokenPromise: Promise<tokenI> = null;
   let email: string = '';
+  const interestExpressed: string = 'Interest expressed (Not yet authorized)';
 
   const signUp = async () => {
     const primary = await getPrimary();
     if (!primary) {
-      status += ' / no primary profile set';
+      status = 'No primary profile set (Not authorized to sync)';
       return;
     }
-    status += ' / interest expressed';
+    status = interestExpressed;
     submitedInterest = true;
     profile = primary;
     profile.assumedAuthTTL = 1;
@@ -80,7 +81,7 @@
       profile = primary;
       if (!profile.assumedAuthTTL) return;
       if (profile.assumedAuthTTL === 1) {
-        status += ' / interest expressed';
+        status = interestExpressed;
         submitedInterest = true;
         dismissedAlert = true;
       }
@@ -124,7 +125,7 @@
     submitedInterest = true;
     dismissedAlert = true;
     if (profile.assumedAuthTTL === 1) {
-      status += ' / interest expressed';
+      status = interestExpressed;
       // check if token was granted if interested
       requestToken(profile);
       return;
@@ -190,14 +191,14 @@
       </div>
       <div class="row my-2">
         <p class="fs-3 text-center">Multi-device operation status</p>
+        <div class="row">
+          <span class="text-center">{status}</span>
+        </div>
         <p class="text-center">
           Express interest with the device that has the data you want to sync,
           the other will device be overwritten. Only express interest on one of
           the devices.
         </p>
-      </div>
-      <div class="row">
-        <span class="text-center">{status}</span>
       </div>
       {#if !$peerSyncEnabled}
         <div class="row mb-1">
