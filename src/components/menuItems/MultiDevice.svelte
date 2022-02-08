@@ -200,13 +200,6 @@
           the devices.
         </p>
       </div>
-      {#if !$peerSyncEnabled}
-        <div class="row mb-1">
-          <b class="text-center">
-            * Intial Peer Sync required to exchange encyption keys *
-          </b>
-        </div>
-      {/if}
       {#if submitedInterest && !dismissedAlert}
         <div class="row">
           <div
@@ -261,6 +254,13 @@
       </div>
       <div class="row mb-1">
         <p class="text-center">Beta, opt-in, invite only.</p>
+        {#if !$peerSyncEnabled}
+          <p>
+            <b class="text-center">
+              * Intial Peer Sync required to exchange encyption keys *
+            </b>
+          </p>
+        {/if}
         <p class="text-center">
           Sync data out of band with peer connected devices. End to End Encypted
           (EE2E) data stored in Time Intent database.
