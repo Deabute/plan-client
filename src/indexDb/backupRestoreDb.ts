@@ -79,8 +79,6 @@ let ws: WebSocket = null;
 
 // Outgoing socket messages from client
 const wsSend = async (action: string, json: any = {}) => {
-  // console.log(`trying to send ${action} when open is ${wsOpen}`);
-  // if (!wsOpen) return;
   json.action = action;
   let msg = '{"action":"error","error":"failed stringify"}';
   try {

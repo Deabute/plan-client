@@ -1,6 +1,6 @@
 // WebSocket.ts Copyright 2020-2021 Paul Beaudet MIT License
 
-import { wsOpen } from '../stores/statusStore';
+import { wsOpen } from '../stores/peerStore';
 
 // WebSocket object used to send and receive messages
 let instance: WebSocket | null = null;

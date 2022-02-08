@@ -55,7 +55,7 @@
     syncingUp,
   } from '../../stores/peerStore';
   import type { peersI } from '../../connections/connectInterface';
-  import { connectionStatus, syncStatus } from '../../stores/statusStore';
+  import { connectionStatus, syncStatus } from '../../stores/peerStore';
   import { get12Hour } from '../time/timeConvert';
   import { budgetStore } from '../../stores/budgetStore';
   import type { budgetI } from '../../shared/interface';
