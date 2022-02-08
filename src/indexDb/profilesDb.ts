@@ -92,6 +92,7 @@ const setPrimary = async (isPrimary: boolean = true): Promise<boolean> => {
   let cursor = await profileDb.openCursor();
   while (cursor) {
     if (cursor.value.id === currentProfile) {
+      // TODO if one is already primary it should stay primary
       cursor.update({
         ...cursor.value,
         status: isPrimary ? 'primary' : 'undecided',

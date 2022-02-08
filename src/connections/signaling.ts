@@ -137,7 +137,6 @@ const onOfferAsk = async ({
   }
 };
 
-// TODO Add sign and verify to each signal
 // plain setup (knowing client has opted in)
 const signalingSetup = (announce: announcePacket) => {
   // wsSend is an implicit connect event
