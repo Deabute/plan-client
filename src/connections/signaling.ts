@@ -1,7 +1,7 @@
 // signaling Copyright 2021 Paul Beaudet MIT License
 import { wsOn, wsSend } from './WebSocket';
 import { checkExisting, getKey } from '../indexDb/connectionDB';
-import type { announcePacket, makeOfferPacket } from './connectInterface';
+import type { makeOfferPacket } from './connectInterface';
 import { pendingPeers } from '../stores/settingsStore';
 import { peerSyncEnabled, rtcPeers } from '../stores/peerStore';
 import { createDataChannel } from './dataChannels';
@@ -137,14 +137,9 @@ const onOfferAsk = async ({
   }
 };
 
-// plain setup (knowing client has opted in)
-const signalingSetup = (announce: announcePacket) => {
-  // wsSend is an implicit connect event
-  wsSend('announce', announce);
-  wsOn('makeOffer', onOfferAsk);
-  wsOn('offer', onOfferCreateAnswer);
-  wsOn('answer', onAnswer);
-};
+wsOn('makeOffer', onOfferAsk);
+wsOn('offer', onOfferCreateAnswer);
+wsOn('answer', onAnswer);
 
 // check opt-in setup
 const initConnectionSignaling = async () => {
@@ -152,8 +147,7 @@ const initConnectionSignaling = async () => {
   const announce = await getAnnouncement();
   // The following condition should make it possible to call this function without opt-in
   peerSyncEnabled.set(announce?.peers.length ? true : false);
-  if (!announce) return;
-  signalingSetup(announce);
+  if (announce) wsSend('announce', announce);
 };
 
 const makeOfferOnApproval = async (
@@ -174,4 +168,4 @@ const makeOfferOnApproval = async (
   });
 };
 
-export { initConnectionSignaling, signalingSetup, makeOfferOnApproval };
+export { initConnectionSignaling, makeOfferOnApproval };
