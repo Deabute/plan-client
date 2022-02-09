@@ -35,11 +35,7 @@
   import { refreshTime, secondTick } from '../../stores/timeStore';
   import PeerToPeer from './PeerToPeer.svelte';
   import ProfileList from './ProfileList.svelte';
-  import {
-    checkPeerSyncEnabled,
-    getConnections,
-    initDeviceID,
-  } from '../../indexDb/connectionDB';
+  import { getConnections, initDeviceID } from '../../indexDb/connectionDB';
   import Backup from './Backup.svelte';
   import { IDLE_RECONNECT, statusMsgs } from '../../stores/defaultData';
   import { initConnectionSignaling } from '../../connections/signaling';
@@ -98,7 +94,6 @@
       requestToken(profile);
       return;
     }
-    $peerSyncEnabled = await checkPeerSyncEnabled();
     if (tokenPromise === null) tokenPromise = getLatestToken();
     if (recentToken === null) recentToken = await tokenPromise;
     if (!recentToken) {

@@ -159,17 +159,6 @@ const getPub = async (
   return '';
 };
 
-const checkPeerSyncEnabled = async (): Promise<boolean> => {
-  let cursor = await getConnectionCursor();
-  let peers: number = 0;
-  while (cursor) {
-    if (cursor.value.deviceCert) peers++;
-    if (peers > 1) return true;
-    cursor = await cursor.continue();
-  }
-  return false;
-};
-
 const getConnectionId = async (): Promise<string> => {
   let cursor = await getConnectionCursor();
   while (cursor) {
@@ -209,7 +198,6 @@ export {
   connectionTimestamp,
   getKey,
   getPub,
-  checkPeerSyncEnabled,
   getConnectionId,
   getConnections,
 };
