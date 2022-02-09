@@ -360,7 +360,6 @@ const IDLE_RECONNECT = hourInMillis;
 
 const statusMsgs = {
   noAuth: 'Not Authorized to sync',
-  noProfile: 'No profile set (Not authorized to sync)',
   interest: 'Interest expressed (Not yet authorized)',
   renewal: 'Checking for renewal',
   auth: 'Authorized to sync',

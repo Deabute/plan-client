@@ -1,9 +1,12 @@
 <!-- PeersPending ~ Copyright 2021 Paul Beaudet MIT License -->
 <script lang="ts">
   import { newConnection } from '../indexDb/connectionDB';
-  import { setPrimary } from '../indexDb/profilesDb';
-  import { firstSync, peerSyncEnabled } from '../stores/peerStore';
-  import { pendingPeers } from '../stores/settingsStore';
+  import { removeDataToBeSecondary } from '../indexDb/profilesDb';
+  import {
+    firstSync,
+    peerSyncEnabled,
+    pendingPeers,
+  } from '../stores/peerStore';
   import type { requesterInfo } from './connectInterface';
   import { makeOfferOnApproval } from './signaling';
 
@@ -11,16 +14,11 @@
     requester,
     sig,
     deviceCert,
-    thisDevice,
+    rmData,
   }: requesterInfo) => {
     return async () => {
-      $firstSync = {
-        peerId: requester,
-        isPrimary: !thisDevice,
-        done: false,
-      };
-      await setPrimary(!thisDevice);
-      // "thisDevice" refers to the other device here, just passing the prop from initiator
+      $firstSync = { peerId: requester, done: false };
+      if (rmData) await removeDataToBeSecondary();
       await newConnection(requester);
       makeOfferOnApproval(requester, sig, deviceCert);
       $pendingPeers = $pendingPeers.filter((p) => p.requester !== requester);
@@ -39,9 +37,7 @@
   {#each $pendingPeers as peer}
     <span>
       {`Do you trust device ${peer.requester} to sync ${
-        peer.thisDevice
-          ? "it's data to this device"
-          : "this device's data to it"
+        peer.rmData ? "it's data to this device" : "this device's data to it"
       } ?`}
     </span>
     <button class="btn btn-outline-dark" on:click={onApproval(peer)}>

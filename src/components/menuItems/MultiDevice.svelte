@@ -1,17 +1,10 @@
 <!-- MultiDevice Copyright 2022 Paul Beaudet MIT Licence -->
 <script lang="ts">
   import type { relayPkt, syncCache } from '../../connections/connectInterface';
-  import {
-    handleDataSync,
-    peerBroadcast,
-  } from '../../connections/dataChannels';
+  import { handleDataSync } from '../../connections/dataChannels';
   import PeersPending from '../../connections/PeersPending.svelte';
   import { wsOn, wsSend } from '../../connections/WebSocket';
-  import {
-    getPrimary,
-    initProfile,
-    updateProfile,
-  } from '../../indexDb/profilesDb';
+  import { initProfile, updateProfile } from '../../indexDb/profilesDb';
   import { getNextConnectionCacheId, unpackCache } from '../../indexDb/pskDb';
   import {
     addToken,
@@ -19,20 +12,19 @@
     requestToken,
   } from '../../indexDb/tokenDb';
   import type { connectionI, profileI, tokenI } from '../../shared/interface';
-  import { loadAgenda } from '../../stores/agendaStore';
   import {
+    firstSync,
     lastDisconnect,
     peersConnected,
     peerSyncEnabled,
     syncingDown,
   } from '../../stores/peerStore';
   import {
-    newProfile,
     showMultiDevice,
     toggleSettingDialog,
   } from '../../stores/settingsStore';
-  import { refreshTask } from '../../stores/taskStore';
-  import { refreshTime, secondTick } from '../../stores/timeStore';
+  import { refreshAllViews } from '../../stores/taskStore';
+  import { secondTick } from '../../stores/timeStore';
   import PeerToPeer from './PeerToPeer.svelte';
   import ProfileList from './ProfileList.svelte';
   import { getConnections, initDeviceID } from '../../indexDb/connectionDB';
@@ -41,6 +33,7 @@
   import { initConnectionSignaling } from '../../connections/signaling';
   import BoxArrowInLeft from 'svelte-bootstrap-icons/lib/BoxArrowInLeft';
   import GetService from './GetService.svelte';
+  import { addEvent } from '../../indexDb/eventsDb';
 
   let status: string = statusMsgs.noAuth;
   let profile: profileI;
@@ -48,19 +41,6 @@
   let tokenPromise: Promise<tokenI> = null;
   let sharingId: string = '';
   let peers: connectionI[] = [];
-
-  newProfile.subscribe(async (isNew) => {
-    if (isNew) {
-      const primary = await getPrimary();
-      if (!primary) {
-        $newProfile = false;
-        return;
-      }
-      profile = primary;
-      if (!profile.assumedAuthTTL) return;
-      $newProfile = false;
-    }
-  });
 
   const requestSyncDown = async () => {
     if ($peersConnected) return;
@@ -109,21 +89,31 @@
     }, timeToCheckForRenwal);
   });
 
+  const refreshConnections = async (first: boolean = false) => {
+    const { id, connections } = await getConnections(first);
+    peers = connections;
+    sharingId = id;
+  };
+
   wsOn('token', async ({ token, ttl, subTTL }) => {
     await addToken({ token, ttl });
-    profile.assumedAuthTTL = subTTL;
-    const newProfile = await updateProfile(profile);
-    peerBroadcast('sync-profiles', { data: newProfile, done: true });
+    // if this was the device that expressed interest / paid its profile is the primary one
+    profile = await updateProfile({
+      ...profile,
+      assumedAuthTTL: subTTL,
+      status:
+        profile.assumedAuthTTL === 1 || profile.status === 'primary'
+          ? 'primary'
+          : 'undecided',
+    });
     status = statusMsgs.auth;
     recentToken = { token, ttl };
     // if this is the first time token is received, create a new connection id
     if (!sharingId) {
       await initDeviceID();
-      const { id, connections } = await getConnections();
-      peers = connections;
-      sharingId = id;
+      await refreshConnections();
+      initConnectionSignaling();
     }
-    requestSyncDown();
   });
 
   wsOn('syncDown', async (cache: syncCache) => {
@@ -138,14 +128,20 @@
 
   wsOn('syncDone', () => {
     $syncingDown = false;
-    refreshTask();
-    refreshTime(false);
-    loadAgenda();
+    refreshAllViews(false);
   });
 
-  getConnections().then(({ connections, id }) => {
-    peers = connections;
-    sharingId = id;
+  refreshConnections();
+
+  // This should handle both the requester and accepter
+  firstSync.subscribe(async (sync) => {
+    if (sync && sync.done) {
+      profile = await initProfile();
+      refreshConnections(true);
+      $firstSync = null;
+      addEvent('addConnection', { id: sync.peerId });
+      toggleSettingDialog('multiDevice');
+    }
   });
 </script>
 

@@ -7,7 +7,7 @@ import type {
 import { getDb } from './dbCore';
 import { getDeviceId } from '../shared/conversions';
 import { KEY_PAIR_CONFIG } from '../stores/defaultData';
-import { getPrimary, initProfile } from './profilesDb';
+import { initProfile } from './profilesDb';
 
 const getConnectionCursor = async (): Promise<
   IDBPCursorWithValue<PlanDB, ['connect'], 'connect', unknown, 'readonly'>
@@ -116,47 +116,43 @@ const getPub = async (
   peerId: string,
   deviceCert: string = '',
 ): Promise<string> => {
+  if (!peerId) return '';
   const db = await getDb();
-  if (peerId) {
-    const result = await db.get('connect', peerId);
-    // if not result, this connection hasn't even been approved
-    if (!result) return '';
-    if (result.deviceCert) {
-      // if there was a cert passed and it doesn't match what we have for this id
-      // ignore it
-      if (deviceCert && deviceCert !== result.deviceCert) {
-        console.error(new Error('deviceCert mis-match'));
-        return '';
-      }
-      return result.deviceCert;
+  const result = await db.get('connect', peerId);
+  // if not result, this connection hasn't even been approved
+  if (!result) return '';
+  if (result.deviceCert) {
+    // if there was a cert passed and it doesn't match what we have for this id
+    // ignore it
+    if (deviceCert && deviceCert !== result.deviceCert) {
+      console.error(new Error('deviceCert mis-match'));
+      return '';
     }
-    // if there isn't a result deviceCert and one is passed to this function
-    // Trust it on the first pass and add it to our result document
-    if (deviceCert) {
-      const pubCryptoKey = await crypto.subtle.importKey(
-        'jwk',
-        JSON.parse(deviceCert),
-        KEY_PAIR_CONFIG,
-        true,
-        ['verify'],
-      );
-      const matchDeviceId = await getDeviceId(pubCryptoKey);
-      if (matchDeviceId !== peerId) {
-        console.error(
-          new Error(`peer ${peerId} did not match with ${matchDeviceId}`),
-        );
-        return '';
-      }
-      const primaryProfile = await getPrimary();
-      await db.put('connect', {
-        ...result,
-        deviceCert,
-        userId: primaryProfile ? primaryProfile.id : '',
-      });
-      return deviceCert;
-    }
+    return result.deviceCert;
   }
-  return '';
+  // if there isn't a result deviceCert and one is passed to this function
+  // Trust it on the first pass and add it to our result document
+  if (deviceCert) {
+    const pubCryptoKey = await crypto.subtle.importKey(
+      'jwk',
+      JSON.parse(deviceCert),
+      KEY_PAIR_CONFIG,
+      true,
+      ['verify'],
+    );
+    const matchDeviceId = await getDeviceId(pubCryptoKey);
+    if (matchDeviceId !== peerId) {
+      console.error(
+        new Error(`peer ${peerId} did not match with ${matchDeviceId}`),
+      );
+      return '';
+    }
+    await db.put('connect', {
+      ...result,
+      deviceCert,
+    });
+    return deviceCert;
+  }
 };
 
 const getConnectionId = async (): Promise<string> => {
@@ -168,14 +164,34 @@ const getConnectionId = async (): Promise<string> => {
   return null;
 };
 
-const getConnections = async (): Promise<{
+const getConnections = async (
+  firstCon: boolean = false,
+): Promise<{
   connections: connectionI[];
   id: string;
 }> => {
   const connections: connectionI[] = [];
   let id = '';
-  let cursor = await getConnectionCursor();
+  const db = await getDb();
+  const transaction = db.transaction(['connect', 'profiles'], 'readwrite');
+  const connectDb = transaction.objectStore('connect');
+
+  let userId: string = '';
+  if (firstCon) {
+    // if this is the first connection set userId to the primary profile
+    const userDb = transaction.objectStore('profiles');
+    let uCursor = await userDb.openCursor();
+    while (uCursor) {
+      if (uCursor.value.status === 'primary') {
+        userId = uCursor.value.id;
+        break;
+      }
+      uCursor = await uCursor.continue();
+    }
+  }
+  let cursor = await connectDb.openCursor();
   while (cursor) {
+    if (userId) await cursor.update({ ...cursor.value, userId });
     if (cursor.value.deviceKey === '') {
       connections.push(cursor.value);
     } else {

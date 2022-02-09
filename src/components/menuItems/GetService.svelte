@@ -1,6 +1,5 @@
 <!-- GetService Copyright 2022 Paul Beaudet MIT Licence -->
 <script lang="ts">
-  import { peerBroadcast } from '../../connections/dataChannels';
   import { wsSend } from '../../connections/WebSocket';
   import { updateProfile } from '../../indexDb/profilesDb';
   import type { profileI, tokenI } from '../../shared/interface';
@@ -30,10 +29,6 @@
   };
 
   const signUpOrConnect = async () => {
-    if (!profile) {
-      status = 'No profile set (Not authorized to sync)';
-      return;
-    }
     if (!inviteMode) {
       connect();
       return;
@@ -49,18 +44,17 @@
       password,
       email,
     });
-    const newProfile = await updateProfile(profile);
-    peerBroadcast('sync-profiles', { data: newProfile, done: true });
+    profile = await updateProfile(profile);
   };
 
-  const onProfileChange = (newProfile: profileI) => {
-    if (newProfile.assumedAuthTTL < 1) {
+  const onProfileChange = (changeProfile: profileI) => {
+    if (changeProfile.assumedAuthTTL < 1) {
       status = statusMsgs.noAuth;
     }
-    if (newProfile.assumedAuthTTL === 1) {
+    if (changeProfile.assumedAuthTTL === 1) {
       status = statusMsgs.interest;
     }
-    if (newProfile.assumedAuthTTL > 0) {
+    if (changeProfile.assumedAuthTTL > 0) {
       submitedInterest = true;
       dismissedAlert = true;
     }

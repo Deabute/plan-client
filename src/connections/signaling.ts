@@ -2,8 +2,7 @@
 import { wsOn, wsSend } from './WebSocket';
 import { checkExisting, getKey } from '../indexDb/connectionDB';
 import type { makeOfferPacket } from './connectInterface';
-import { pendingPeers } from '../stores/settingsStore';
-import { peerSyncEnabled, rtcPeers } from '../stores/peerStore';
+import { peerSyncEnabled, rtcPeers, pendingPeers } from '../stores/peerStore';
 import { createDataChannel } from './dataChannels';
 import { signFromStrings, verifyFromPeerId, getAnnouncement } from './crypto';
 
@@ -120,7 +119,7 @@ const onOfferAsk = async ({
   requester,
   sig,
   deviceCert,
-  thisDevice,
+  rmData,
 }: makeOfferPacket) => {
   try {
     // check if this is one of our existing connections
@@ -130,7 +129,7 @@ const onOfferAsk = async ({
     }
     // if not add to pending approvals
     pendingPeers.update((peers) => {
-      return [...peers, { requester, sig, deviceCert, thisDevice }];
+      return [...peers, { requester, sig, deviceCert, rmData }];
     });
   } catch (error) {
     console.error(new Error(`onOfferAsk: ${error}`));

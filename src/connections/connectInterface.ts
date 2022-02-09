@@ -5,7 +5,7 @@ interface requesterInfo {
   requester: string;
   sig: string;
   deviceCert: string;
-  thisDevice: boolean;
+  rmData: boolean; // if this is the first sync, is data removed?
 }
 
 interface makeOfferPacket extends requesterInfo {

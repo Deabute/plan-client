@@ -10,10 +10,9 @@
     newConnection,
   } from '../../indexDb/connectionDB';
   import { addEvent } from '../../indexDb/eventsDb';
-  import { setPrimary } from '../../indexDb/profilesDb';
   import type { connectionI } from '../../shared/interface';
   import { firstSync, peerSyncEnabled } from '../../stores/peerStore';
-  import { toggleSettingDialog } from '../../stores/settingsStore';
+  import { removeDataToBeSecondary } from '../../indexDb/profilesDb';
 
   export let sharingId: string = '';
   export let peers: connectionI[] = [];
@@ -36,29 +35,19 @@
     valid = isValid;
   });
 
-  const addPeer = (isPrimary: boolean = true) => {
+  const addPeer = (rmData: boolean = true) => {
     return async () => {
-      await setPrimary(isPrimary); // will set to undecided if previously set
       const peerId = newPeer.toUpperCase();
       await newConnection(peerId);
-      const annoucement = await getAnnouncement(isPrimary);
+      const annoucement = await getAnnouncement(!rmData);
+      if (rmData) await removeDataToBeSecondary();
       annoucement.peers = [peerId];
       wsSend('addPeer', annoucement);
-      $firstSync = { peerId, isPrimary, done: false };
+      $firstSync = { peerId, done: false };
       newPeer = '';
       $peerSyncEnabled = true;
     };
   };
-
-  // This should handle both the requester and accepter
-  firstSync.subscribe(async (sync) => {
-    if (sync && sync.done) {
-      addEvent('addConnection', { id: sync.peerId });
-      peers = (await getConnections()).connections;
-      $firstSync = null;
-      toggleSettingDialog('multiDevice');
-    }
-  });
 
   const removePeer = (peerId: string) => {
     // returns onclick event with peerId in closure
@@ -108,19 +97,19 @@
       <span class="fs-5">Add Sync Peer: with </span>
       <button
         class="btn btn-outline-dark gy-2"
-        on:click={addPeer()}
-        type="button"
-        id="add-peer-button"
-      >
-        this device's profile
-      </button>
-      <button
-        class="btn btn-outline-dark gy-2"
         on:click={addPeer(false)}
         type="button"
         id="add-peer-button"
       >
-        it's profile
+        this device's data
+      </button>
+      <button
+        class="btn btn-outline-dark gy-2"
+        on:click={addPeer()}
+        type="button"
+        id="add-peer-button"
+      >
+        it's data
       </button>
     </div>
   {/if}

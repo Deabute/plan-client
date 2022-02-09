@@ -1,12 +1,9 @@
 // settingsStore.ts Copyright 2021 Paul Beaudet MIT License
 
 import { writable, Writable } from 'svelte/store';
-import type { requesterInfo } from '../connections/connectInterface';
 import type { memTaskI, settingNames, taskI } from '../shared/interface';
 import { utilizationOptions } from './defaultData';
 
-// Incoming request to approve device connections
-const pendingPeers: Writable<requesterInfo[]> = writable([]);
 const showAddFolder: Writable<boolean> = writable(false);
 
 const selectedUtilizationOption: Writable<string> = writable(
@@ -78,7 +75,6 @@ const toggleSettingDialog = (name: settingNames) => {
     if (toggleAllSettingsOff) showViews.set(true);
   };
 };
-const newProfile: Writable<boolean> = writable(false);
 
 const editToggle = (task: memTaskI = null) => {
   return () => {
@@ -94,7 +90,6 @@ editTask.subscribe(() => {
 });
 
 export {
-  pendingPeers,
   selectedUtilizationOption,
   utilizeRange,
   moveTask,
@@ -109,7 +104,6 @@ export {
   showFreshStart,
   showDuration,
   toggleSettingDialog,
-  newProfile,
   editToggle,
   showViews,
   showMultiDevice,
