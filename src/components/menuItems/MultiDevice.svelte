@@ -57,6 +57,7 @@
   const interestExpressed: string = 'Interest expressed (Not yet authorized)';
   let inviteMode: boolean = true;
   let password: string = '';
+  let showPassword: boolean = false;
 
   const connect = async () => {
     wsSend('login', {
@@ -227,6 +228,21 @@
           the devices.
         </p>
       </div>
+      {#if recentToken && profile}
+        <div class="row my-2">
+          <buton
+            class="btn btn-info m-1 col-2"
+            on:click={() => {
+              showPassword = !showPassword;
+            }}
+          >
+            {`${showPassword ? 'Hide' : 'Show'} password for login`}
+          </buton>
+          <span class="col-8 fs-3 text-center">
+            {showPassword ? profile.password : '**********'}
+          </span>
+        </div>
+      {/if}
       {#if submitedInterest && !dismissedAlert}
         <div class="row">
           <div
