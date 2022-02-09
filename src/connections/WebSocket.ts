@@ -88,8 +88,15 @@ const wsSend = async (action: string, json: any = {}) => {
     console.log(error);
   }
   // create socket connection if its not yet connected
-  const socket = await wsInit();
-  socket.send(msg);
+  try {
+    const socket = await wsInit();
+    socket.send(msg);
+  } catch (error) {
+    setTimeout(async () => {
+      const socket = await wsInit();
+      socket.send(msg);
+    }, 20);
+  }
 };
 
 export { wsSend, wsOn };
