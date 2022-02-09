@@ -41,54 +41,17 @@
     initDeviceID,
   } from '../../indexDb/connectionDB';
   import Backup from './Backup.svelte';
-  import { IDLE_RECONNECT } from '../../stores/defaultData';
+  import { IDLE_RECONNECT, statusMsgs } from '../../stores/defaultData';
   import { initConnectionSignaling } from '../../connections/signaling';
   import BoxArrowInLeft from 'svelte-bootstrap-icons/lib/BoxArrowInLeft';
+  import GetService from './GetService.svelte';
 
-  let status: string = 'Not Authorized to sync';
-  let submitedInterest: boolean = false;
-  let dismissedAlert: boolean = false;
+  let status: string = statusMsgs.noAuth;
   let profile: profileI;
   let recentToken: tokenI = null;
   let tokenPromise: Promise<tokenI> = null;
-  let email: string = '';
   let sharingId: string = '';
   let peers: connectionI[] = [];
-  const interestExpressed: string = 'Interest expressed (Not yet authorized)';
-  let inviteMode: boolean = true;
-  let password: string = '';
-  let showPassword: boolean = false;
-
-  const connect = async () => {
-    wsSend('login', {
-      email,
-      password,
-    });
-  };
-
-  const signUpOrConnect = async () => {
-    if (!profile) {
-      status = 'No profile set (Not authorized to sync)';
-      return;
-    }
-    if (!inviteMode) {
-      connect();
-      return;
-    }
-    status = interestExpressed;
-    submitedInterest = true;
-    profile.assumedAuthTTL = 1;
-    const { id, cert, password } = profile;
-    // TODO: prove that this is cert you have the key for
-    wsSend('interestedSignUp', {
-      id,
-      userCert: cert,
-      password,
-      email,
-    });
-    const newProfile = await updateProfile(profile);
-    peerBroadcast('sync-profiles', { data: newProfile, done: true });
-  };
 
   newProfile.subscribe(async (isNew) => {
     if (isNew) {
@@ -99,20 +62,9 @@
       }
       profile = primary;
       if (!profile.assumedAuthTTL) return;
-      if (profile.assumedAuthTTL === 1) {
-        status = interestExpressed;
-        submitedInterest = true;
-        dismissedAlert = true;
-      }
       $newProfile = false;
     }
   });
-
-  let validMail: boolean = false;
-  $: validMail =
-    /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
-      String(email).toLowerCase(),
-    );
 
   const requestSyncDown = async () => {
     if ($peersConnected) return;
@@ -141,16 +93,12 @@
   initProfile().then(async (result) => {
     profile = result;
     if (!profile.assumedAuthTTL) return;
-    submitedInterest = true;
-    dismissedAlert = true;
     if (profile.assumedAuthTTL === 1) {
-      status = interestExpressed;
       // check if token was granted if interested
       requestToken(profile);
       return;
     }
     $peerSyncEnabled = await checkPeerSyncEnabled();
-    if (!$peerSyncEnabled) return;
     if (tokenPromise === null) tokenPromise = getLatestToken();
     if (recentToken === null) recentToken = await tokenPromise;
     if (!recentToken) {
@@ -159,9 +107,9 @@
     }
     const timeToCheckForRenwal =
       $secondTick < recentToken.ttl ? recentToken.ttl - $secondTick : 0;
-    status = 'Authorized to sync';
+    status = statusMsgs.auth;
     setTimeout(() => {
-      status = 'Checking for renewal';
+      status = statusMsgs.renewal;
       requestToken(profile);
     }, timeToCheckForRenwal);
   });
@@ -171,7 +119,7 @@
     profile.assumedAuthTTL = subTTL;
     const newProfile = await updateProfile(profile);
     peerBroadcast('sync-profiles', { data: newProfile, done: true });
-    status = 'Authorized to sync';
+    status = statusMsgs.auth;
     recentToken = { token, ttl };
     // if this is the first time token is received, create a new connection id
     if (!sharingId) {
@@ -228,108 +176,7 @@
           the devices.
         </p>
       </div>
-      {#if recentToken && profile}
-        <div class="row my-2">
-          <buton
-            class="btn btn-info m-1 col-2"
-            on:click={() => {
-              showPassword = !showPassword;
-            }}
-          >
-            {`${showPassword ? 'Hide' : 'Show'} password for login`}
-          </buton>
-          <span class="col-8 fs-3 text-center">
-            {showPassword ? profile.password : '**********'}
-          </span>
-        </div>
-      {/if}
-      {#if submitedInterest && !dismissedAlert}
-        <div class="row">
-          <div
-            class="text-center alert alert-success alert-dismissible fade show"
-            role="alert"
-          >
-            Thanks for your interest
-            <button
-              on:click={() => {
-                dismissedAlert = true;
-              }}
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="alert"
-              aria-label="close"
-            />
-          </div>
-        </div>
-      {/if}
-      {#if !submitedInterest && profile}
-        <div class="row mb-1">
-          {#if inviteMode}
-            <div class="form-floating mb-1 gy-2">
-              <input
-                type="text"
-                class="form-control"
-                id="interest-email"
-                placeholder="Email"
-                bind:value={email}
-                aria-describedby="express-interest-button"
-                aria-label="Email"
-              />
-              <label for="interest-email">
-                Enter email to express interest in multi-device
-              </label>
-            </div>
-          {:else}
-            <div class="form-floating mb3 gy-2">
-              <input
-                type="text"
-                class="form-control"
-                id="new-peer-input"
-                placeholder="Add Sync Peer ID"
-                bind:value={email}
-                aria-describedby="add-peer-button"
-                aria-label="Add peer ID to sync"
-              />
-              <label for="new-peer-input">Invited Email</label>
-            </div>
-            <div class="form-floating mb3 gy-2">
-              <input
-                type="password"
-                class="form-control"
-                id="new-peer-input"
-                placeholder="Add Sync Peer ID"
-                bind:value={password}
-                aria-describedby="add-peer-button"
-                aria-label="Add peer ID to sync"
-              />
-              <label for="new-peer-input">Password</label>
-            </div>
-          {/if}
-          <div class="row mt-1">
-            <button
-              type="button"
-              disabled={!validMail}
-              id="express-interest-button"
-              on:click={signUpOrConnect}
-              class={`m-1 col-auto btn btn-${
-                validMail ? 'success' : 'secondary'
-              }`}
-            >
-              {inviteMode ? 'Express interest' : 'Connect'}
-            </button>
-            <button
-              type="button"
-              id="switch-to-invite-mode"
-              on:click={() => {
-                inviteMode = !inviteMode;
-              }}
-              class="col-auto btn btn-info m-1"
-            >
-              {inviteMode ? 'Log-in instead' : 'Get Invite instead'}
-            </button>
-          </div>
-        </div>
-      {/if}
+      <GetService bind:profile {recentToken} bind:status />
       <hr />
       <PeerToPeer bind:sharingId bind:peers />
       <hr />
