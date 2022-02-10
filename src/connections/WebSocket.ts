@@ -1,9 +1,10 @@
 // WebSocket.ts Copyright 2020-2021 Paul Beaudet MIT License
-
+import { getLatestToken } from '../indexDb/tokenDb';
 import { wsOpen } from '../stores/peerStore';
 
 // WebSocket object used to send and receive messages
 let instance: WebSocket | null = null;
+let lAuthToken: string | null = null;
 
 // init gets called whenever client tries to send a message.
 // So its not really necessary to call it externally.
@@ -11,7 +12,7 @@ const wsInit = (): Promise<WebSocket> => {
   // makes it so that init function can be called
   // liberally to assure that we are maintaining connection
   // API Gateway kicks connections after 10 minutes idle or 2 hours
-  return new Promise((resolve) => {
+  return new Promise(async (resolve) => {
     if (instance) {
       resolve(instance);
       return;
@@ -80,6 +81,8 @@ const incoming = (event: any) => {
 
 // Outgoing socket messages from client
 const wsSend = async (action: string, json: any = {}) => {
+  if (!lAuthToken) lAuthToken = (await getLatestToken()).token;
+  json.token = lAuthToken;
   json.action = action;
   let msg = '{"action":"error","error":"failed stringify"}';
   try {

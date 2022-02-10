@@ -49,10 +49,7 @@
     if (recentToken === null) recentToken = await tokenPromise;
     if (!cacheId || !recentToken) return;
     $syncingDown = true;
-    wsSend('syncDown', {
-      token: recentToken.token,
-      cacheId,
-    });
+    wsSend('syncDown', { cacheId });
   };
 
   // only request sync down after its confirmed by server no peers are online

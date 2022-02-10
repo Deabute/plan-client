@@ -40,10 +40,10 @@ const sizeOfObjArrayAfterAdd = (objArray: any[], objToAdd: any) => {
 const batchSyncUp = async () => {
   const result = await getLatestToken();
   if (!result) return;
-  const { token, ttl } = result;
+  const { ttl } = result;
   if (ttl < Date.now()) return;
   const { cypherText, cacheId }: syncCache = await packageCache(syncBatch);
-  wsSend('syncUp', { cypherText, cacheId, token });
+  wsSend('syncUp', { cypherText, cacheId });
   batchTimeout = null;
   syncBatch = [];
   // this is just a timing thing, so long as the main batch staying in the frame
@@ -52,7 +52,7 @@ const batchSyncUp = async () => {
     const { cypherText, cacheId }: syncCache = await packageCache(
       batchOverflow,
     );
-    wsSend('syncUp', { cypherText, cacheId, token });
+    wsSend('syncUp', { cypherText, cacheId });
     batchOverflow = [];
   }
   syncingUp.set(false);
