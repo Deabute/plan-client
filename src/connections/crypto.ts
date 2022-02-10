@@ -40,7 +40,7 @@ const signFromStrings = async (
 let numberOfPeers: number = 0;
 
 const getAnnouncement = async (
-  thisDevice: boolean = true,
+  rmData: boolean = true,
 ): Promise<null | announcePacket> => {
   let cursor = await getConnectionCursor();
   const announce: announcePacket = {
@@ -48,7 +48,7 @@ const getAnnouncement = async (
     peers: [],
     deviceCert: '',
     sig: '',
-    thisDevice,
+    rmData,
   };
   let key: string = '';
   while (cursor) {

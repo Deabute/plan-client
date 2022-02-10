@@ -1,111 +1,50 @@
 <!-- MultiDevice Copyright 2022 Paul Beaudet MIT Licence -->
 <script lang="ts">
   import type { relayPkt, syncCache } from '../../connections/connectInterface';
-  import {
-    handleDataSync,
-    peerBroadcast,
-  } from '../../connections/dataChannels';
+  import { handleDataSync } from '../../connections/dataChannels';
   import PeersPending from '../../connections/PeersPending.svelte';
   import { wsOn, wsSend } from '../../connections/WebSocket';
-  import {
-    getPrimary,
-    initProfile,
-    updateProfile,
-  } from '../../indexDb/profilesDb';
+  import { initProfile, updateProfile } from '../../indexDb/profilesDb';
   import { getNextConnectionCacheId, unpackCache } from '../../indexDb/pskDb';
+  import { addToken } from '../../indexDb/tokenDb';
+  import type { connectionI } from '../../shared/interface';
   import {
-    addToken,
-    getLatestToken,
-    requestToken,
-  } from '../../indexDb/tokenDb';
-  import type { profileI, tokenI } from '../../shared/interface';
-  import { loadAgenda } from '../../stores/agendaStore';
-  import {
+    firstSync,
     lastDisconnect,
     peersConnected,
     peerSyncEnabled,
     syncingDown,
   } from '../../stores/peerStore';
   import {
-    newProfile,
     showMultiDevice,
     toggleSettingDialog,
   } from '../../stores/settingsStore';
-  import { refreshTask } from '../../stores/taskStore';
-  import { refreshTime, secondTick } from '../../stores/timeStore';
+  import { refreshAllViews } from '../../stores/taskStore';
+  import { secondTick } from '../../stores/timeStore';
   import PeerToPeer from './PeerToPeer.svelte';
   import ProfileList from './ProfileList.svelte';
-  import { checkPeerSyncEnabled } from '../../indexDb/connectionDB';
+  import { getConnections, initDeviceID } from '../../indexDb/connectionDB';
   import Backup from './Backup.svelte';
   import { IDLE_RECONNECT } from '../../stores/defaultData';
   import { initConnectionSignaling } from '../../connections/signaling';
+  import BoxArrowInLeft from 'svelte-bootstrap-icons/lib/BoxArrowInLeft';
+  import GetService from './GetService.svelte';
+  import { addEvent } from '../../indexDb/eventsDb';
+  import {
+    authProfile,
+    authToken,
+    authStatus,
+  } from '../../stores/credentialStore';
 
-  let status: string = 'Not Authorized to sync';
-  let submitedInterest: boolean = false;
-  let dismissedAlert: boolean = false;
-  let profile: profileI;
-  let recentToken: tokenI = null;
-  let tokenPromise: Promise<tokenI> = null;
-  let email: string = '';
-  const interestExpressed: string = 'Interest expressed (Not yet authorized)';
-
-  const signUp = async () => {
-    const primary = await getPrimary();
-    if (!primary) {
-      status = 'No primary profile set (Not authorized to sync)';
-      return;
-    }
-    status = interestExpressed;
-    submitedInterest = true;
-    profile = primary;
-    profile.assumedAuthTTL = 1;
-    const { id, cert, password } = profile;
-    // TODO: prove that this is cert you have the key for
-    wsSend('interestedSignUp', {
-      id,
-      userCert: cert,
-      password,
-      email,
-    });
-    const newProfile = await updateProfile(profile);
-    peerBroadcast('sync-profiles', { data: newProfile, done: true });
-  };
-
-  newProfile.subscribe(async (isNew) => {
-    if (isNew) {
-      const primary = await getPrimary();
-      if (!primary) {
-        $newProfile = false;
-        return;
-      }
-      profile = primary;
-      if (!profile.assumedAuthTTL) return;
-      if (profile.assumedAuthTTL === 1) {
-        status = interestExpressed;
-        submitedInterest = true;
-        dismissedAlert = true;
-      }
-      $newProfile = false;
-    }
-  });
-
-  let validMail: boolean = false;
-  $: validMail =
-    /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
-      String(email).toLowerCase(),
-    );
+  let sharingId: string = '';
+  let peers: connectionI[] = [];
 
   const requestSyncDown = async () => {
-    if ($peersConnected) return;
+    if ($peersConnected || !authToken) return;
     const cacheId = await getNextConnectionCacheId();
-    if (tokenPromise === null) tokenPromise = getLatestToken();
-    if (recentToken === null) recentToken = await tokenPromise;
-    if (!cacheId || !recentToken) return;
+    if (!cacheId) return;
     $syncingDown = true;
-    wsSend('syncDown', {
-      token: recentToken.token,
-      cacheId,
-    });
+    wsSend('syncDown', { cacheId, token: $authToken.token });
   };
 
   // only request sync down after its confirmed by server no peers are online
@@ -119,42 +58,30 @@
     }
   });
 
-  initProfile().then(async (result) => {
-    profile = result;
-    if (!profile.assumedAuthTTL) return;
-    submitedInterest = true;
-    dismissedAlert = true;
-    if (profile.assumedAuthTTL === 1) {
-      status = interestExpressed;
-      // check if token was granted if interested
-      requestToken(profile);
-      return;
-    }
-    $peerSyncEnabled = await checkPeerSyncEnabled();
-    if (!$peerSyncEnabled) return;
-    if (tokenPromise === null) tokenPromise = getLatestToken();
-    if (recentToken === null) recentToken = await tokenPromise;
-    if (!recentToken) {
-      requestToken(profile);
-      return;
-    }
-    const timeToCheckForRenwal =
-      $secondTick < recentToken.ttl ? recentToken.ttl - $secondTick : 0;
-    status = 'Authorized to sync';
-    setTimeout(() => {
-      status = 'Checking for renewal';
-      requestToken(profile);
-    }, timeToCheckForRenwal);
-  });
+  const refreshConnections = async (first: boolean = false) => {
+    const { id, connections } = await getConnections(first);
+    peers = connections;
+    sharingId = id;
+  };
 
   wsOn('token', async ({ token, ttl, subTTL }) => {
     await addToken({ token, ttl });
-    profile.assumedAuthTTL = subTTL;
-    const newProfile = await updateProfile(profile);
-    peerBroadcast('sync-profiles', { data: newProfile, done: true });
-    status = 'Authorized to sync';
-    recentToken = { token, ttl };
-    requestSyncDown();
+    // if this was the device that expressed interest / paid its profile is the primary one
+    $authProfile = await updateProfile({
+      ...$authProfile,
+      assumedAuthTTL: subTTL,
+      status:
+        $authProfile.assumedAuthTTL === 1 || $authProfile.status === 'primary'
+          ? 'primary'
+          : 'undecided',
+    });
+    $authToken = { token, ttl };
+    // if this is the first time token is received, create a new connection id
+    if (!sharingId) {
+      await initDeviceID($authProfile.id);
+      await refreshConnections();
+      initConnectionSignaling();
+    }
   });
 
   wsOn('syncDown', async (cache: syncCache) => {
@@ -169,9 +96,20 @@
 
   wsOn('syncDone', () => {
     $syncingDown = false;
-    refreshTask();
-    refreshTime(false);
-    loadAgenda();
+    refreshAllViews(false);
+  });
+
+  refreshConnections();
+
+  // This should handle both the requester and accepter establish new primary profile
+  firstSync.subscribe(async (sync) => {
+    if (sync && sync.done) {
+      await refreshConnections(true);
+      $authProfile = await initProfile();
+      $firstSync = null;
+      addEvent('addConnection', { id: sync.peerId });
+      toggleSettingDialog('multiDevice');
+    }
   });
 </script>
 
@@ -179,88 +117,36 @@
   <div class="d-flex flex-column">
     <div class="card card-body m-1 scroll" id="multiDeviceDialog">
       <PeersPending />
-      <div class="row">
+      <div class="row my-2">
         <button
-          class="btn btn-danger"
+          class="col-2 btn btn-danger m-1"
           on:click={toggleSettingDialog('multiDevice')}
           aria-expanded="false"
           aria-controls="peerSyncDialog"
         >
-          Back
+          <BoxArrowInLeft /> Back
         </button>
-      </div>
-      <div class="row my-2">
-        <p class="fs-3 text-center">Multi-device operation status</p>
-        <div class="row">
-          <span class="text-center">{status}</span>
-        </div>
+        <span class="col-8 fs-3 text-center">Multi-device operation status</span
+        >
+        <p class="text-center">{$authStatus}</p>
         <p class="text-center">
           Express interest with the device that has the data you want to sync,
           the other will device be overwritten. Only express interest on one of
           the devices.
         </p>
       </div>
-      {#if !$peerSyncEnabled}
-        <div class="row mb-1">
-          <b class="text-center">
-            * Intial Peer Sync required to exchange encyption keys *
-          </b>
-        </div>
-      {/if}
-      {#if submitedInterest && !dismissedAlert}
-        <div class="row">
-          <div
-            class="text-center alert alert-success alert-dismissible fade show"
-            role="alert"
-          >
-            Thanks for your interest
-            <button
-              on:click={() => {
-                dismissedAlert = true;
-              }}
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="alert"
-              aria-label="close"
-            />
-          </div>
-        </div>
-      {/if}
-      {#if !submitedInterest && $peerSyncEnabled && profile}
-        <div class="row mb-1">
-          <div class="form-floating mb-1 gy-2">
-            <input
-              type="text"
-              class="form-control"
-              id="interest-email"
-              placeholder="Email"
-              bind:value={email}
-              aria-describedby="express-interest-button"
-              aria-label="Email"
-            />
-            <label for="interest-email">
-              Enter email to express interest in multi-device
-            </label>
-          </div>
-          <button
-            type="button"
-            disabled={!validMail}
-            id="express-interest-button"
-            on:click={signUp}
-            class="btn btn-success"
-          >
-            Express interest
-          </button>
-        </div>
-      {/if}
+      <GetService />
       <hr />
-      <PeerToPeer />
+      <PeerToPeer bind:sharingId bind:peers />
       <hr />
       <div class="row my-2">
-        <span class="fs-3 text-center"> Cloud Sync </span>
-      </div>
-      <div class="row mb-1">
-        <p class="text-center">Beta, opt-in, invite only.</p>
+        <p class="fs-3 text-center">Cloud Sync</p>
+        <p class="text-center">Paid Beta: Invite Only</p>
+        {#if !$peerSyncEnabled}
+          <p class="text-center">
+            <b> * Intial Peer Sync required to exchange encyption keys * </b>
+          </p>
+        {/if}
         <p class="text-center">
           Sync data out of band with peer connected devices. End to End Encypted
           (EE2E) data stored in Time Intent database.

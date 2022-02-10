@@ -23,6 +23,7 @@
   import { initEventsForEvents } from './indexDb/eventsOnEvents';
   import UniNav from './components/Navigation/UniNav.svelte';
   import MultiDevice from './components/menuItems/MultiDevice.svelte';
+  import { loadCredentials } from './stores/credentialStore';
 
   // only one db store should be loaded at a time sequentialy
   // otherwise intializing data and migrations will get triggered
@@ -36,6 +37,7 @@
       await loadChildren(await getParentView());
       await getTime();
       await loadAgenda();
+      await loadCredentials();
       loadViewSettings();
       // start p2p data sync if opt in
       initEventsForEvents();

@@ -3,11 +3,9 @@
 import { get } from 'svelte/store';
 import { connectionTimestamp } from '../indexDb/connectionDB';
 import { getDb } from '../indexDb/dbCore';
-import { removeDataToBeSecondary } from '../indexDb/profilesDb';
 import { syncUp } from '../indexDb/tokenDb';
 import type { profileI, pskI } from '../shared/interface';
 import { firstSync, rtcPeers } from '../stores/peerStore';
-import { newProfile } from '../stores/settingsStore';
 import type {
   actionsI,
   dataOnFuncs,
@@ -147,18 +145,6 @@ const onChannelConnection = (peerId: string, sendFunc: sendFuncI) => {
     const channel = event.channel;
     channel.onmessage = incoming(peerId);
     channel.onopen = async () => {
-      const first = get(firstSync);
-      let cleanUpDelay = 0;
-      if (first && !first.done && first.peerId === peerId) {
-        if (first.isPrimary) {
-          // give it a couple seconds before sending data if primary
-          cleanUpDelay = 2000;
-        } else {
-          // clear data if secondary
-          await removeDataToBeSecondary();
-        }
-        firstSync.set({ ...first, done: true });
-      }
       rtcPeers.update((peers) => {
         for (let i = 0; i < peers.length; i++) {
           if (peers[i].peerId === peerId) {
@@ -168,10 +154,12 @@ const onChannelConnection = (peerId: string, sendFunc: sendFuncI) => {
         }
         return peers;
       });
-      connectionTimestamp(peerId);
-      setTimeout(() => {
-        outgoingChanges(sendFunc);
-      }, cleanUpDelay);
+      await connectionTimestamp(peerId);
+      await outgoingChanges(sendFunc);
+      const first = get(firstSync);
+      if (first && !first.done && first.peerId === peerId) {
+        firstSync.set({ ...first, done: true });
+      }
     };
     channel.onclose = () => {
       disconnect(peerId);
@@ -207,76 +195,17 @@ const peerBroadcast = (action: actionsI, payload: sendPayload) => {
   if (peersSentTo !== numberOfPeers) syncUp(action, payload);
 };
 
-// Don't connect with un-trusted users and execute this function for them.
-onEvent(
-  'sync-profiles',
-  async ({ data, done }: { data: profileI; done: boolean }) => {
-    const db = await getDb();
-    const existingProfile = await db.get('profiles', data.id);
-    if (!existingProfile || existingProfile.lastConnect < data.lastConnect) {
-      await db.put('profiles', data);
-      newProfile.set(true);
-    } else {
-      return;
-    }
-
-    // If profile is primary we want to set it our device connection as well
-    if (data.status === 'primary') {
-      let cursor = await db
-        .transaction('connect', 'readwrite')
-        .objectStore('connect')
-        .openCursor();
-      while (cursor) {
-        if (cursor.value.userId === data.id) return;
-        if (cursor.value.deviceKey !== '') {
-          cursor.update({
-            ...cursor.value,
-            userId: data.id,
-          });
-          return;
-        }
-        cursor = await cursor.continue();
-      }
-    }
-    if (done) {
-      // this can be removed when data sync update is successful
-      const transaction = db.transaction(['profiles', 'connect'], 'readwrite');
-      const profileDb = transaction.objectStore('profiles');
-      const connectDb = transaction.objectStore('connect');
-
-      let oldestConnection: number = Infinity;
-      let oldest: profileI = null;
-      // let foundPrimary: boolean = false;
-      let cursor = await profileDb.openCursor();
-      while (cursor) {
-        if (cursor.value.status === 'primary') return;
-        if (cursor.value.firstConnect < oldestConnection) {
-          oldestConnection = cursor.value.firstConnect;
-          oldest = cursor.value;
-        }
-        cursor = await cursor.continue();
-      }
-      if (!oldest) return;
-      await profileDb.put({ ...oldest, status: 'primary' }, oldest.id);
-
-      // now update connections to indicate using this profile
-      // might be irrelevant at the end of the day
-      let connectCursor = await connectDb.openCursor();
-      while (connectCursor) {
-        if (connectCursor.value.deviceKey) {
-          connectCursor.update({ ...connectCursor.value, userId: oldest.id });
-        }
-        connectCursor = await connectCursor.continue();
-      }
-    }
-  },
-);
-
 onEvent('sync-psks', async ({ data }: { data: pskI }) => {
   const db = await getDb();
   const existing = await db.get('psks', data.cacheId);
   if (existing?.used) return;
   await db.put('psks', data);
+});
+
+onEvent('sync-profiles', async ({ data }: { data: profileI }) => {
+  const db = await getDb();
+  const exists = await db.get('profiles', data.id);
+  if (!exists) await db.put('profiles', data);
 });
 
 onEvent('finish-sync', async ({ peerId }: { peerId: string }) => {

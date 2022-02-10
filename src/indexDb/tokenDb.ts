@@ -6,7 +6,7 @@ import type {
   syncCache,
 } from '../connections/connectInterface';
 import { wsSend } from '../connections/WebSocket';
-import type { profileI, tokenI } from '../shared/interface';
+import type { tokenI } from '../shared/interface';
 import { syncingUp } from '../stores/peerStore';
 import { getDb } from './dbCore';
 import { packageCache } from './pskDb';
@@ -40,7 +40,7 @@ const sizeOfObjArrayAfterAdd = (objArray: any[], objToAdd: any) => {
 const batchSyncUp = async () => {
   const result = await getLatestToken();
   if (!result) return;
-  const { token, ttl } = result;
+  const { ttl, token } = result;
   if (ttl < Date.now()) return;
   const { cypherText, cacheId }: syncCache = await packageCache(syncBatch);
   wsSend('syncUp', { cypherText, cacheId, token });
@@ -86,11 +86,4 @@ const addToken = async (token: tokenI) => {
   db.add('tokens', token);
 };
 
-const requestToken = (uProfile: profileI) => {
-  wsSend('requestAuthToken', {
-    userId: uProfile.id,
-    password: uProfile.password,
-  });
-};
-
-export { getLatestToken, addToken, syncUp, requestToken };
+export { getLatestToken, addToken, syncUp };

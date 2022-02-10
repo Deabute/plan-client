@@ -1,5 +1,4 @@
 // WebSocket.ts Copyright 2020-2021 Paul Beaudet MIT License
-
 import { wsOpen } from '../stores/peerStore';
 
 // WebSocket object used to send and receive messages
@@ -11,7 +10,7 @@ const wsInit = (): Promise<WebSocket> => {
   // makes it so that init function can be called
   // liberally to assure that we are maintaining connection
   // API Gateway kicks connections after 10 minutes idle or 2 hours
-  return new Promise((resolve) => {
+  return new Promise(async (resolve) => {
     if (instance) {
       resolve(instance);
       return;

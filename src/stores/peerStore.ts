@@ -4,9 +4,12 @@ import { writable, Writable } from 'svelte/store';
 import type {
   generalStatus,
   peersI,
+  requesterInfo,
   specificStatus,
 } from '../connections/connectInterface';
 
+// Incoming request to approve device connections
+const pendingPeers: Writable<requesterInfo[]> = writable([]);
 const rtcPeers: Writable<peersI[]> = writable([]);
 const lastDisconnect: Writable<number> = writable(0);
 const peerSyncEnabled: Writable<boolean> = writable(false);
@@ -15,7 +18,6 @@ const syncingUp: Writable<boolean> = writable(false);
 const syncingDown: Writable<boolean> = writable(false);
 const firstSync: Writable<{
   peerId: string;
-  isPrimary: boolean;
   done: boolean;
 }> = writable(null);
 
@@ -94,4 +96,5 @@ export {
   syncStatus,
   connectionStatus,
   wsOpen,
+  pendingPeers,
 };
