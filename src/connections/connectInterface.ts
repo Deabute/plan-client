@@ -8,11 +8,7 @@ interface requesterInfo {
   rmData: boolean; // if this is the first sync, is data removed?
 }
 
-interface makeOfferPacket extends requesterInfo {
-  sig: string;
-}
-
-interface announcePacket extends makeOfferPacket {
+interface announcePacket extends requesterInfo {
   peers: string[];
 }
 
@@ -93,7 +89,6 @@ type specificStatus = 'Syncing' | 'Idle' | 'Pending Upload';
 
 export type {
   announcePacket,
-  makeOfferPacket,
   peersI,
   dataOnFuncs,
   sendFuncI,

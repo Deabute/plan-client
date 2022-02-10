@@ -1,7 +1,7 @@
 // signaling Copyright 2021 Paul Beaudet MIT License
 import { wsOn, wsSend } from './WebSocket';
 import { checkExisting, getKey } from '../indexDb/connectionDB';
-import type { makeOfferPacket } from './connectInterface';
+import type { announcePacket } from './connectInterface';
 import { peerSyncEnabled, rtcPeers, pendingPeers } from '../stores/peerStore';
 import { createDataChannel } from './dataChannels';
 import { signFromStrings, verifyFromPeerId, getAnnouncement } from './crypto';
@@ -120,7 +120,7 @@ const onOfferAsk = async ({
   sig,
   deviceCert,
   rmData,
-}: makeOfferPacket) => {
+}: announcePacket) => {
   try {
     // check if this is one of our existing connections
     if (await checkExisting(requester)) {
