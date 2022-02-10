@@ -2,12 +2,7 @@
 <script lang="ts">
   import { wsSend } from '../../connections/WebSocket';
   import { updateProfile } from '../../indexDb/profilesDb';
-  import type { profileI, tokenI } from '../../shared/interface';
-  import { statusMsgs } from '../../stores/defaultData';
-
-  export let recentToken: tokenI;
-  export let profile: profileI;
-  export let status: string;
+  import { authProfile, authToken } from '../../stores/credentialStore';
 
   let inviteMode: boolean = true;
   let password: string = '';
@@ -21,49 +16,37 @@
       String(email).toLowerCase(),
     );
 
-  const connect = async () => {
-    wsSend('login', {
-      email,
-      password,
-    });
-  };
-
   const signUpOrConnect = async () => {
     if (!inviteMode) {
-      connect();
+      wsSend('login', {
+        email,
+        password,
+      });
       return;
     }
-    status = statusMsgs.interest;
     submitedInterest = true;
-    profile.assumedAuthTTL = 1;
-    const { id, cert, password } = profile;
     // TODO: prove that this is cert you have the key for
     wsSend('interestedSignUp', {
-      id,
-      userCert: cert,
-      password,
+      id: $authProfile.id,
+      userCert: $authProfile.cert,
+      password: $authProfile.password,
       email,
     });
-    profile = await updateProfile(profile);
+    $authProfile = await updateProfile({
+      ...$authProfile,
+      assumedAuthTTL: 1,
+    });
   };
 
-  const onProfileChange = (changeProfile: profileI) => {
-    if (changeProfile.assumedAuthTTL < 1) {
-      status = statusMsgs.noAuth;
-    }
-    if (changeProfile.assumedAuthTTL === 1) {
-      status = statusMsgs.interest;
-    }
-    if (changeProfile.assumedAuthTTL > 0) {
+  authProfile.subscribe((profile) => {
+    if (profile.assumedAuthTTL > 0) {
       submitedInterest = true;
       dismissedAlert = true;
     }
-  };
-
-  $: onProfileChange(profile);
+  });
 </script>
 
-{#if recentToken && profile}
+{#if $authToken.token && $authProfile}
   <div class="row my-2">
     <buton
       class="btn btn-info m-1 col-2"
@@ -74,7 +57,7 @@
       {`${showPassword ? 'Hide' : 'Show'} password for login`}
     </buton>
     <span class="col-8 fs-3 text-center">
-      {showPassword ? profile.password : '**********'}
+      {showPassword ? $authProfile.password : '**********'}
     </span>
   </div>
 {/if}
@@ -97,7 +80,7 @@
     </div>
   </div>
 {/if}
-{#if !submitedInterest && profile}
+{#if !submitedInterest && $authProfile}
   <div class="row mb-1">
     {#if inviteMode}
       <div class="form-floating mb-1 gy-2">

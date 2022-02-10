@@ -6,12 +6,8 @@
   import { wsOn, wsSend } from '../../connections/WebSocket';
   import { initProfile, updateProfile } from '../../indexDb/profilesDb';
   import { getNextConnectionCacheId, unpackCache } from '../../indexDb/pskDb';
-  import {
-    addToken,
-    getLatestToken,
-    requestToken,
-  } from '../../indexDb/tokenDb';
-  import type { connectionI, profileI, tokenI } from '../../shared/interface';
+  import { addToken } from '../../indexDb/tokenDb';
+  import type { connectionI } from '../../shared/interface';
   import {
     firstSync,
     lastDisconnect,
@@ -29,27 +25,26 @@
   import ProfileList from './ProfileList.svelte';
   import { getConnections, initDeviceID } from '../../indexDb/connectionDB';
   import Backup from './Backup.svelte';
-  import { IDLE_RECONNECT, statusMsgs } from '../../stores/defaultData';
+  import { IDLE_RECONNECT } from '../../stores/defaultData';
   import { initConnectionSignaling } from '../../connections/signaling';
   import BoxArrowInLeft from 'svelte-bootstrap-icons/lib/BoxArrowInLeft';
   import GetService from './GetService.svelte';
   import { addEvent } from '../../indexDb/eventsDb';
+  import {
+    authProfile,
+    authToken,
+    authStatus,
+  } from '../../stores/credentialStore';
 
-  let status: string = statusMsgs.noAuth;
-  let profile: profileI;
-  let recentToken: tokenI = null;
-  let tokenPromise: Promise<tokenI> = null;
   let sharingId: string = '';
   let peers: connectionI[] = [];
 
   const requestSyncDown = async () => {
-    if ($peersConnected) return;
+    if ($peersConnected || !authToken) return;
     const cacheId = await getNextConnectionCacheId();
-    if (tokenPromise === null) tokenPromise = getLatestToken();
-    if (recentToken === null) recentToken = await tokenPromise;
-    if (!cacheId || !recentToken) return;
+    if (!cacheId) return;
     $syncingDown = true;
-    wsSend('syncDown', { cacheId });
+    wsSend('syncDown', { cacheId, token: $authToken.token });
   };
 
   // only request sync down after its confirmed by server no peers are online
@@ -63,29 +58,6 @@
     }
   });
 
-  initProfile().then(async (result) => {
-    profile = result;
-    if (!profile.assumedAuthTTL) return;
-    if (profile.assumedAuthTTL === 1) {
-      // check if token was granted if interested
-      requestToken(profile);
-      return;
-    }
-    if (tokenPromise === null) tokenPromise = getLatestToken();
-    if (recentToken === null) recentToken = await tokenPromise;
-    if (!recentToken) {
-      requestToken(profile);
-      return;
-    }
-    const timeToCheckForRenwal =
-      $secondTick < recentToken.ttl ? recentToken.ttl - $secondTick : 0;
-    status = statusMsgs.auth;
-    setTimeout(() => {
-      status = statusMsgs.renewal;
-      requestToken(profile);
-    }, timeToCheckForRenwal);
-  });
-
   const refreshConnections = async (first: boolean = false) => {
     const { id, connections } = await getConnections(first);
     peers = connections;
@@ -95,19 +67,18 @@
   wsOn('token', async ({ token, ttl, subTTL }) => {
     await addToken({ token, ttl });
     // if this was the device that expressed interest / paid its profile is the primary one
-    profile = await updateProfile({
-      ...profile,
+    $authProfile = await updateProfile({
+      ...$authProfile,
       assumedAuthTTL: subTTL,
       status:
-        profile.assumedAuthTTL === 1 || profile.status === 'primary'
+        $authProfile.assumedAuthTTL === 1 || $authProfile.status === 'primary'
           ? 'primary'
           : 'undecided',
     });
-    status = statusMsgs.auth;
-    recentToken = { token, ttl };
+    $authToken = { token, ttl };
     // if this is the first time token is received, create a new connection id
     if (!sharingId) {
-      await initDeviceID();
+      await initDeviceID($authProfile.id);
       await refreshConnections();
       initConnectionSignaling();
     }
@@ -130,11 +101,11 @@
 
   refreshConnections();
 
-  // This should handle both the requester and accepter
+  // This should handle both the requester and accepter establish new primary profile
   firstSync.subscribe(async (sync) => {
     if (sync && sync.done) {
-      profile = await initProfile();
-      refreshConnections(true);
+      await refreshConnections(true);
+      $authProfile = await initProfile();
       $firstSync = null;
       addEvent('addConnection', { id: sync.peerId });
       toggleSettingDialog('multiDevice');
@@ -157,14 +128,14 @@
         </button>
         <span class="col-8 fs-3 text-center">Multi-device operation status</span
         >
-        <p class="text-center">{status}</p>
+        <p class="text-center">{$authStatus}</p>
         <p class="text-center">
           Express interest with the device that has the data you want to sync,
           the other will device be overwritten. Only express interest on one of
           the devices.
         </p>
       </div>
-      <GetService bind:profile {recentToken} bind:status />
+      <GetService />
       <hr />
       <PeerToPeer bind:sharingId bind:peers />
       <hr />

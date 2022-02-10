@@ -13,6 +13,7 @@
   import type { connectionI } from '../../shared/interface';
   import { firstSync, peerSyncEnabled } from '../../stores/peerStore';
   import { removeDataToBeSecondary } from '../../indexDb/profilesDb';
+  import { authToken } from '../../stores/credentialStore';
 
   export let sharingId: string = '';
   export let peers: connectionI[] = [];
@@ -42,7 +43,7 @@
       const annoucement = await getAnnouncement(!rmData);
       if (rmData) await removeDataToBeSecondary();
       annoucement.peers = [peerId];
-      wsSend('addPeer', annoucement);
+      wsSend('addPeer', { ...annoucement, token: $authToken.token });
       $firstSync = { peerId, done: false };
       newPeer = '';
       $peerSyncEnabled = true;

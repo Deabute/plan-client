@@ -37,11 +37,9 @@ const generateProfile = async (name: string): Promise<profileI> => {
 
 // Also can be used as get user, will create a user if one doesn't exist
 const initProfile = async (): Promise<profileI> => {
-  // console.log(`running initUser ${Date.now()}`);
   const db = await getDb();
-  const transaction = db.transaction(['profiles', 'connect']);
+  const transaction = db.transaction(['profiles']);
   const userDb = transaction.objectStore('profiles');
-  const connectDb = transaction.objectStore('connect');
   let cursor = await userDb.openCursor();
   let ourProfile: profileI = null;
   while (cursor) {
@@ -52,19 +50,7 @@ const initProfile = async (): Promise<profileI> => {
     cursor = await cursor.continue();
   }
   if (ourProfile) return ourProfile;
-  // payments can not be confirmed without user key
-  // grab id if one has already been made (legacy data)
-  let connectCursor = await connectDb.openCursor();
-  let nameId: string = '';
-  while (connectCursor) {
-    const { deviceKey, userId } = connectCursor.value;
-    if (deviceKey !== '') nameId = userId;
-    connectCursor = await connectCursor.continue();
-  }
-
-  // connections could not have been made without our device private key
-  // Peer sync not running
-  return await generateProfile(nameId ? nameId : createOid());
+  return await generateProfile(createOid());
 };
 
 const updateProfile = async (profile: profileI): Promise<profileI> => {

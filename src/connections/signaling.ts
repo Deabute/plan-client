@@ -5,6 +5,8 @@ import type { announcePacket } from './connectInterface';
 import { peerSyncEnabled, rtcPeers, pendingPeers } from '../stores/peerStore';
 import { createDataChannel } from './dataChannels';
 import { signFromStrings, verifyFromPeerId, getAnnouncement } from './crypto';
+import { get } from 'svelte/store';
+import { authToken } from '../stores/credentialStore';
 
 const iceServers = [
   { urls: process.env.ICE_SERVER_1 },
@@ -30,6 +32,7 @@ const onIceGatheringChange = (
                 sdpString,
                 deviceCert,
                 sdp: peer.rtcObj.localDescription,
+                token: get(authToken).token,
               });
             });
           }
@@ -146,7 +149,9 @@ const initConnectionSignaling = async () => {
   const announce = await getAnnouncement();
   // The following condition should make it possible to call this function without opt-in
   peerSyncEnabled.set(announce?.peers.length ? true : false);
-  if (announce) wsSend('announce', announce);
+  if (announce) {
+    wsSend('announce', { ...announce, token: get(authToken).token });
+  }
 };
 
 const makeOfferOnApproval = async (

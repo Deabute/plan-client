@@ -7,7 +7,6 @@ import type {
 import { getDb } from './dbCore';
 import { getDeviceId } from '../shared/conversions';
 import { KEY_PAIR_CONFIG } from '../stores/defaultData';
-import { initProfile } from './profilesDb';
 
 const getConnectionCursor = async (): Promise<
   IDBPCursorWithValue<PlanDB, ['connect'], 'connect', unknown, 'readonly'>
@@ -44,7 +43,7 @@ const deleteConnection = async (id: string) => {
   await db.delete('connect', id);
 };
 
-const initDeviceID = async () => {
+const initDeviceID = async (userId: string) => {
   const db = await getDb();
   const transaction = db.transaction('connect');
   const connectDb = transaction.objectStore('connect');
@@ -65,7 +64,6 @@ const initDeviceID = async () => {
   );
   const deviceId = await getDeviceId(keyPair.publicKey);
   const timestamp = Date.now();
-  const { id } = await initProfile();
   db.add('connect', {
     id: deviceId,
     deviceName: deviceId, // default to showing id, but can be short handed later
@@ -73,7 +71,7 @@ const initDeviceID = async () => {
       await crypto.subtle.exportKey('jwk', keyPair.privateKey),
     ),
     deviceCert: pubKeyString,
-    userId: id,
+    userId,
     lastConnect: timestamp,
     firstConnect: timestamp,
   });
