@@ -94,7 +94,7 @@
     let hour = endDate.getHours();
     const meridium = hour > 11 ? 'PM' : 'AM';
     hour = get12Hour(hour);
-    return `End: ${DAYS_SHORT[endDate.getDay()]} ${
+    return `${DAYS_SHORT[endDate.getDay()]} ${
       MONTH_SHORT[endDate.getMonth()]
     } ${endDate.getDate()}, ${hour}${meridium}`;
   };
@@ -303,6 +303,16 @@
           <span class="p-1"> Fresh Start </span>
         {/if}
       </li>
+      {#if $showSideNav}
+        <hr />
+        <li class="nav-item rounded p-1 ms-1">Budget Length:</li>
+        <li class="nav-item rounded p-1 ms-1">
+          {`${Math.trunc($budgetStore.frame / weekInMillis)} weeks till`}
+        </li>
+        <li class="nav-item rounded p-1 ms-1">
+          {getSprintEndDate($budgetStore)}
+        </li>
+      {/if}
     </ul>
   {/if}
   <!-- Learn Links -->
@@ -335,15 +345,6 @@
         {/each}
       </ul>
     {/if}
-  {/if}
-
-  {#if $showSideNav}
-    <div class="ms-1 fixed-bottom">
-      <div class="fs-6">
-        {`Duration: ${Math.trunc($budgetStore.frame / weekInMillis)} weeks`}
-      </div>
-      <div class="fs-6">{getSprintEndDate($budgetStore)}</div>
-    </div>
   {/if}
 </div>
 
