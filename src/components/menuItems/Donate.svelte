@@ -1,6 +1,6 @@
 <!-- Donate.svelte Copyright 2022 Paul Beaudet MIT Licence -->
 <script lang="ts">
-  import { wsSend } from '../../connections/WebSocket';
+  import { wsOn, wsSend } from '../../connections/WebSocket';
   import { showDonate, toggleView } from '../../indexDb/viewStoreDb';
   import BoxArrowInLeft from 'svelte-bootstrap-icons/lib/BoxArrowInLeft';
 
@@ -20,6 +20,10 @@
       wsSend('checkout', { id });
     };
   };
+
+  wsOn('checkout', ({ url }) => {
+    window.location = url;
+  });
 </script>
 
 {#if $showDonate}
