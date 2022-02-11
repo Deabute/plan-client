@@ -320,22 +320,22 @@
         {/each}
       </ul>
     {/if}
-  {/if}
-  <hr />
-  <span class="ms-1 fs-5" type="button" on:click={toggleSupport}>
+    <hr />
+    <span class="ms-1 fs-5" type="button" on:click={toggleSupport}>
+      {#if showSupport}
+        <CaretDown />
+      {:else}
+        <CaretRight />
+      {/if}
+      Support
+    </span>
     {#if showSupport}
-      <CaretDown />
-    {:else}
-      <CaretRight />
+      <ul class="nav nav-pills flex-column mb-auto">
+        {#each supportLinks as item}
+          <NavItem {item} />
+        {/each}
+      </ul>
     {/if}
-    Support
-  </span>
-  {#if showSupport}
-    <ul class="nav nav-pills flex-column mb-auto">
-      {#each supportLinks as item}
-        <NavItem {item} />
-      {/each}
-    </ul>
   {/if}
 </div>
 
