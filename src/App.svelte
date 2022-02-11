@@ -24,6 +24,7 @@
   import UniNav from './components/Navigation/UniNav.svelte';
   import MultiDevice from './components/menuItems/MultiDevice.svelte';
   import { loadCredentials } from './stores/credentialStore';
+  import Donate from './components/menuItems/Donate.svelte';
 
   // only one db store should be loaded at a time sequentialy
   // otherwise intializing data and migrations will get triggered
@@ -81,6 +82,7 @@
   <BudgetSetings />
   <Utilized />
   <DeleteData />
+  <Donate />
   {#if $showViews}
     <TaskList />
     <Timeline />

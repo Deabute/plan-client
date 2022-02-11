@@ -320,6 +320,15 @@ type settingNames =
   | 'freshStart'
   | 'backup';
 
+type navTypes = 'button' | 'link';
+
+interface navItems {
+  link: string;
+  text: string;
+  icon: string;
+  type: navTypes;
+}
+
 export type {
   taskI,
   connectionI,
@@ -358,4 +367,6 @@ export type {
   optionalTaskI,
   incomingTaskI,
   statI,
+  navTypes,
+  navItems,
 };

@@ -1,6 +1,7 @@
 // viewStore.ts copyright 2021 Paul Beaudet MIT License
 
 import { writable, Writable } from 'svelte/store';
+import { showViews } from '../stores/settingsStore';
 import { getDb } from './dbCore';
 
 const showActivityColumn: Writable<boolean> = writable(true);
@@ -12,6 +13,7 @@ const showTimelineMobile: Writable<boolean> = writable(false);
 const showAgendaMobile: Writable<boolean> = writable(false);
 const showSideNav: Writable<boolean> = writable(true);
 const showDone: Writable<boolean> = writable(true);
+const showDonate: Writable<boolean> = writable(false);
 const desktopMode: Writable<boolean> = writable(true);
 
 const views: {
@@ -28,6 +30,7 @@ const views: {
   { name: 'topChild', store: showTopChild, default: false },
   { name: 'sideNav', store: showSideNav, default: true },
   { name: 'showDone', store: showDone, default: true },
+  { name: 'showDonate', store: showDonate, default: false },
 ];
 
 const toggleView = (name: string) => {
@@ -48,6 +51,7 @@ const toggleView = (name: string) => {
       }
       return newValue;
     });
+    if (view.name === 'showDonate') showViews.set(!newValue);
     db.put('views', { name: view.name, showing: newValue });
   };
 };
@@ -75,8 +79,14 @@ const loadViewSettings = async () => {
   const db = await getDb();
   views.forEach(async (view) => {
     const viewSetting = await db.get('views', view.name);
-    if (viewSetting) view.store.set(viewSetting.showing);
-    else await db.add('views', { name: view.name, showing: view.default });
+    if (viewSetting) {
+      view.store.set(viewSetting.showing);
+      if (view.name === 'showDonate' && viewSetting.showing) {
+        showViews.set(false);
+      }
+    } else {
+      await db.add('views', { name: view.name, showing: view.default });
+    }
   });
 };
 
@@ -106,4 +116,5 @@ export {
   getParentView,
   desktopMode,
   showDone,
+  showDonate,
 };

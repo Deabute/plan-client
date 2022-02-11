@@ -32,9 +32,7 @@
   import ArrowDownUp from 'svelte-bootstrap-icons/lib/ArrowDownUp';
   import BoxArrowUpRight from 'svelte-bootstrap-icons/lib/BoxArrowUpRight';
   import WifiOff from 'svelte-bootstrap-icons/lib/WifiOff';
-  import Github from 'svelte-bootstrap-icons/lib/Github';
   import Gear from 'svelte-bootstrap-icons/lib/Gear';
-  import InfoCircle from 'svelte-bootstrap-icons/lib/InfoCircle';
   import Phone from 'svelte-bootstrap-icons/lib/Phone';
   import Laptop from 'svelte-bootstrap-icons/lib/Laptop';
   import Trash from 'svelte-bootstrap-icons/lib/Trash';
@@ -60,7 +58,9 @@
   import { get12Hour } from '../time/timeConvert';
   import { budgetStore } from '../../stores/budgetStore';
   import type { budgetI } from '../../shared/interface';
-  import { learnLinks } from './navLanguage';
+  import { learnLinks, supportLinks } from './navLanguage';
+  import Icon from './Icon.svelte';
+  import NavItem from './NavItem.svelte';
 
   export let offcanvas: boolean = false;
   const getViewClass = (
@@ -106,6 +106,10 @@
   let showSettings: boolean = false;
   const toggleSettings = () => {
     showSettings = !showSettings;
+  };
+  let showSupport: boolean = false;
+  const toggleSupport = () => {
+    showSupport = !showSupport;
   };
 </script>
 
@@ -315,7 +319,7 @@
       {/if}
     </ul>
   {/if}
-  <!-- Learn Links -->
+  <!-- Learn and Support -->
   <hr />
   {#if $showSideNav}
     <span class="ms-1 fs-5" type="button" on:click={toggleLearn}>
@@ -324,27 +328,49 @@
       {:else}
         <CaretRight />
       {/if}
-      Learn Links
+      Learn
     </span>
     {#if showLearnLinks}
       <ul class="nav nav-pills flex-column mb-auto">
-        {#each learnLinks as { link, icon, text }}
-          <li class="nav-item p-1 ms-1" type="link">
+        {#each learnLinks as item}
+          <NavItem {item} />
+          <!-- <li class="nav-item p-1 ms-1" type="link">
             <a class="text-white" href={link}>
-              {#if icon === 'GitHub'}
-                <Github />
-              {:else}
-                <InfoCircle />
-              {/if}
-              &nbsp;
+              <Icon name={icon} />
               <span>{text}</span>
               &nbsp;
               <BoxArrowUpRight />
             </a>
-          </li>
+          </li> -->
         {/each}
       </ul>
     {/if}
+  {/if}
+  <hr />
+  <span class="ms-1 fs-5" type="button" on:click={toggleSupport}>
+    {#if showSupport}
+      <CaretDown />
+    {:else}
+      <CaretRight />
+    {/if}
+    Support
+  </span>
+  {#if showSupport}
+    <ul class="nav nav-pills flex-column mb-auto">
+      {#each supportLinks as item}
+        <NavItem {item} />
+        <!-- <li class="nav-item p-1 ms-1" {type}>
+          <a class="text-white" href={link}>
+            <Icon name={icon} />
+            <span>{text}</span>
+            &nbsp;
+            {#if type === 'link'}
+              <BoxArrowUpRight />
+            {/if}
+          </a>
+        </li> -->
+      {/each}
+    </ul>
   {/if}
 </div>
 
@@ -364,11 +390,5 @@
   .not-selected:hover {
     color: var(--bs-dark);
     background-color: var(--bs-light);
-  }
-  a {
-    text-decoration: none;
-  }
-  .fixed-bottom {
-    width: fit-content;
   }
 </style>
