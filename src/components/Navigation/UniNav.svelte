@@ -28,9 +28,7 @@
   import CalendarEvent from 'svelte-bootstrap-icons/lib/CalendarEvent';
   import List from 'svelte-bootstrap-icons/lib/List';
   import ListTask from 'svelte-bootstrap-icons/lib/ListTask';
-  // import ClockHistory from 'svelte-bootstrap-icons/lib/ClockHistory';
   import ArrowDownUp from 'svelte-bootstrap-icons/lib/ArrowDownUp';
-  import BoxArrowUpRight from 'svelte-bootstrap-icons/lib/BoxArrowUpRight';
   import WifiOff from 'svelte-bootstrap-icons/lib/WifiOff';
   import Gear from 'svelte-bootstrap-icons/lib/Gear';
   import Phone from 'svelte-bootstrap-icons/lib/Phone';
@@ -59,7 +57,6 @@
   import { budgetStore } from '../../stores/budgetStore';
   import type { budgetI } from '../../shared/interface';
   import { learnLinks, supportLinks } from './navLanguage';
-  import Icon from './Icon.svelte';
   import NavItem from './NavItem.svelte';
 
   export let offcanvas: boolean = false;
@@ -277,20 +274,6 @@
           </span>
         {/if}
       </li>
-      <!-- <li
-      class="nav-item p-1 ms-1"
-      type="button"
-      data-bs-toggle={offcanvas ? 'offcanvas' : ''}
-      data-bs-target={offcanvas ? '#mobileMenu' : ''}
-      on:click={toggleSettingDialog('history')}
-      aria-expanded="false"
-      aria-controls="history"
-    >
-      <ClockHistory />
-      {#if $showSideNav}
-        <span class="rounded not-selected p-1"> History </span>
-      {/if}
-    </li> -->
       <li
         class={`nav-item rounded p-1 ms-1 ${
           $showFreshStart ? 'selected' : 'not-selected'
@@ -334,14 +317,6 @@
       <ul class="nav nav-pills flex-column mb-auto">
         {#each learnLinks as item}
           <NavItem {item} />
-          <!-- <li class="nav-item p-1 ms-1" type="link">
-            <a class="text-white" href={link}>
-              <Icon name={icon} />
-              <span>{text}</span>
-              &nbsp;
-              <BoxArrowUpRight />
-            </a>
-          </li> -->
         {/each}
       </ul>
     {/if}
@@ -359,16 +334,6 @@
     <ul class="nav nav-pills flex-column mb-auto">
       {#each supportLinks as item}
         <NavItem {item} />
-        <!-- <li class="nav-item p-1 ms-1" {type}>
-          <a class="text-white" href={link}>
-            <Icon name={icon} />
-            <span>{text}</span>
-            &nbsp;
-            {#if type === 'link'}
-              <BoxArrowUpRight />
-            {/if}
-          </a>
-        </li> -->
       {/each}
     </ul>
   {/if}
