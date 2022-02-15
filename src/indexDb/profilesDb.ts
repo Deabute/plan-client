@@ -36,7 +36,7 @@ const generateProfile = async (name: string): Promise<profileI> => {
 };
 
 // Also can be used as get user, will create a user if one doesn't exist
-const initProfile = async (): Promise<profileI> => {
+const getProfile = async (): Promise<profileI> => {
   const db = await getDb();
   const transaction = db.transaction(['profiles']);
   const userDb = transaction.objectStore('profiles');
@@ -49,8 +49,7 @@ const initProfile = async (): Promise<profileI> => {
     }
     cursor = await cursor.continue();
   }
-  if (ourProfile) return ourProfile;
-  return await generateProfile(createOid());
+  return ourProfile ? ourProfile : await generateProfile(createOid());
 };
 
 const updateProfile = async (profile: profileI): Promise<profileI> => {
@@ -102,7 +101,7 @@ const clearData = async () => {
 
 export {
   generateProfile,
-  initProfile,
+  getProfile,
   updateProfile,
   getAllProfiles,
   removeDataToBeSecondary,

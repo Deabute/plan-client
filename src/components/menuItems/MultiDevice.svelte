@@ -4,7 +4,7 @@
   import { handleDataSync } from '../../connections/dataChannels';
   import PeersPending from '../../connections/PeersPending.svelte';
   import { wsOn, wsSend } from '../../connections/WebSocket';
-  import { initProfile, updateProfile } from '../../indexDb/profilesDb';
+  import { getProfile, updateProfile } from '../../indexDb/profilesDb';
   import { getNextConnectionCacheId, unpackCache } from '../../indexDb/pskDb';
   import { addToken } from '../../indexDb/tokenDb';
   import type { connectionI } from '../../shared/interface';
@@ -105,7 +105,7 @@
   firstSync.subscribe(async (sync) => {
     if (sync && sync.done) {
       await refreshConnections(true);
-      $authProfile = await initProfile();
+      $authProfile = await getProfile();
       $firstSync = null;
       addEvent('addConnection', { id: sync.peerId });
       toggleSettingDialog('multiDevice');
