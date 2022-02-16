@@ -311,7 +311,7 @@
       {:else}
         <CaretRight />
       {/if}
-      Learn
+      Get Help
     </span>
     {#if showLearnLinks}
       <ul class="nav nav-pills flex-column mb-auto">
@@ -327,7 +327,7 @@
       {:else}
         <CaretRight />
       {/if}
-      Support
+      Project
     </span>
     {#if showSupport}
       <ul class="nav nav-pills flex-column mb-auto">

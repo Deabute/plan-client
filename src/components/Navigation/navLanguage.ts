@@ -5,12 +5,30 @@ const learnLinks: navItems[] = [
   {
     type: 'link',
     link: 'https://deabute.com/products/plan/',
-    text: 'Budgeting',
+    text: 'Why Budget Time?',
+    icon: 'InfoCircle',
+  },
+  {
+    type: 'link',
+    link: 'mailto: paul@deabute.com',
+    text: 'paul@deabute.com',
+    icon: 'Envelope',
+  },
+  {
+    type: 'link',
+    link: 'https://deabute.com/plan-privacy-policy/',
+    text: 'Privacy Policy',
     icon: 'InfoCircle',
   },
 ];
 
 const supportLinks: navItems[] = [
+  {
+    type: 'link',
+    link: 'https://deabute.com/deabute-plan/',
+    text: 'About',
+    icon: 'InfoCircle',
+  },
   {
     type: 'button',
     link: 'showDonate',
