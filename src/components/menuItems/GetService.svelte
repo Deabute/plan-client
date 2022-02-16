@@ -1,8 +1,13 @@
 <!-- GetService Copyright 2022 Paul Beaudet MIT Licence -->
 <script lang="ts">
-  import { wsSend } from '../../connections/WebSocket';
+  import { wsOn, wsSend } from '../../connections/WebSocket';
   import { updateProfile } from '../../indexDb/profilesDb';
-  import { authProfile, authToken } from '../../stores/credentialStore';
+  import type { prices } from '../../shared/interface';
+  import {
+    authProfile,
+    authToken,
+    priceOptions,
+  } from '../../stores/credentialStore';
 
   let inviteMode: boolean = true;
   let password: string = '';
@@ -43,6 +48,12 @@
       submitedInterest = true;
       dismissedAlert = true;
     }
+  });
+
+  if (!$priceOptions.length) wsSend('catalog');
+  wsOn('catalog', ({ data }) => {
+    // console.dir(data);
+    $priceOptions = data;
   });
 </script>
 
@@ -97,6 +108,13 @@
           Enter email to express interest in multi-device
         </label>
       </div>
+      {#each $priceOptions as { currency, unit_amount, recurring, product }}
+        <span class="col">
+          {`${product.name} ${unit_amount / 100} ${currency}/${
+            recurring.interval
+          }: ${product.description}`}
+        </span>
+      {/each}
     {:else}
       <div class="form-floating mb3 gy-2">
         <input

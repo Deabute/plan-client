@@ -329,6 +329,19 @@ interface navItems {
   type: navTypes;
 }
 
+interface prices {
+  unit_amount: number;
+  currency: string;
+  recurring: {
+    interval: string;
+  };
+  product: {
+    name: string;
+    description: string;
+  };
+  id: string;
+}
+
 export type {
   taskI,
   connectionI,
@@ -369,4 +382,5 @@ export type {
   statI,
   navTypes,
   navItems,
+  prices,
 };
