@@ -50,6 +50,9 @@ export default {
       'process.env.WS_URL': JSON.stringify(process.env.WS_URL),
       'process.env.ICE_SERVER_1': JSON.stringify(process.env.ICE_SERVER_1),
       'process.env.ICE_SERVER_2': JSON.stringify(process.env.ICE_SERVER_2),
+      'process.env.STRIPE_PUBLISHABLE_KEY': JSON.stringify(
+        process.env.STRIPE_PUBLISHABLE_KEY,
+      ),
     }),
     svelte({
       preprocess: sveltePreprocess({ sourceMap: !production }),
