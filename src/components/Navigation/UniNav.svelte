@@ -13,6 +13,7 @@
     mobileToggle,
     desktopMode,
     showDone,
+    showMultiDevice,
   } from '../../indexDb/viewStoreDb';
   import {
     activitiesColumnName,
@@ -42,7 +43,6 @@
   import HourglassSplit from 'svelte-bootstrap-icons/lib/HourglassSplit';
   import {
     showFreshStart,
-    showMultiDevice,
     toggleSettingDialog,
   } from '../../stores/settingsStore';
   import {
@@ -263,7 +263,7 @@
         type="button"
         data-bs-toggle={offcanvas ? 'offcanvas' : ''}
         data-bs-target={offcanvas ? '#mobileMenu' : ''}
-        on:click={toggleSettingDialog('multiDevice')}
+        on:click={toggleView('showMultiDevice')}
         aria-expanded="false"
         aria-controls="multiDevice"
       >

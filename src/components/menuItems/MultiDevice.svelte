@@ -15,10 +15,6 @@
     peerSyncEnabled,
     syncingDown,
   } from '../../stores/peerStore';
-  import {
-    showMultiDevice,
-    toggleSettingDialog,
-  } from '../../stores/settingsStore';
   import { refreshAllViews } from '../../stores/taskStore';
   import { secondTick } from '../../stores/timeStore';
   import PeerToPeer from './PeerToPeer.svelte';
@@ -35,6 +31,7 @@
     authToken,
     authStatus,
   } from '../../stores/credentialStore';
+  import { showMultiDevice, toggleView } from '../../indexDb/viewStoreDb';
 
   let sharingId: string = '';
   let peers: connectionI[] = [];
@@ -108,7 +105,7 @@
       $authProfile = await getProfile();
       $firstSync = null;
       addEvent('addConnection', { id: sync.peerId });
-      toggleSettingDialog('multiDevice');
+      toggleView('showMultiDevice');
     }
   });
 </script>
@@ -119,7 +116,7 @@
       <div class="row my-2">
         <button
           class="col-2 btn btn-danger m-1"
-          on:click={toggleSettingDialog('multiDevice')}
+          on:click={toggleView('showMultiDevice')}
           aria-expanded="false"
           aria-controls="peerSyncDialog"
         >

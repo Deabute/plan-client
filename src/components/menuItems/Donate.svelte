@@ -27,7 +27,7 @@
 </script>
 
 {#if $showDonate}
-  <div class="col" id="multiDeviceDialog">
+  <div class="col" id="donateDialog">
     <div class="card card-body m-3">
       <div class="row my-2">
         <button

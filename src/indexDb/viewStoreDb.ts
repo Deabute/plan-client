@@ -15,6 +15,7 @@ const showSideNav: Writable<boolean> = writable(true);
 const showDone: Writable<boolean> = writable(true);
 const showDonate: Writable<boolean> = writable(false);
 const desktopMode: Writable<boolean> = writable(true);
+const showMultiDevice: Writable<boolean> = writable(false);
 
 const views: {
   name: string;
@@ -31,6 +32,7 @@ const views: {
   { name: 'sideNav', store: showSideNav, default: true },
   { name: 'showDone', store: showDone, default: true },
   { name: 'showDonate', store: showDonate, default: false },
+  { name: 'showMultiDevice', store: showMultiDevice, default: false },
 ];
 
 const toggleView = (name: string) => {
@@ -51,7 +53,17 @@ const toggleView = (name: string) => {
       }
       return newValue;
     });
-    if (view.name === 'showDonate') showViews.set(!newValue);
+    if (view.name === 'showDonate' || view.name === 'showMultiDevice') {
+      showViews.set(!newValue);
+      if (view.name === 'showDonate' && newValue) {
+        showMultiDevice.set(false);
+        db.put('views', { name: 'showMultiDevice', showing: false });
+      }
+      if (view.name === 'showMultiDevice' && newValue) {
+        showDonate.set(false);
+        db.put('views', { name: 'showDonate', showing: false });
+      }
+    }
     db.put('views', { name: view.name, showing: newValue });
   };
 };
@@ -81,7 +93,10 @@ const loadViewSettings = async () => {
     const viewSetting = await db.get('views', view.name);
     if (viewSetting) {
       view.store.set(viewSetting.showing);
-      if (view.name === 'showDonate' && viewSetting.showing) {
+      if (
+        (view.name === 'showDonate' || view.name === 'showMultiDevice') &&
+        viewSetting.showing
+      ) {
         showViews.set(false);
       }
     } else {
@@ -117,4 +132,5 @@ export {
   desktopMode,
   showDone,
   showDonate,
+  showMultiDevice,
 };

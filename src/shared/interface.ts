@@ -313,12 +313,7 @@ type allDataTypes =
   | eventI
   | pskI;
 
-type settingNames =
-  | 'multiDevice'
-  | 'history'
-  | 'duration'
-  | 'freshStart'
-  | 'backup';
+type settingNames = 'history' | 'duration' | 'freshStart';
 
 type navTypes = 'button' | 'link';
 
