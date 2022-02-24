@@ -116,7 +116,6 @@
 {#if $showMultiDevice}
   <div class="d-flex flex-column">
     <div class="card card-body m-1 scroll" id="multiDeviceDialog">
-      <PeersPending />
       <div class="row my-2">
         <button
           class="col-2 btn btn-danger m-1"
@@ -126,35 +125,33 @@
         >
           <BoxArrowInLeft /> Back
         </button>
-        <span class="col-8 fs-3 text-center">Multi-device operation status</span
-        >
+        <span class="col-8 fs-3 text-center">Multi-device Status</span>
         <p class="text-center">{$authStatus}</p>
-        <p class="text-center">
-          Express interest with the device that has the data you want to sync,
-          the other will device be overwritten. Only express interest on one of
-          the devices.
-        </p>
+        <p class="text-center">Ability to sync between devices</p>
       </div>
+      <PeersPending />
       <GetService />
-      <hr />
-      <PeerToPeer bind:sharingId bind:peers />
-      <hr />
-      <div class="row my-2">
-        <p class="fs-3 text-center">Cloud Sync</p>
-        <p class="text-center">Paid Beta: Invite Only</p>
-        {#if !$peerSyncEnabled}
+      {#if $authProfile.assumedAuthTTL > 1 && $authToken.token}
+        <hr />
+        <PeerToPeer bind:sharingId bind:peers />
+        <hr />
+        <div class="row my-2">
+          <p class="fs-3 text-center">Cloud Sync</p>
+          <p class="text-center">Paid Beta: Invite Only</p>
+          {#if !$peerSyncEnabled}
+            <p class="text-center">
+              <b> * Intial Peer Sync required to exchange encyption keys * </b>
+            </p>
+          {/if}
           <p class="text-center">
-            <b> * Intial Peer Sync required to exchange encyption keys * </b>
+            Sync data out of band with peer connected devices. End to End
+            Encypted (EE2E) data stored in Time Intent database.
           </p>
-        {/if}
-        <p class="text-center">
-          Sync data out of band with peer connected devices. End to End Encypted
-          (EE2E) data stored in Time Intent database.
-        </p>
-      </div>
-      <ProfileList />
-      <hr />
-      <Backup />
+        </div>
+        <ProfileList />
+        <hr />
+        <Backup />
+      {/if}
     </div>
   </div>
 {/if}

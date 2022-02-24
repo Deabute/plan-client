@@ -360,7 +360,8 @@ const IDLE_RECONNECT = hourInMillis;
 
 const statusMsgs = {
   noAuth: 'Not Authorized to sync',
-  interest: 'Interest expressed (Not yet authorized)',
+  interest:
+    'Payment Processing (Not yet authorized, try a refresh in a second or so)',
   renewal: 'Checking for renewal',
   auth: 'Authorized to sync',
 };

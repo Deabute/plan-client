@@ -103,9 +103,7 @@
   });
 
   const getPrice = (price: prices): string => {
-    return `${price.product.name} ${price.unit_amount / 100} ${
-      price.currency
-    }/${price.recurring.interval}`;
+    return `${price.product.name}: $${price.unit_amount / 100}`;
   };
 </script>
 
@@ -129,8 +127,9 @@
   </div>
 {/if}
 {#if !postPayment && $authProfile}
-  <div class="row mb-1">
-    <div class="form-floating mb3 gy-2">
+  <div class="row">
+    <div class="col-md-4">
+      <label for="email" class="form-label">Email</label>
       <input
         type="text"
         class="form-control"
@@ -140,24 +139,23 @@
         aria-describedby="get-service-button"
         aria-label="Email"
       />
-      <label for="email">Email</label>
     </div>
-    {#if loginMode}
-      <div class="form-floating mb3 gy-2">
-        <input
-          type="password"
-          class="form-control"
-          id="login-password"
-          placeholder="Password"
-          bind:value={password}
-          aria-describedby="get-service-button"
-          aria-label="Password that will be shown on other device"
-        />
-        <label for="login-password">Password</label>
-      </div>
-    {:else}
+    <div class="col-md-4">
+      <label for="full-name" class="form-label"> Card Holder Name </label>
+      <input
+        type="text"
+        class="form-control"
+        id="full-name"
+        placeholder="Full Name"
+        bind:value={name}
+        aria-describedby="sub-button"
+        aria-label="Full Name of card holder"
+      />
+    </div>
+    <div class="col-md-4">
+      <label for="selectProduct" class="form-label">Service</label>
       <select
-        class="form-select m-1"
+        class="form-select"
         name="product"
         id="selectProduct"
         bind:value={selectedProduct}
@@ -168,43 +166,80 @@
           <option value="">No products available</option>
         {/each}
       </select>
-      <div class="form-floating mb-1 gy-2">
-        <input
-          type="text"
-          class="form-control"
-          id="full-name"
-          placeholder="Full Name"
-          bind:value={name}
-          aria-describedby="sub-button"
-          aria-label="Full Name of card holder"
-        />
-        <label for="full-name"> Card Holder Name </label>
-      </div>
-      <div id="card-element" />
-    {/if}
+    </div>
+    <div class="col-12 p-3 border gy-2" id="card-element" />
     <div class="row mt-1">
-      <button
-        type="button"
-        disabled={!validMail}
-        id="get-service-button"
-        on:click={loginMode ? login : subscribe}
-        class={`m-1 col-auto btn btn-${validMail ? 'success' : 'secondary'}`}
-      >
-        {loginMode ? 'Log-in' : 'Subscribe'}
-      </button>
       {#if paymentInProg}
         <span>Please wait while your payment processes</span>
       {:else}
         <button
           type="button"
-          id="switch-to-invite-mode"
-          on:click={() => {
-            loginMode = !loginMode;
-          }}
-          class="col-auto btn btn-info m-1"
+          disabled={!validMail}
+          id="get-service-button"
+          on:click={subscribe}
+          class={`m-1 col-auto btn btn-${validMail ? 'success' : 'secondary'}`}
         >
-          {loginMode ? 'Switch to Log-in' : 'Switch to Sign-up'}
+          {`Subscribe${
+            selectedProduct
+              ? ` $${selectedProduct.unit_amount / 100} a ${
+                  selectedProduct.recurring.interval
+                }`
+              : ' (No product selected)'
+          }`}
         </button>
+      {/if}
+    </div>
+    <hr />
+    <div class="row mt-1">
+      <button
+        type="button"
+        disabled={paymentInProg}
+        id="login-toggle"
+        on:click={() => {
+          loginMode = !loginMode;
+        }}
+        class="col-auto btn btn-info"
+      >
+        {loginMode ? 'Hide' : 'Or Login'}
+      </button>
+      {#if loginMode}
+        <div class="col-md-4">
+          <label for="email" class="form-label">Email</label>
+          <input
+            type="text"
+            class="form-control"
+            id="email"
+            placeholder="Email"
+            bind:value={email}
+            aria-describedby="get-service-button"
+            aria-label="Email"
+          />
+        </div>
+        <div class="col-md-4">
+          <label for="login-password" class="form-label">Password</label>
+          <input
+            type="password"
+            class="form-control"
+            id="login-password"
+            placeholder="Password"
+            bind:value={password}
+            aria-describedby="get-service-button"
+            aria-label="Password that will be shown on other device"
+          />
+        </div>
+        {#if paymentInProg}
+          <span>Please wait while your payment processes</span>
+        {:else}
+          <button
+            type="button"
+            disabled={!validMail}
+            id="get-service-button"
+            on:click={login}
+            class={`col-auto btn btn-${validMail ? 'success' : 'secondary'}`}
+          >
+            Login
+          </button>
+        {/if}
       {/if}
     </div>
   </div>
