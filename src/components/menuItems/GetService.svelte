@@ -73,8 +73,12 @@
       if (result.error) {
         console.error(result.error.message);
       } else {
-        console.log('subscription success');
-        // this is the part where a token should be requseted again
+        setTimeout(() => {
+          wsSend('requestAuthToken', {
+            userId: $authProfile.id,
+            password: $authProfile.password,
+          });
+        }, 3000);
       }
       paymentInProg = false;
       $authProfile = await updateProfile({
