@@ -48,7 +48,10 @@
         </span>
         <button
           class="col-auto btn btn-success btn-lg m-2"
-          on:click={toggleView('showFreshStart')}
+          on:click={() => {
+            reallySureView = false;
+            toggleView('showFreshStart')();
+          }}
           aria-expanded="false"
           aria-controls="freshStart"
         >
