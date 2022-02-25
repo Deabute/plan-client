@@ -23,7 +23,9 @@
   let cardElement;
   let stripeReady: boolean = false;
   let mounted: boolean = false;
-  let name: string = '';
+  let validPaymentInfo: boolean = false;
+  let paymentError: string = '';
+  // let name: string = '';
   $: validMail =
     /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
       String(email).toLowerCase(),
@@ -56,7 +58,13 @@
   const loadStripeElements = () => {
     stripe = Stripe(process.env.STRIPE_PUBLISHABLE_KEY);
     cardElement = stripe.elements().create('card');
+    cardElement.on('change', ({ error, empty }) => {
+      validPaymentInfo = !error && !empty && validMail ? true : false;
+      paymentError = error ? error.message : '';
+    });
   };
+
+  $: validPaymentInfo = paymentInProg ? false : validPaymentInfo;
 
   const stripeLoaded = () => {
     stripeReady = true;
@@ -67,11 +75,11 @@
       const result = await stripe.confirmCardPayment(secret, {
         payment_method: {
           card: cardElement,
-          billing_details: { name },
+          // billing_details: { name },
         },
       });
       if (result.error) {
-        console.error(result.error.message);
+        paymentError = result.error.message;
       } else {
         setTimeout(() => {
           wsSend('requestAuthToken', {
@@ -79,12 +87,12 @@
             password: $authProfile.password,
           });
         }, 3000);
+        $authProfile = await updateProfile({
+          ...$authProfile,
+          assumedAuthTTL: 1,
+        });
       }
       paymentInProg = false;
-      $authProfile = await updateProfile({
-        ...$authProfile,
-        assumedAuthTTL: 1,
-      });
     }
   });
 
@@ -144,7 +152,7 @@
         aria-label="Email"
       />
     </div>
-    <div class="col-md-4">
+    <!-- <div class="col-md-4">
       <label for="full-name" class="form-label"> Card Holder Name </label>
       <input
         type="text"
@@ -155,7 +163,7 @@
         aria-describedby="sub-button"
         aria-label="Full Name of card holder"
       />
-    </div>
+    </div> -->
     <div class="col-md-4">
       <label for="selectProduct" class="form-label">Service</label>
       <select
@@ -172,16 +180,19 @@
       </select>
     </div>
     <div class="col-12 p-3 border gy-2" id="card-element" />
-    <div class="row mt-1">
+    {#if paymentError}
+      <div class="col-12 gy-2">{paymentError}</div>
+    {/if}
+    <div class="row gy-2">
       {#if paymentInProg}
         <span>Please wait while your payment processes</span>
       {:else}
         <button
           type="button"
-          disabled={!validMail}
+          disabled={!validPaymentInfo}
           id="get-service-button"
           on:click={subscribe}
-          class={`m-1 col-auto btn btn-${validMail ? 'success' : 'secondary'}`}
+          class="m-1 col-auto btn btn-success"
         >
           {`Subscribe${
             selectedProduct
@@ -239,7 +250,7 @@
             disabled={!validMail}
             id="get-service-button"
             on:click={login}
-            class={`col-auto btn btn-${validMail ? 'success' : 'secondary'}`}
+            class="col-auto btn btn-success"
           >
             Login
           </button>
