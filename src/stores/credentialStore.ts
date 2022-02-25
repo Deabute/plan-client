@@ -11,6 +11,7 @@ import { secondTick } from './timeStore';
 
 const authToken: Writable<tokenI> = writable({ token: '', ttl: 0 });
 const priceOptions: Writable<prices[]> = writable([]);
+const stripe: Writable<any | null> = writable(null);
 const authProfile: Writable<profileI> = writable({
   assumedAuthTTL: 0,
   name: '',
@@ -71,4 +72,11 @@ authToken.subscribe((token) => {
   });
 });
 
-export { loadCredentials, authToken, authProfile, authStatus, priceOptions };
+export {
+  loadCredentials,
+  authToken,
+  authProfile,
+  authStatus,
+  priceOptions,
+  stripe,
+};

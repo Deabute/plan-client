@@ -51,9 +51,7 @@ const wsOn = (action: string, func: any) => {
       return true;
     }
   });
-  if (found) {
-    return;
-  }
+  if (found) return;
   handlers.push({ action, func });
 };
 
