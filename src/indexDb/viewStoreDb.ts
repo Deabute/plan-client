@@ -16,6 +16,7 @@ const showDone: Writable<boolean> = writable(true);
 const showDonate: Writable<boolean> = writable(false);
 const desktopMode: Writable<boolean> = writable(true);
 const showMultiDevice: Writable<boolean> = writable(false);
+const showFreshStart: Writable<boolean> = writable(false);
 
 const views: {
   name: string;
@@ -33,6 +34,7 @@ const views: {
   { name: 'showDone', store: showDone, default: true },
   { name: 'showDonate', store: showDonate, default: false },
   { name: 'showMultiDevice', store: showMultiDevice, default: false },
+  { name: 'showFreshStart', store: showFreshStart, default: false },
 ];
 
 const toggleView = (name: string) => {
@@ -53,13 +55,27 @@ const toggleView = (name: string) => {
       }
       return newValue;
     });
-    if (view.name === 'showDonate' || view.name === 'showMultiDevice') {
+    if (
+      view.name === 'showDonate' ||
+      view.name === 'showMultiDevice' ||
+      view.name === 'showFreshStart'
+    ) {
       showViews.set(!newValue);
       if (view.name === 'showDonate' && newValue) {
         showMultiDevice.set(false);
         db.put('views', { name: 'showMultiDevice', showing: false });
+        showFreshStart.set(false);
+        db.put('views', { name: 'showFreshStart', showing: false });
       }
       if (view.name === 'showMultiDevice' && newValue) {
+        showDonate.set(false);
+        db.put('views', { name: 'showDonate', showing: false });
+        showFreshStart.set(false);
+        db.put('views', { name: 'showFreshStart', showing: false });
+      }
+      if (view.name === 'showFreshStart' && newValue) {
+        showMultiDevice.set(false);
+        db.put('views', { name: 'showMultiDevice', showing: false });
         showDonate.set(false);
         db.put('views', { name: 'showDonate', showing: false });
       }
@@ -94,7 +110,9 @@ const loadViewSettings = async () => {
     if (viewSetting) {
       view.store.set(viewSetting.showing);
       if (
-        (view.name === 'showDonate' || view.name === 'showMultiDevice') &&
+        (view.name === 'showDonate' ||
+          view.name === 'showMultiDevice' ||
+          view.name === 'showFreshStart') &&
         viewSetting.showing
       ) {
         showViews.set(false);
@@ -133,4 +151,5 @@ export {
   showDone,
   showDonate,
   showMultiDevice,
+  showFreshStart,
 };

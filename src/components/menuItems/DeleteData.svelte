@@ -1,56 +1,85 @@
 <!-- DeleteData.svelte Copyright 2021 Paul Beaudet MIT License -->
 <script lang="ts">
-  import { deleteDB } from 'idb';
-  import { DB_NAME } from '../../indexDb/dbCore';
   import {
+    loadViewSettings,
     showFreshStart,
-    toggleSettingDialog,
-  } from '../../stores/settingsStore';
+    toggleView,
+  } from '../../indexDb/viewStoreDb';
+  import Trash from 'svelte-bootstrap-icons/lib/Trash';
+  import BoxArrowInLeft from 'svelte-bootstrap-icons/lib/BoxArrowInLeft';
+  import { clearData } from '../../indexDb/profilesDb';
+  import { loadChildren, refreshAllViews } from '../../stores/taskStore';
+  import { loadCredentials } from '../../stores/credentialStore';
+  import { getBudget } from '../../stores/budgetStore';
+  import { getTime } from '../../stores/timeStore';
+  import { loadAgenda } from '../../stores/agendaStore';
 
   let reallySureView: boolean = false;
 
   const deleteIt = async () => {
+    if (!reallySureView) {
+      reallySureView = true;
+      return;
+    }
+    reallySureView = false;
+    toggleView('showFreshStart')();
     // drop all stores
-    await deleteDB(DB_NAME);
+    await clearData();
     // force a page reload
-    window.location.reload();
+    await getBudget();
+    await loadChildren('1');
+    await getTime();
+    await loadAgenda();
+    await loadCredentials();
+    await loadViewSettings();
+    await refreshAllViews();
   };
 </script>
 
 {#if $showFreshStart}
-  <div class="card card-body" id="freshStart">
-    {#if reallySureView}
-      <span>
-        Really? Data will disappear unless it had synced to another device or is
-        later found in unallocated storage by an expert.
-      </span>
-    {:else}
-      <span>Lose access to all data and start over?</span>
-    {/if}
-    {#if reallySureView}
-      <button class="btn btn-danger" on:click={deleteIt}>
-        "Delete" it. Past data is unimportant or backed up on other device.
-      </button>
-    {:else}
-      <button
-        class="btn btn-danger"
-        on:click={() => {
-          reallySureView = true;
-        }}
-      >
-        Start from scratch on this device
-      </button>
-    {/if}
-    <button
-      class="btn btn-success"
-      on:click={toggleSettingDialog('freshStart')}
-      aria-expanded="false"
-      aria-controls="freshStart"
-    >
-      Keep Data
-    </button>
+  <div class="d-flex flex-column">
+    <div class="card card-body m-1" id="freshStart">
+      <h3>Delete all Time Intent data from this device?</h3>
+      <div class="row alert alert-danger">
+        <span class="col-12 m-2">
+          {reallySureView
+            ? 'All data will disappear unless backup or sync has occurred * '
+            : 'Fresh start includes removing paid service credentials and connections *'}
+        </span>
+        <button
+          class="col-auto btn btn-success btn-lg m-2"
+          on:click={toggleView('showFreshStart')}
+          aria-expanded="false"
+          aria-controls="freshStart"
+        >
+          <BoxArrowInLeft /> &nbsp; Back to safty
+        </button>
+        <button
+          class="col-auto btn btn-danger btn-lg m-2"
+          on:click={deleteIt}
+          aria-expanded="false"
+          aria-controls="data-removal"
+        >
+          <Trash /> &nbsp;
+          {reallySureView
+            ? "I'm sure, Start Over"
+            : 'I would like to remove all data'}
+        </button>
+      </div>
+      <div class="row alert alert-info">
+        <p class="col-12">
+          * skilled 3rd partys may be able to recover deleted data from your
+          local storage medium used to store this data
+        </p>
+        <p class="col-12">
+          Note: Private information from this application is only stored on user
+          devices (Within your web browser's IndexedDB) see our <a
+            href="https://deabute.com/plan-privacy-policy/"
+          >
+            Privacy Policy
+          </a> for more details
+        </p>
+      </div>
+    </div>
   </div>
 {/if}
-
-<style>
-</style>

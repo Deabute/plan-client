@@ -14,6 +14,7 @@
     desktopMode,
     showDone,
     showMultiDevice,
+    showFreshStart,
   } from '../../indexDb/viewStoreDb';
   import {
     activitiesColumnName,
@@ -41,10 +42,6 @@
   import CloudArrowUp from 'svelte-bootstrap-icons/lib/CloudArrowUp';
   import CheckSquare from 'svelte-bootstrap-icons/lib/CheckSquare';
   import HourglassSplit from 'svelte-bootstrap-icons/lib/HourglassSplit';
-  import {
-    showFreshStart,
-    toggleSettingDialog,
-  } from '../../stores/settingsStore';
   import {
     peerSyncEnabled,
     rtcPeers,
@@ -281,7 +278,7 @@
         type="button"
         data-bs-toggle={offcanvas ? 'offcanvas' : ''}
         data-bs-target={offcanvas ? '#mobileMenu' : ''}
-        on:click={toggleSettingDialog('freshStart')}
+        on:click={toggleView('showFreshStart')}
         aria-expanded="false"
         aria-controls="freshStart"
       >

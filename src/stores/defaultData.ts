@@ -1,5 +1,10 @@
 // defaultData.ts Copyright Paul Beaudet 2021 MIT License
-import type { taskStores, taskI, allStoreTypes } from '../shared/interface';
+import type {
+  taskStores,
+  taskI,
+  allStoreTypes,
+  reallyAllStoreTypes,
+} from '../shared/interface';
 
 const ProductName: string = 'Time Intent';
 // - budgeting -
@@ -43,6 +48,17 @@ const allStores: Array<allStoreTypes> = [
   'connect',
   'profiles',
   'psks',
+];
+const everyStore: Array<reallyAllStoreTypes> = [
+  'events',
+  'tasks',
+  'timeline',
+  'budget',
+  'connect',
+  'profiles',
+  'psks',
+  'views',
+  'tokens',
 ];
 
 // Velocity is calculated in milliseconds
@@ -400,4 +416,5 @@ export {
   getParentRange,
   IDLE_RECONNECT,
   statusMsgs,
+  everyStore,
 };

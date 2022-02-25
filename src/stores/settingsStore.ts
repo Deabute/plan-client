@@ -46,13 +46,11 @@ const editTask: Writable<memTaskI | null> = writable(null);
 
 const showHistory: Writable<boolean> = writable(false);
 const showDuration: Writable<boolean> = writable(false);
-const showFreshStart: Writable<boolean> = writable(false);
 const showViews: Writable<boolean> = writable(true);
 
 const settingDialogs: { name: settingNames; store: Writable<boolean> }[] = [
   { name: 'history', store: showHistory },
   { name: 'duration', store: showDuration },
-  { name: 'freshStart', store: showFreshStart },
 ];
 
 const toggleSettingDialog = (name: settingNames) => {
@@ -97,7 +95,6 @@ export {
   toggleAddFolder,
   editTask,
   showHistory,
-  showFreshStart,
   showDuration,
   toggleSettingDialog,
   editToggle,

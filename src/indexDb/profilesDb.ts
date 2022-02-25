@@ -1,6 +1,6 @@
 // profileDb.ts ~ Copyright 2021 Paul Beaudet MIT License
 
-import { allStores, KEY_PAIR_CONFIG } from '../stores/defaultData';
+import { everyStore, KEY_PAIR_CONFIG } from '../stores/defaultData';
 import { getDb } from './dbCore';
 import { getDeviceId } from '../shared/conversions';
 import { createOid, generatePassword } from '../isomorphic/oid';
@@ -92,9 +92,9 @@ const removeDataToBeSecondary = async () => {
 
 const clearData = async () => {
   const db = await getDb();
-  const transaction = db.transaction(allStores, 'readwrite');
-  for (let i = 0; i < allStores.length; i++) {
-    const store = transaction.objectStore(allStores[i]);
+  const transaction = db.transaction(everyStore, 'readwrite');
+  for (let i = 0; i < everyStore.length; i++) {
+    const store = transaction.objectStore(everyStore[i]);
     await store.clear();
   }
 };

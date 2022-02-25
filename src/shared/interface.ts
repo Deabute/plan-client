@@ -281,6 +281,7 @@ type allStoreTypes =
   | 'profiles'
   | 'psks';
 // TODO add views?
+type reallyAllStoreTypes = allStoreTypes | 'tokens' | 'views';
 type indexOptions =
   | 'timeOrder'
   | 'budgetOrder'
@@ -378,4 +379,5 @@ export type {
   navTypes,
   navItems,
   prices,
+  reallyAllStoreTypes,
 };
