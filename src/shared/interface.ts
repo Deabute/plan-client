@@ -338,6 +338,17 @@ interface prices {
   id: string;
 }
 
+interface stripSub {
+  id: string;
+  status: string;
+  current_period_end: number;
+  default_payment_method: {
+    card: {
+      last4: number;
+    };
+  };
+}
+
 export type {
   taskI,
   connectionI,
@@ -380,4 +391,5 @@ export type {
   navItems,
   prices,
   reallyAllStoreTypes,
+  stripSub,
 };

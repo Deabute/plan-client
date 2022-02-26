@@ -4,11 +4,8 @@
   import { wsOn, wsSend } from '../../connections/WebSocket';
   import { updateProfile } from '../../indexDb/profilesDb';
   import type { prices } from '../../shared/interface';
-  import {
-    authProfile,
-    priceOptions,
-    stripe,
-  } from '../../stores/credentialStore';
+  import { authProfile } from '../../stores/credentialStore';
+  import { stripe, priceOptions } from '../../stores/stripeStore';
 
   export let paymentInProg: boolean = false;
 

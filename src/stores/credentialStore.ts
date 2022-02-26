@@ -1,7 +1,7 @@
 // credentialStore.ts ~ Copyright 2022 Paul Beaudet MIT License
 
 import { getDb } from '../indexDb/dbCore';
-import type { prices, profileI, tokenI } from '../shared/interface';
+import type { profileI, tokenI } from '../shared/interface';
 import { Writable, writable } from 'svelte/store';
 import { generateProfile, getProfile } from '../indexDb/profilesDb';
 import { createOid } from '../isomorphic/oid';
@@ -10,8 +10,6 @@ import { statusMsgs } from './defaultData';
 import { secondTick } from './timeStore';
 
 const authToken: Writable<tokenI> = writable({ token: '', ttl: 0 });
-const priceOptions: Writable<prices[]> = writable([]);
-const stripe: Writable<any | null> = writable(null);
 const authProfile: Writable<profileI> = writable({
   assumedAuthTTL: 0,
   name: '',
@@ -72,11 +70,4 @@ authToken.subscribe((token) => {
   });
 });
 
-export {
-  loadCredentials,
-  authToken,
-  authProfile,
-  authStatus,
-  priceOptions,
-  stripe,
-};
+export { loadCredentials, authToken, authProfile, authStatus };

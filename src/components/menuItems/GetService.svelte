@@ -2,6 +2,7 @@
 <script lang="ts">
   import { wsSend } from '../../connections/WebSocket';
   import { authProfile, authToken } from '../../stores/credentialStore';
+  import Account from './Account.svelte';
   import Checkout from './Checkout.svelte';
 
   let loginMode: boolean = false;
@@ -42,6 +43,7 @@
       {showPassword ? $authProfile.password : '**********'}
     </span>
   </div>
+  <Account />
 {/if}
 {#if !postPayment && $authProfile}
   <div class="row">
