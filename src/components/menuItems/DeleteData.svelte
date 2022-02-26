@@ -9,10 +9,16 @@
   import BoxArrowInLeft from 'svelte-bootstrap-icons/lib/BoxArrowInLeft';
   import { clearData } from '../../indexDb/profilesDb';
   import { loadChildren, refreshAllViews } from '../../stores/taskStore';
-  import { loadCredentials } from '../../stores/credentialStore';
+  import {
+    authProfile,
+    authToken,
+    loadCredentials,
+  } from '../../stores/credentialStore';
   import { getBudget } from '../../stores/budgetStore';
   import { getTime } from '../../stores/timeStore';
   import { loadAgenda } from '../../stores/agendaStore';
+  import { defaultProfile, defaultToken } from '../../stores/defaultData';
+  import { subscriptions } from '../../stores/stripeStore';
 
   let reallySureView: boolean = false;
 
@@ -23,6 +29,9 @@
     }
     reallySureView = false;
     toggleView('showFreshStart')();
+    authProfile.set(defaultProfile);
+    authToken.set(defaultToken);
+    subscriptions.set([]);
     // drop all stores
     await clearData();
     // force a page reload

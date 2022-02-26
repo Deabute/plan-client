@@ -4,6 +4,8 @@ import type {
   taskI,
   allStoreTypes,
   reallyAllStoreTypes,
+  profileI,
+  tokenI,
 } from '../shared/interface';
 
 const ProductName: string = 'Time Intent';
@@ -382,6 +384,19 @@ const statusMsgs = {
   auth: 'Authorized to sync',
 };
 
+const defaultToken: tokenI = { token: '', ttl: 0 };
+const defaultProfile: profileI = {
+  assumedAuthTTL: 0,
+  name: '',
+  key: '',
+  cert: '',
+  password: '',
+  lastConnect: 0,
+  firstConnect: 0,
+  status: 'undecided',
+  id: '',
+};
+
 export {
   genesisTask,
   startingVelocity,
@@ -417,4 +432,6 @@ export {
   IDLE_RECONNECT,
   statusMsgs,
   everyStore,
+  defaultProfile,
+  defaultToken,
 };

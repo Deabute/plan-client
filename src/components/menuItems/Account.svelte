@@ -7,41 +7,75 @@
   if ($subscriptions.length) {
     console.dir($subscriptions);
   } else {
-    wsSend('account', { id: $authProfile.id, password: $authProfile.password });
-    wsOn('account', ({ sub }) => {
-      console.dir(sub);
-      $subscriptions = sub;
+    wsSend('account', {
+      type: 'listSubs',
+      id: $authProfile.id,
+      password: $authProfile.password,
+    });
+    wsOn('account', ({ type, data }) => {
+      if (type === 'listSubs') {
+        $subscriptions = data.data;
+      } else if (type === 'cancelSub') {
+        let i = 0;
+        for (i; i < $subscriptions.length; i++) {
+          if ($subscriptions[i].id === data.id) break;
+        }
+        $subscriptions[i] = data;
+      } else if (type === 'cancelErr') {
+        console.log('there was an error cancelling the subscription');
+      }
     });
   }
+
+  const cancelSub = (subId: string) => {
+    return () => {
+      wsSend('account', {
+        type: 'cancelSub',
+        id: $authProfile.id,
+        password: $authProfile.password,
+        subId,
+      });
+    };
+  };
 </script>
 
-{#each $subscriptions as { id, status, default_payment_method, current_period_end }}
-  <div class="row">
-    <h4>
-      <a href={`https://dashboard.stripe.com/test/subscriptions/${id}`}>
-        {id}
-      </a>
-    </h4>
-    <p>
-      Status: {status}
-    </p>
-    {#if default_payment_method?.card?.last4}
-      <p>
-        Card last4: {default_payment_method.card.last4}
-      </p>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Plan</th>
+      <th scope="col">Card</th>
+      <th scope="col">Action</th>
+      <th scope="col">Status</th>
+      <th scope="col">Cost</th>
+      <th scope="col">End Time</th>
+    </tr>
+  </thead>
+  <tbody>
+    {#each $subscriptions as { id, status, default_payment_method, current_period_end, plan }}
+      <tr>
+        <td>Multi-device</td>
+        <td>
+          {#if status === 'active'}
+            {default_payment_method?.card?.last4
+              ? default_payment_method.card.last4
+              : '????'}
+          {/if}
+        </td>
+        <td>
+          {#if status === 'active'}
+            <button class="btn btn-danger" on:click={cancelSub(id)}>
+              Cancel
+            </button>
+          {/if}
+        </td>
+        <td>{status}</td>
+        <td>{`$${plan.amount / 100}/${plan.interval}`}</td>
+        <td>{new Date(current_period_end * 1000).toDateString()}</td>
+      </tr>
     {:else}
-      <small>
-        Last digits are blank, ensure webhooks are being handled. The default
-        payment method is set in the webhook handler.
-      </small>
-    {/if}
-    <p>
-      {`Current period end: ${new Date(current_period_end * 1000)}`}
-    </p>
-    <!--<a href="change-payment-method.html?subscription=${subscription.id}"> Update payment method </a><br />
-    <a href="change-plan.html?subscription=${subscription.id}"> Change plan </a><br /> -->
-    <!-- <a href="cancel.html?subscription=${subscription.id}"> Cancel </a><br /> -->
-  </div>
-{:else}
-  <p>Loading subscriptions...</p>
-{/each}
+      <tr>
+        <td>Loading subscriptions...</td>
+      </tr>
+    {/each}
+  </tbody>
+</table>

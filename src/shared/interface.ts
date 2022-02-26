@@ -347,6 +347,10 @@ interface stripSub {
       last4: number;
     };
   };
+  plan: {
+    amount: number;
+    interval: string;
+  };
 }
 
 export type {

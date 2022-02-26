@@ -3,6 +3,7 @@ import { wsOpen } from '../stores/peerStore';
 
 // WebSocket object used to send and receive messages
 let instance: WebSocket | null = null;
+let loading: boolean = false;
 
 // init gets called whenever client tries to send a message.
 // So its not really necessary to call it externally.
@@ -15,8 +16,10 @@ const wsInit = (): Promise<WebSocket> => {
       resolve(instance);
       return;
     }
+    loading = true;
     instance = new WebSocket(process.env.WS_URL);
     instance.onopen = () => {
+      loading = false;
       instance.onmessage = incoming;
       instance.onerror = console.log;
       wsOpen.set(true);
@@ -76,7 +79,7 @@ const incoming = (event: any) => {
 };
 
 // Outgoing socket messages from client
-const wsSend = async (action: string, json: any = {}) => {
+const wsSend = (action: string, json: any = {}) => {
   json.action = action;
   let msg = '{"action":"error","error":"failed stringify"}';
   try {
@@ -85,15 +88,16 @@ const wsSend = async (action: string, json: any = {}) => {
     console.log(error);
   }
   // create socket connection if its not yet connected
-  try {
-    const socket = await wsInit();
-    socket.send(msg);
-  } catch (error) {
-    setTimeout(async () => {
+  const timeToSend = loading ? 500 : 0;
+  setTimeout(async () => {
+    if (loading) return; // forget it if we are still loading
+    try {
       const socket = await wsInit();
       socket.send(msg);
-    }, 20);
-  }
+    } catch (error) {
+      console.log(error);
+    }
+  }, timeToSend);
 };
 
 export { wsSend, wsOn };

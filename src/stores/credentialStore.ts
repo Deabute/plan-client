@@ -6,21 +6,11 @@ import { Writable, writable } from 'svelte/store';
 import { generateProfile, getProfile } from '../indexDb/profilesDb';
 import { createOid } from '../isomorphic/oid';
 import { wsSend } from '../connections/WebSocket';
-import { statusMsgs } from './defaultData';
+import { defaultProfile, defaultToken, statusMsgs } from './defaultData';
 import { secondTick } from './timeStore';
 
-const authToken: Writable<tokenI> = writable({ token: '', ttl: 0 });
-const authProfile: Writable<profileI> = writable({
-  assumedAuthTTL: 0,
-  name: '',
-  key: '',
-  cert: '',
-  password: '',
-  lastConnect: 0,
-  firstConnect: 0,
-  status: 'undecided',
-  id: '',
-});
+const authToken: Writable<tokenI> = writable(defaultToken);
+const authProfile: Writable<profileI> = writable(defaultProfile);
 const authStatus: Writable<string> = writable(statusMsgs.noAuth);
 
 const loadCredentials = async () => {
