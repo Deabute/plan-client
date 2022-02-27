@@ -2,21 +2,26 @@
 <script lang="ts">
   import { wsOn, wsSend } from '../../connections/WebSocket';
   import { authProfile } from '../../stores/credentialStore';
-  import { subscriptions } from '../../stores/stripeStore';
+  import { paymentMethods, subscriptions } from '../../stores/stripeStore';
 
   let pauseActions: boolean = false;
+  let defaultCard: string = '';
 
   if ($subscriptions.length) {
     console.dir($subscriptions);
   } else {
     wsSend('account', {
-      type: 'listSubs',
+      type: 'listAccountDetails',
       id: $authProfile.id,
       password: $authProfile.password,
     });
     wsOn('account', ({ type, data }) => {
-      if (type === 'listSubs') {
-        $subscriptions = data.data;
+      if (type === 'listAccountDetails') {
+        $subscriptions = data.subs.data;
+        $paymentMethods = data.payments.data;
+        defaultCard = data.subs.data.length
+          ? data.subs.data[0].default_payment_method
+          : '';
       } else if (type === 'toggleSub') {
         let i = 0;
         for (i; i < $subscriptions.length; i++) {
@@ -42,17 +47,24 @@
       });
     };
   };
+
+  const addPaymentMethod = () => {
+    console.log('add payment method');
+  };
+
+  const rmPaymentMethod = () => {
+    console.log('remove payment method');
+  };
 </script>
 
 <table class="table">
   <thead>
     <tr>
       <th scope="col">Plan</th>
-      <th scope="col" />
+      <th scope="col"> Change </th>
       <th scope="col">Renewal</th>
       <th scope="col">Cost</th>
       <th scope="col">Status</th>
-      <th scope="col">Card</th>
     </tr>
   </thead>
   <tbody>
@@ -69,6 +81,8 @@
             >
               {cancel_at_period_end ? 'Reactivate' : 'Cancel'}
             </button>
+          {:else if pauseActions}
+            loading...
           {/if}
         </td>
 
@@ -79,18 +93,72 @@
         </td>
         <td>{`$${plan.amount / 100}/${plan.interval}`}</td>
         <td>{status}</td>
-        <td>
-          {#if status === 'active'}
-            {default_payment_method?.card?.last4
-              ? default_payment_method.card.last4
-              : '????'}
-          {/if}
-        </td>
       </tr>
     {:else}
       <tr>
         <td>Loading subscriptions...</td>
       </tr>
     {/each}
+  </tbody>
+</table>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Payment Method</th>
+      <th scope="col">Last 4 digits</th>
+      <th scope="col">Expiration</th>
+      <th scope="col">Change</th>
+    </tr>
+  </thead>
+  <tbody>
+    {#each $paymentMethods as { id, card }}
+      <tr>
+        <td>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              name="defaultPayment"
+              id={`defaultPayment${id}`}
+              value=""
+              checked={defaultCard === id}
+              on:change={() => (defaultCard = id)}
+            />
+            <label class="form-check-label" for={`defaultPayment${id}`}>
+              {card.brand}
+            </label>
+          </div>
+        </td>
+        <td>{card.last4}</td>
+        <td>{`${card.exp_month}/${card.exp_year}`}</td>
+        <td>
+          <button
+            type="button"
+            class="btn btn-sm btn-danger"
+            on:click={rmPaymentMethod}
+          >
+            Remove
+          </button>
+        </td>
+      </tr>
+    {:else}
+      <tr>
+        <td>Loading Cards...</td>
+      </tr>
+    {/each}
+    <tr>
+      <td>+ Card</td>
+      <td>????</td>
+      <td>?/????</td>
+      <td>
+        <button
+          type="button"
+          class="btn btn-sm btn-success"
+          on:click={addPaymentMethod}
+        >
+          Add
+        </button>
+      </td>
+    </tr>
   </tbody>
 </table>

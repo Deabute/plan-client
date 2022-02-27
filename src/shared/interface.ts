@@ -338,20 +338,26 @@ interface prices {
   id: string;
 }
 
-interface stripSub {
+interface stripeSub {
   id: string;
   status: string;
   current_period_end: number;
-  default_payment_method: {
-    card: {
-      last4: number;
-    };
-  };
+  default_payment_method: string;
   plan: {
     amount: number;
     interval: string;
   };
   cancel_at_period_end: boolean;
+}
+
+interface stripePaymentMethod {
+  id: string;
+  card: {
+    last4: number;
+    brand: string;
+    exp_month: number;
+    exp_year: number;
+  };
 }
 
 export type {
@@ -396,5 +402,6 @@ export type {
   navItems,
   prices,
   reallyAllStoreTypes,
-  stripSub,
+  stripeSub,
+  stripePaymentMethod,
 };
