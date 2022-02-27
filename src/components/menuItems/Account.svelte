@@ -2,10 +2,22 @@
 <script lang="ts">
   import { wsOn, wsSend } from '../../connections/WebSocket';
   import { authProfile } from '../../stores/credentialStore';
-  import { paymentMethods, subscriptions } from '../../stores/stripeStore';
+  import {
+    paymentMethods,
+    stripe,
+    subscriptions,
+  } from '../../stores/stripeStore';
 
   let pauseActions: boolean = false;
   let defaultCard: string = '';
+  let needStripe: boolean = false;
+  let paymentElement;
+  let elements;
+  let payElReady: boolean = false;
+  let validPaymentInfo: boolean = false;
+  let paymentError: string = '';
+  let additionInProcess: boolean = false;
+  let confirmInProcess: boolean = false;
 
   if ($subscriptions.length) {
     console.dir($subscriptions);
@@ -31,6 +43,22 @@
         pauseActions = false;
       } else if (type === 'toggleErr') {
         console.log('there was an error toggling the subscription');
+      } else if (type === 'addPaymentMethod') {
+        const waitForStripe = $stripe ? 0 : 1000;
+        payElReady = true;
+        const setUpCardElement = () => {
+          setTimeout(() => {
+            if (!$stripe) setUpCardElement();
+            elements = $stripe.elements({ clientSecret: data.client_secret });
+            paymentElement = elements.create('payment');
+            paymentElement.on('change', ({ error, empty }) => {
+              validPaymentInfo = !error && !empty;
+              paymentError = error ? error.message : '';
+            });
+            paymentElement.mount('#pay-element');
+          }, waitForStripe);
+        };
+        setUpCardElement();
       }
     });
   }
@@ -49,13 +77,42 @@
   };
 
   const addPaymentMethod = () => {
-    console.log('add payment method');
+    additionInProcess = true;
+    needStripe = true;
+    wsSend('account', {
+      type: 'addPaymentMethod',
+      id: $authProfile.id,
+      password: $authProfile.password,
+    });
+  };
+
+  const confirmNewMethod = async () => {
+    if (!$stripe) return;
+    confirmInProcess = true;
+    const { errors } = await $stripe.confirmSetup({
+      elements,
+      confirmParams: {
+        return_url: window.location.href,
+      },
+    });
+    console.log(errors ? errors : 'success');
+    confirmInProcess = false;
+  };
+
+  const stripeLoaded = () => {
+    if (!$stripe) stripe.set(Stripe(process.env.STRIPE_PUBLISHABLE_KEY));
   };
 
   const rmPaymentMethod = () => {
     console.log('remove payment method');
   };
 </script>
+
+<svelte:head>
+  {#if !$stripe && needStripe}
+    <script src="https://js.stripe.com/v3/" on:load={stripeLoaded}></script>
+  {/if}
+</svelte:head>
 
 <table class="table">
   <thead>
@@ -146,19 +203,32 @@
         <td>Loading Cards...</td>
       </tr>
     {/each}
-    <tr>
-      <td>+ Card</td>
-      <td>????</td>
-      <td>?/????</td>
-      <td>
-        <button
-          type="button"
-          class="btn btn-sm btn-success"
-          on:click={addPaymentMethod}
-        >
-          Add
-        </button>
-      </td>
-    </tr>
+    {#if !additionInProcess}
+      <tr>
+        <td> New Card </td>
+        <td />
+        <td />
+        <td>
+          <button
+            type="button"
+            class="btn btn-sm btn-success"
+            on:click={addPaymentMethod}
+          >
+            Add
+          </button>
+        </td>
+      </tr>
+    {/if}
   </tbody>
 </table>
+{#if payElReady}
+  <div id="pay-element" />
+  <button
+    type="button"
+    class="btn btn-sm btn-success"
+    on:click={confirmNewMethod}
+    disabled={!validPaymentInfo || confirmInProcess}
+  >
+    Confirm
+  </button>
+{/if}
