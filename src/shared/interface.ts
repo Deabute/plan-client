@@ -351,6 +351,7 @@ interface stripSub {
     amount: number;
     interval: string;
   };
+  cancel_at_period_end: boolean;
 }
 
 export type {
