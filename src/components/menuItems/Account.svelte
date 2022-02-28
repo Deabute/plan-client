@@ -1,6 +1,7 @@
 <!-- Checkout Copyright 2022 Paul Beaudet MIT Licence -->
 <script lang="ts">
   import { wsOn, wsSend } from '../../connections/WebSocket';
+  import type { stripePaymentMethod } from '../../shared/interface';
   import { authProfile } from '../../stores/credentialStore';
   import {
     paymentMethods,
@@ -16,6 +17,7 @@
   let validPaymentInfo: boolean = false;
   let paymentError: string = '';
   let loading: boolean = true;
+  let ableToRemoveOnlyPm: boolean = false;
 
   if ($subscriptions.length) {
     console.dir($subscriptions);
@@ -30,7 +32,15 @@
         $subscriptions = data.subs.data;
         $paymentMethods = data.payments.data;
         defaultCard = data.defaultPm;
+        ableToRemoveOnlyPm =
+          $subscriptions.length === 1 && $subscriptions[0].cancel_at_period_end
+            ? true
+            : false;
       } else if (type === 'toggleSub') {
+        ableToRemoveOnlyPm =
+          $subscriptions.length === 1 && data.cancel_at_period_end
+            ? true
+            : false;
         let i = 0;
         for (i; i < $subscriptions.length; i++) {
           if ($subscriptions[i].id === data.id) break;
@@ -54,9 +64,14 @@
           }, waitForStripe);
         };
         setUpCardElement();
-      } else if ('toggleDefaultPayment') {
-        if (data?.default) defaultCard = data.default;
-        else paymentError = 'failed to change payment method';
+      } else if (type === 'deletePaymentMethod') {
+        $paymentMethods = $paymentMethods.filter((pm) => pm.id !== data.id);
+      } else if (type === 'toggleDefaultPayment') {
+        if (data?.default) {
+          defaultCard = data.default;
+        } else {
+          paymentError = 'failed to change payment method';
+        }
       }
       loading = false;
     });
@@ -101,8 +116,16 @@
     if (!$stripe) stripe.set(Stripe(process.env.STRIPE_PUBLISHABLE_KEY));
   };
 
-  const rmPaymentMethod = () => {
-    console.log('remove payment method');
+  const rmPaymentMethod = (id: string) => {
+    return () => {
+      loading = true;
+      wsSend('account', {
+        type: 'deletePaymentMethod',
+        id: $authProfile.id,
+        password: $authProfile.password,
+        paymentMethodId: id,
+      });
+    };
   };
 
   const toggleDefaultPayment = (id: string) => {
@@ -120,6 +143,20 @@
         default_payment_method: id,
       });
     };
+  };
+
+  const isRmDisabled = (
+    id: string,
+    defaultPm: string,
+    loadStatus: boolean,
+    rmLast: boolean,
+    pmArray: stripePaymentMethod[],
+  ): boolean => {
+    if (id === defaultPm) {
+      return rmLast && pmArray.length === 1 ? false : true;
+    }
+    if (loadStatus) return true;
+    return false;
   };
 </script>
 
@@ -173,11 +210,11 @@
     </tr>
   </thead>
   <tbody>
-    {#each $subscriptions as { id, status, default_payment_method, current_period_end, cancel_at_period_end, plan }}
+    {#each $subscriptions as { id, status, current_period_end, cancel_at_period_end, plan }}
       <tr>
         <td>Multi-device</td>
         <td>
-          {#if status === 'active' && current_period_end * 1000 > Date.now()}
+          {#if status === 'active' && current_period_end * 1000 > Date.now() && $paymentMethods.length}
             <button
               class={`btn btn-sm btn-${
                 cancel_at_period_end ? 'success' : 'danger'
@@ -240,16 +277,18 @@
           <button
             type="button"
             class="btn btn-sm btn-danger"
-            disabled={defaultCard === id || loading}
-            on:click={rmPaymentMethod}
+            disabled={isRmDisabled(
+              id,
+              defaultCard,
+              loading,
+              ableToRemoveOnlyPm,
+              $paymentMethods,
+            )}
+            on:click={rmPaymentMethod(id)}
           >
             Remove
           </button>
         </td>
-      </tr>
-    {:else}
-      <tr>
-        <td>Loading Payment Methods...</td>
       </tr>
     {/each}
     {#if !needStripe}
