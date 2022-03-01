@@ -134,7 +134,7 @@
         <hr />
         <div class="row my-2">
           <p class="fs-3 text-center">Cloud Sync</p>
-          <p class="text-center">Paid Beta: Invite Only</p>
+          <p class="text-center">Paid Beta</p>
           {#if !$peerSyncEnabled}
             <p class="text-center">
               <b> * Intial Peer Sync required to exchange encyption keys * </b>

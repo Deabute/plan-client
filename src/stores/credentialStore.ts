@@ -39,7 +39,9 @@ authProfile.subscribe(({ assumedAuthTTL, id, password }) => {
   if (assumedAuthTTL === 0) return;
   if (assumedAuthTTL === 1) {
     authStatus.set(statusMsgs.interest);
-    wsSend('requestAuthToken', { userId: id, password });
+    setTimeout(() => {
+      wsSend('requestAuthToken', { userId: id, password });
+    }, 1500);
   }
 });
 
@@ -47,7 +49,7 @@ let unsubscriber = null;
 
 authToken.subscribe((token) => {
   if (!token.token) return;
-  authStatus.set(Date.now() > token.ttl ? statusMsgs.auth : statusMsgs.renewal);
+  authStatus.set(Date.now() > token.ttl ? statusMsgs.renewal : statusMsgs.auth);
   if (unsubscriber) unsubscriber();
   unsubscriber = secondTick.subscribe(async (tick) => {
     if (tick > token.ttl) {

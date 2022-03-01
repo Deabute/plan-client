@@ -6,11 +6,10 @@
   import Checkout from './Checkout.svelte';
 
   let loginMode: boolean = false;
-  let paymentInProg: boolean = false;
+  let loading: boolean = true;
   let password: string = '';
   let showPassword: boolean = false;
   let email: string = '';
-  let postPayment: boolean = false;
   let validMail: boolean = false;
   $: validMail =
     /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
@@ -23,13 +22,19 @@
       password,
     });
   };
-
-  authProfile.subscribe((profile) => {
-    if (profile.assumedAuthTTL > 0 && !paymentInProg) postPayment = true;
-  });
 </script>
 
-{#if $authToken.token && $authProfile}
+{#if $authProfile.assumedAuthTTL === 1 && !loading}
+  <div class="alert alert-warning">
+    ... Waiting for subscription order to clear. Reloading after some time page
+    may help. If this message persist please contact paul@deaubute.com
+  </div>
+{/if}
+{#if $authProfile.assumedAuthTTL > 1 && $authProfile.password}
+  <div class="alert alert-success">
+    Thanks for subscribing, below is your account information to set up another
+    device, or change payment method.
+  </div>
   <div class="row my-2">
     <buton
       class="btn btn-info m-1 col-2"
@@ -45,61 +50,55 @@
   </div>
   <Account />
 {/if}
-{#if !postPayment && $authProfile}
-  <div class="row">
-    <Checkout bind:paymentInProg />
-    <hr />
-    <div class="row mt-1">
+{#if !$authToken.token && $authProfile.id && $authProfile.password && $authProfile.assumedAuthTTL === 0}
+  <Checkout bind:loading />
+  <hr />
+  <div class="row mt-1">
+    <button
+      type="button"
+      disabled={loading}
+      id="login-toggle"
+      on:click={() => {
+        loginMode = !loginMode;
+      }}
+      class="col-auto btn btn-info"
+    >
+      {loginMode ? 'Hide' : 'Or Login'}
+    </button>
+    {#if loginMode}
+      <div class="col-md-4">
+        <label for="email" class="form-label">Email</label>
+        <input
+          type="text"
+          class="form-control"
+          id="email"
+          placeholder="Email"
+          bind:value={email}
+          aria-describedby="get-service-button"
+          aria-label="Email"
+        />
+      </div>
+      <div class="col-md-4">
+        <label for="login-password" class="form-label">Password</label>
+        <input
+          type="password"
+          class="form-control"
+          id="login-password"
+          placeholder="Password"
+          bind:value={password}
+          aria-describedby="get-service-button"
+          aria-label="Password that will be shown on other device"
+        />
+      </div>
       <button
         type="button"
-        disabled={paymentInProg}
-        id="login-toggle"
-        on:click={() => {
-          loginMode = !loginMode;
-        }}
-        class="col-auto btn btn-info"
+        disabled={!validMail || loading}
+        id="get-service-button"
+        on:click={login}
+        class="col-auto btn btn-success"
       >
-        {loginMode ? 'Hide' : 'Or Login'}
+        Login
       </button>
-      {#if loginMode}
-        <div class="col-md-4">
-          <label for="email" class="form-label">Email</label>
-          <input
-            type="text"
-            class="form-control"
-            id="email"
-            placeholder="Email"
-            bind:value={email}
-            aria-describedby="get-service-button"
-            aria-label="Email"
-          />
-        </div>
-        <div class="col-md-4">
-          <label for="login-password" class="form-label">Password</label>
-          <input
-            type="password"
-            class="form-control"
-            id="login-password"
-            placeholder="Password"
-            bind:value={password}
-            aria-describedby="get-service-button"
-            aria-label="Password that will be shown on other device"
-          />
-        </div>
-        {#if paymentInProg}
-          <span>Please wait while your payment processes</span>
-        {:else}
-          <button
-            type="button"
-            disabled={!validMail}
-            id="get-service-button"
-            on:click={login}
-            class="col-auto btn btn-success"
-          >
-            Login
-          </button>
-        {/if}
-      {/if}
-    </div>
+    {/if}
   </div>
 {/if}

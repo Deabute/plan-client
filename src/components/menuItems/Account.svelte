@@ -50,14 +50,14 @@
         paymentError = 'There was an error changing the payment method';
       } else if (type === 'addPaymentMethod') {
         const waitForStripe = $stripe ? 0 : 1000;
-        payElReady = true;
         const setUpCardElement = () => {
           setTimeout(() => {
             if (!$stripe) setUpCardElement();
             elements = $stripe.elements({ clientSecret: data.client_secret });
             paymentElement = elements.create('payment');
-            paymentElement.on('change', ({ error, empty }) => {
-              validPaymentInfo = !error && !empty;
+            paymentElement.on('change', ({ error, complete, collapsed }) => {
+              if (!payElReady && !collapsed) payElReady = true;
+              validPaymentInfo = !error && complete;
               paymentError = error ? error.message : '';
             });
             paymentElement.mount('#pay-element');
@@ -310,8 +310,8 @@
     {/if}
   </tbody>
 </table>
+<div id="pay-element" />
 {#if payElReady}
-  <div id="pay-element" />
   <button
     type="button"
     class="btn btn-sm btn-success"

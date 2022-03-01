@@ -66,7 +66,7 @@
   <span class="fs-3 text-center"> Real-time Sync </span>
 </div>
 <div class="row mb-1">
-  <p class="text-center">Paid beta: Invite only</p>
+  <p class="text-center">Paid beta</p>
   <p class="text-center">
     Sync data peer to peer when both clients are active. WebRTC, Real Time Chat
     data channel connection between both clients, data stored only on your
