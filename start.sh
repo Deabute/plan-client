@@ -14,5 +14,7 @@ start_services () {
   npm start
 }
 
-# Maybe pass a flag to do the service start?
-# start_services
+# If nothing is passed the default bx is to start services
+if [ -z "$1" ]; then
+  start_services
+fi

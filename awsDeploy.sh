@@ -2,8 +2,10 @@
 
 . ./prod_config.sh # Load prod configuration
 
-# Build 
-npm run build
+# Build (Pass "no" if already built locally)
+if [ "$1" != "no" ]; then
+  npm run build
+fi
 
 # USING Version 2 of the AWS CLI
 

@@ -1,4 +1,4 @@
-<!-- ViewContainer.svelte Copyright 2021 Paul Beaudet MIT Licence -->
+<!-- ViewContainer.svelte Copyright 2021 Paul Beaudet MIT License -->
 <script lang="ts">
   import { desktopMode } from '../../indexDb/viewStoreDb';
 
