@@ -1,4 +1,4 @@
-<!-- Footer.svelt Copyright 2021 Paul Beaudet MIT Licence -->
+<!-- Footer.svelte Copyright 2021 Paul Beaudet MIT License -->
 <script lang="ts">
   import {
     mobileToggle,
@@ -26,7 +26,6 @@
         class={`row nav-link text-white`}
         data-bs-toggle="offcanvas"
         data-bs-target="#mobileMenu"
-        role="button"
         aria-controls="mobileMenu"
       >
         <span aria-label="Menu options"><List /></span>

@@ -1,4 +1,4 @@
-<!-- Agenda.svelt Copyright 2021 Paul Beaudet MIT Licence -->
+<!-- Agenda.svelte Copyright 2021 Paul Beaudet MIT License -->
 <script lang="ts">
   import { pageAgenda } from '../../indexDb/taskDb';
   import {
@@ -18,9 +18,9 @@
   let loadingPastHistory: boolean = false;
 
   const scrollHandler = (element) => {
-    const { scrollHeight, scrollTop, offsetHeight } = element.target;
+    const { scrollHeight, scrollTop, clientHeight } = element.target;
     if (loadingNextHistory || loadingPastHistory) return;
-    if (canPageDown && offsetHeight + scrollTop >= scrollHeight) {
+    if (canPageDown && clientHeight + scrollTop >= scrollHeight) {
       loadingNextHistory = true;
       setTimeout(async () => {
         const { complete, newAgenda } = await pageAgenda($agendaStore, false);
