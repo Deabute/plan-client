@@ -24,7 +24,7 @@
       loadingNextHistory = true;
       setTimeout(async () => {
         const { complete, newAgenda } = await pageAgenda($agendaStore, false);
-        canPageDown = complete ? false : true;
+        canPageDown = !complete;
         canPageUp = true;
         $agendaStore = newAgenda;
         loadingNextHistory = false;
@@ -36,7 +36,7 @@
       setTimeout(async () => {
         element.target.scrollTop = 40;
         const { complete, newAgenda } = await pageAgenda($agendaStore);
-        canPageUp = complete ? false : true;
+        canPageUp = !complete;
         canPageDown = true;
         $agendaStore = newAgenda;
         loadingPastHistory = false;

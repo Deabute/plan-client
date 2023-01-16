@@ -27,7 +27,7 @@
       loadingNextHistory = true;
       setTimeout(async () => {
         const { complete, newHistory } = await page($timeStore, true);
-        canPageDown = complete ? false : true;
+        canPageDown = !complete;
         canPageUp = true;
         $timeStore.history = newHistory;
         loadingNextHistory = false;
@@ -39,7 +39,7 @@
       setTimeout(async () => {
         element.target.scrollTop = 40;
         const { complete, newHistory } = await page($timeStore);
-        canPageUp = complete ? false : true;
+        canPageUp = !complete;
         canPageDown = true;
         $timeStore.history = newHistory;
         loadingPastHistory = false;
