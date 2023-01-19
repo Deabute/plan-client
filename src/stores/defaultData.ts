@@ -1,4 +1,5 @@
 // defaultData.ts Copyright Paul Beaudet 2021 MIT License
+import { nextOccurrence } from '../components/time/CadenceFunctions';
 import type {
   taskStores,
   taskI,
@@ -7,6 +8,7 @@ import type {
   profileI,
   tokenI,
 } from '../shared/interface';
+import { hourInMillis } from '../components/time/timeConstants';
 
 const ProductName: string = 'Time Intent';
 // - budgeting -
@@ -72,12 +74,7 @@ const startingVelocity: number = 1800000;
 const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
 const shownStamps: number = 22;
-const days366: number = 31622400000;
-const days31: number = 2678400000;
-const weekInMillis: number = 604800000;
-const dayInMillis: number = 86400000;
-const hourInMillis: number = 3600000;
-const minInMillis: number = 60000;
+// const hourInMillis: number = 3600000;
 
 const getPriorityIndexRange = (parentId: string): IDBKeyRange => {
   const lowerBound = [parentId, 'todo', 0];
@@ -101,48 +98,6 @@ const SIGN_VERIFY_CONFIG: EcdsaParams = {
   },
 };
 
-const DAYS: string[] = [
-  'Sunday',
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-];
-
-const DAYS_SHORT: string[] = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-const MONTH: string[] = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-];
-
-const MONTH_SHORT: string[] = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
-];
-
 const utilizationOptions: string[] = [
   'Today',
   'Yesterday',
@@ -158,19 +113,23 @@ interface defaultObj {
   body: string;
   fraction?: number;
   children?: defaultObj[];
-  due?: number;
+  due?: string; // Put in a cadence to get the next due date on load
   cadence?: string;
 }
+
+// common cadences
+const DAILY_CADENCE = 'w,w,1,0,0,0';
+const WEEKLY_CADENCE = 'w,m,1,0,0,0';
 
 // NOTE! The first 25 chars of every body needs to be unique.
 // Or else it will disappear on peer sync
 const arrayOfDefaults: defaultObj[] = [
   {
-    body: 'Click the recording task on another task to start another recording and stop this one',
+    body: 'Click the recording task on another task to start another recording',
   },
   {
-    body: 'Clicking the repeating R circle for repeating items like this one will set the next time to do it',
-    cadence: 'w,w,1,0,0,0',
+    body: 'Clicking the repeating R circle for repeating items will set the next time to do it',
+    cadence: DAILY_CADENCE,
   },
   {
     body: 'Clicking the open or recur circle on the running task will start recording the next task in the "Intent Order"',
@@ -188,11 +147,11 @@ const arrayOfDefaults: defaultObj[] = [
     fraction: hourInMillis * 80,
     cadence: 'many',
     children: [
-      { body: 'Planning', cadence: 'w,w,1,0,0,0' },
+      { body: 'Planning', cadence: DAILY_CADENCE },
       {
         body: 'Check how my time was utilized this week',
-        cadence: 'w,m,1,0,0,0',
-        due: Date.now() + weekInMillis,
+        cadence: WEEKLY_CADENCE,
+        due: WEEKLY_CADENCE,
       },
     ],
   },
@@ -200,9 +159,21 @@ const arrayOfDefaults: defaultObj[] = [
     body: 'Eat',
     cadence: 'many',
     children: [
-      { body: 'Breakfast', cadence: 'w,w,1,0,0,0' },
-      { body: 'Lunch', cadence: 'w,w,1,0,0,0' },
-      { body: 'Dinner', cadence: 'w,w,1,0,0,0' },
+      {
+        body: 'Breakfast',
+        cadence: DAILY_CADENCE,
+        due: DAILY_CADENCE,
+      },
+      {
+        body: 'Lunch',
+        cadence: DAILY_CADENCE,
+        due: DAILY_CADENCE,
+      },
+      {
+        body: 'Dinner',
+        cadence: DAILY_CADENCE,
+        due: DAILY_CADENCE,
+      },
       {
         body: 'Why should I track eating and sleeping? (open for answers)',
         children: [
@@ -217,7 +188,7 @@ const arrayOfDefaults: defaultObj[] = [
       },
     ],
   },
-  { body: 'Sleep', fraction: hourInMillis * 8 * 14, cadence: 'w,w,1,0,0,0' },
+  { body: 'Sleep', fraction: hourInMillis * 8 * 14, cadence: DAILY_CADENCE },
   {
     body: 'Exercise',
     cadence: 'many',
@@ -227,6 +198,7 @@ const arrayOfDefaults: defaultObj[] = [
     body: 'Just For Fun',
     cadence: 'many',
     children: [
+      { body: 'get outdoors', cadence: 'many' },
       { body: 'Streaming / TV', cadence: 'many' },
       { body: 'Read', cadence: 'many' },
     ],
@@ -283,7 +255,7 @@ const arrayOfDefaults: defaultObj[] = [
           },
           {
             body: `"${agendaColumnName}" shows tasks that have been marked to be done`,
-            due: Date.now() + hourInMillis * 2,
+            // due: Date.now() + hourInMillis * 2,
           },
         ],
       },
@@ -356,7 +328,7 @@ const getColdStartData = (): taskI[] => {
         parentId,
         position,
         fraction: task?.fraction ? task.fraction : 0,
-        dueDate: task?.due ? task.due : 0,
+        dueDate: task?.due ? nextOccurrence(task.due) : 0, // TODO circular dependency!!!
         body: task.body,
         timeCreated: now,
         lastModified: now,
@@ -407,24 +379,14 @@ export {
   defaultFrame,
   frameOptions,
   frameValues,
-  dayInMillis,
-  hourInMillis,
-  minInMillis,
-  weekInMillis,
   getPriorityIndexRange,
   KEY_PAIR_CONFIG,
   SIGN_VERIFY_CONFIG,
-  DAYS,
-  DAYS_SHORT,
-  MONTH,
-  MONTH_SHORT,
   utilizationOptions,
   timelineColumnName,
   agendaColumnName,
   activitiesColumnName,
   getColdStartData,
-  days31,
-  days366,
   arrayOfDefaults,
   ProductName,
   hiddenBody,

@@ -6,7 +6,7 @@ import {
   hourInMillis,
   minInMillis,
   MONTH_SHORT,
-} from '../../stores/defaultData';
+} from './timeConstants';
 
 const get12Hour = (h: number): number => {
   h = h > 12 ? h - 12 : h;

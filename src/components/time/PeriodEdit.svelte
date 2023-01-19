@@ -1,4 +1,4 @@
-<!-- StampEdit.svelte Copyright 2021 Paul Beaudet MIT License -->
+<!-- PeriodEdit.svelte Copyright 2021 Paul Beaudet MIT License -->
 <script lang="ts">
   import { writable } from 'svelte/store';
   import type { Writable } from 'svelte/store';

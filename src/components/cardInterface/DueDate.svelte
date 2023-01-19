@@ -6,7 +6,7 @@
   import type { memTaskI, optionalTaskI } from '../../shared/interface';
   import StampEdit from '../../shared/StampEdit.svelte';
   import { loadAgenda, reloadNextTask } from '../../stores/agendaStore';
-  import { dayInMillis, hourInMillis } from '../../stores/defaultData';
+  import { dayInMillis, hourInMillis } from '../time/timeConstants';
   import { fundingTask } from '../../stores/fundingStore';
   import {
     editDue,
@@ -26,7 +26,7 @@
   import RecordActionButton from '../ActionButtons/RecordActionButton.svelte';
 
   export let task: memTaskI;
-  export let activtyColumn: boolean = true;
+  export let activityColumn: boolean = true;
 
   let stampColor: string = 'black';
   let setExact = false;
@@ -108,14 +108,12 @@
 <div class="row text-center">
   {#if $editDue?.id === task.id && correctStamp(task, setExact)}
     {#if setExact}
-      <div class="due-line col-12">
-        <StampEdit {stamp} bind:editedStamp={$editedStamp} />
-      </div>
+      <StampEdit {stamp} bind:editedStamp={$editedStamp} />
     {:else}
       <PeriodEdit {stamp} bind:editedStamp={$editedStamp} />
     {/if}
   {:else if task.dueDate}
-    {#if activtyColumn}
+    {#if activityColumn}
       {#if $editTask?.id === task.id}
         <div class="col-1" type="button" on:click={toggleEditDue(task)}>
           <CalendarEvent />
@@ -204,11 +202,3 @@
     </div>
   </div>
 {/if}
-
-<style>
-  .due-line {
-    font-size: 0.55em;
-    align-items: center;
-    text-align: center;
-  }
-</style>

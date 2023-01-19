@@ -36,6 +36,16 @@ const toggleEditRecur = (task: memTaskI) => {
   };
 };
 
+const createExport: Writable<taskI | null> = writable(null);
+const toggleCreateExport = (task: memTaskI) => {
+  return () => {
+    createExport.update((create) => {
+      // if no task then task else if task.ids are same toggle off else on
+      return !create ? task : create.id === task.id ? null : task;
+    });
+  };
+};
+
 const toggleAddFolder = () => {
   showAddFolder.update((showing) => {
     return !showing;
@@ -99,4 +109,6 @@ export {
   toggleSettingDialog,
   editToggle,
   showViews,
+  createExport,
+  toggleCreateExport,
 };

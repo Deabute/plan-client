@@ -19,12 +19,10 @@
   import {
     activitiesColumnName,
     agendaColumnName,
-    DAYS_SHORT,
-    MONTH_SHORT,
     ProductName,
     timelineColumnName,
-    weekInMillis,
   } from '../../stores/defaultData';
+  import { DAYS_SHORT, MONTH_SHORT, weekInMillis } from '../time/timeConstants';
   import Folder from 'svelte-bootstrap-icons/lib/Folder';
   import Stopwatch from 'svelte-bootstrap-icons/lib/Stopwatch';
   import CalendarEvent from 'svelte-bootstrap-icons/lib/CalendarEvent';
@@ -86,11 +84,11 @@
   const getSprintEndDate = ({ start, frame }: budgetI) => {
     const endDate = new Date(start + frame);
     let hour = endDate.getHours();
-    const meridium = hour > 11 ? 'PM' : 'AM';
+    const meridiem = hour > 11 ? 'PM' : 'AM';
     hour = get12Hour(hour);
     return `${DAYS_SHORT[endDate.getDay()]} ${
       MONTH_SHORT[endDate.getMonth()]
-    } ${endDate.getDate()}, ${hour}${meridium}`;
+    } ${endDate.getDate()}, ${hour}${meridiem}`;
   };
 
   let showLearnLinks: boolean = false;

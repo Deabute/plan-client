@@ -84,9 +84,7 @@
 
   <div class="row text-center">
     {#if editing}
-      <div class="col-12 start-edit">
-        <StampEdit bind:stamp={timestamp.start} bind:editedStamp={start} />
-      </div>
+      <StampEdit bind:stamp={timestamp.start} bind:editedStamp={start} />
     {:else}
       {#if inProgress}
         <span class="col-1 text-danger">Tracking</span>
@@ -150,11 +148,3 @@
     </div>
   {/if}
 </div>
-
-<style>
-  .start-edit {
-    font-size: 0.55em;
-    align-items: center;
-    text-align: center;
-  }
-</style>

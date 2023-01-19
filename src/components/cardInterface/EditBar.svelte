@@ -12,6 +12,7 @@
   import ArrowRepeat from 'svelte-bootstrap-icons/lib/ArrowRepeat';
   import ArrowDownUp from 'svelte-bootstrap-icons/lib/ArrowDownUp';
   import { agendaColumnName } from '../../stores/defaultData';
+  import ExportFolder from '../ActionButtons/ExportFolder.svelte';
 
   export let task: memTaskI;
 
@@ -70,5 +71,6 @@
     <button class="btn btn-outline-dark col-2" type="button" on:click={move}>
       <ArrowDownUp />
     </button>
+    <ExportFolder {task} />
   </div>
 {/if}

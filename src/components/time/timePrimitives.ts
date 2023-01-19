@@ -5,7 +5,7 @@ import {
   days366,
   hourInMillis,
   weekInMillis,
-} from '../../stores/defaultData';
+} from './timeConstants';
 import type { periodsOfTime } from './timeInterface';
 
 const timePeriods: periodsOfTime[] = ['hour', 'day', 'week', 'month', 'year'];
@@ -19,3 +19,4 @@ const timePeriodsInMillis: number[] = [
 ];
 
 export { timePeriods, timePeriodsInMillis };
+// TODO consolidate with time constants

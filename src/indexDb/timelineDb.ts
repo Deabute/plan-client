@@ -217,6 +217,78 @@ const figureSprintValues = async () => {
   }
 };
 
+interface csvLineObj {
+  taskId: string;
+  body: string;
+  duration: number;
+  occurrences: number;
+}
+
+const checkForParent = async (
+  parentId: string, // is this task an ancestor
+  taskId: string, // task in question
+  taskDB: any,
+): Promise<boolean> => {
+  let nextParent = taskId;
+  while (nextParent !== '1') {
+    if (nextParent === parentId) return true;
+    const nextTask = await taskDB.get(nextParent);
+    nextParent = nextTask.parentId;
+  }
+  return false;
+};
+
+// TODO this also needs to take in a parent task to filter on
+const figureExportValues = async (
+  start: number,
+  end: number,
+  parentId: string,
+): Promise<csvLineObj[]> => {
+  const db = await getDb();
+  const transaction = db.transaction(['timeline', 'tasks'], 'readwrite');
+  const timeIndex = transaction.objectStore('timeline').index('timeOrder');
+  const taskDB = transaction.objectStore('tasks');
+
+  const data: csvLineObj[] = [
+    {
+      taskId: 'total',
+      body: 'Total',
+      duration: 0,
+      occurrences: 0,
+    },
+  ];
+  const range = IDBKeyRange.bound(0, end);
+  let cursor = await timeIndex.openCursor(range, 'prev'); // move from most recent to old
+  let lastStart = end; // even if halfway through task we start here
+  let lastStamp = false;
+  while (cursor && !lastStamp) {
+    // For every timestamp this period
+    if (cursor.value.start <= start) lastStamp = true;
+    const taskId = cursor.value.taskId;
+    if (await checkForParent(parentId, taskId, taskDB)) {
+      // compiles data for !!! prior cursor !!!
+      // find matching task in data array or push to it
+      const startStamp = lastStamp ? start : cursor.value.start;
+      const change = lastStart - startStamp; // start stamp for last task is current end
+      const foundIndex = data.findIndex((el) => el.taskId === taskId);
+      if (foundIndex === -1) {
+        // Not found condition
+        const { body } = await taskDB.get(taskId);
+        data.push({ taskId, body, duration: change, occurrences: 1 });
+      } else {
+        data[foundIndex].duration += change;
+        data[foundIndex].occurrences += 1;
+      }
+      // set duration and occurrences for total row
+      data[0].duration += change;
+      data[0].occurrences += 1;
+    }
+    lastStart = cursor.value.start;
+    cursor = await cursor.continue();
+  }
+  return data;
+};
+
 // one function for page up and page down
 const page = async (
   current: timeLineData,
@@ -375,4 +447,5 @@ export {
   figureSprintValues,
   moveUtilization,
   compileUtilizationByList,
+  figureExportValues,
 };
