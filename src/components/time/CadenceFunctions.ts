@@ -5,12 +5,7 @@ import type {
   cadenceInterval,
   weekType,
 } from '../../shared/interface';
-import {
-  dayInMillis,
-  days31,
-  days366,
-  weekInMillis,
-} from '../../stores/defaultData';
+import { dayInMillis, days31, days366, weekInMillis } from './timeConstants';
 import { getTimeOfDayForDate } from './timeConvert';
 
 const weekTypes: weekType[] = ['Whole', 'Mon-Fri', 'Sat-Sun'];

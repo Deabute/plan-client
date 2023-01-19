@@ -4,8 +4,8 @@ import {
   genesisTask,
   getPriorityIndexRange,
   shownStamps,
-  minInMillis,
 } from '../stores/defaultData';
+import { minInMillis } from '../components/time/timeConstants';
 import type {
   incomingTaskI,
   memTaskI,

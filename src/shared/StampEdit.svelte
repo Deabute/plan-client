@@ -7,7 +7,7 @@
     get12Hour,
     get24Hour,
   } from '../components/time/timeConvert';
-  import { MONTH_SHORT } from '../stores/defaultData';
+  import { MONTH_SHORT } from '../components/time/timeConstants';
   import type { AmPm } from './interface';
 
   // Exposed component props

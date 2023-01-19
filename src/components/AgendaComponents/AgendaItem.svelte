@@ -1,4 +1,4 @@
-<!-- AgendaItem.svelt Copyright 2021 Paul Beaudet MIT Licence -->
+<!-- AgendaItem.svelte Copyright 2021 Paul Beaudet MIT License -->
 <script lang="ts">
   import type { taskI } from '../../shared/interface';
   import DueDate from '../cardInterface/DueDate.svelte';
@@ -18,6 +18,6 @@
       />
       <BodyAndAction id={task.id} body={task.body} status={task.status} />
     </div>
-    <DueDate {task} activtyColumn={false} />
+    <DueDate {task} activityColumn={false} />
   </div>
 {/if}

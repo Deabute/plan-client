@@ -16,7 +16,7 @@
   import Lock from 'svelte-bootstrap-icons/lib/Lock';
   import Unlock from 'svelte-bootstrap-icons/lib/Unlock';
   import { hourAndMinutesObj } from '../time/timeConvert';
-  import { hourInMillis, minInMillis } from '../../stores/defaultData';
+  import { hourInMillis, minInMillis } from '../time/timeConstants';
 
   export let task: memTaskI;
   let sliderValue: number = task.fraction;
