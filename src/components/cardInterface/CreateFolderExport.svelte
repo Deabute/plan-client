@@ -27,7 +27,11 @@
     const link = document.createElement('a');
     link.href = url;
     // make this more specific
-    link.download = `export.tsv`;
+    const fromDate = new Date($fromEdited);
+    const toDate = new Date($toEdited);
+    const month_day_from = `${fromDate.getMonth()}_${fromDate.getDate()}_${fromDate.getFullYear()}`;
+    const month_day_to = `${toDate.getMonth()}_${toDate.getDate()}_${toDate.getFullYear()}`;
+    link.download = `export_${month_day_from}_to_${month_day_to}.tsv`;
     link.click();
     tsv = '';
     generated = false;
