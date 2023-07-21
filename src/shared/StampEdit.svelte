@@ -44,67 +44,69 @@
   });
 </script>
 
-<select
-  name="timestamp-month"
-  class="three-char-wide"
-  id="timestamp-AmPm"
-  bind:value={$timeState.month}
->
-  {#each MONTH_SHORT as month, i}
-    <option value={i}>{month}</option>
-  {/each}
-</select>
-<span class="">D</span>
-<input
-  type="number"
-  class="two-char-wide"
-  maxlength="2"
-  min="1"
-  max={daysInMonth($timeState.year, $timeState.month)}
-  id="month-day"
-  name="month-day"
-  bind:value={$timeState.day}
-/>
-<span class="">H</span>
-<input
-  type="number"
-  class="two-char-wide"
-  maxlength="2"
-  min="1"
-  max="12"
-  id="timestamp-hour"
-  name="timestamp-hour"
-  bind:value={$timeState.hour}
-/>
-<span class="">M</span>
-<input
-  type="number"
-  class="two-char-wide"
-  maxlength="2"
-  min="0"
-  max="59"
-  id="timestamp-minute"
-  name="timestamp-minute"
-  bind:value={$timeState.minute}
-/>
-<select
-  name="timestamp-AmPm"
-  class="three-char-wide"
-  id="timestamp-AmPm"
-  bind:value={$timeState.meridian}
->
-  <option value="AM">AM</option>
-  <option value="PM">PM</option>
-</select>
-<input
-  type="number"
-  class="four-char-wide"
-  maxlength="4"
-  min="1970"
-  id="timestamp-year"
-  name="timestamp-year"
-  bind:value={$timeState.year}
-/>
+<div class="line-constraints col-12">
+  <select
+    name="timestamp-month"
+    class="three-char-wide"
+    id="timestamp-AmPm"
+    bind:value={$timeState.month}
+  >
+    {#each MONTH_SHORT as month, i}
+      <option value={i}>{month}</option>
+    {/each}
+  </select>
+  <span class="">D</span>
+  <input
+    type="number"
+    class="two-char-wide"
+    maxlength="2"
+    min="1"
+    max={daysInMonth($timeState.year, $timeState.month)}
+    id="month-day"
+    name="month-day"
+    bind:value={$timeState.day}
+  />
+  <span class="">H</span>
+  <input
+    type="number"
+    class="two-char-wide"
+    maxlength="2"
+    min="1"
+    max="12"
+    id="timestamp-hour"
+    name="timestamp-hour"
+    bind:value={$timeState.hour}
+  />
+  <span class="">M</span>
+  <input
+    type="number"
+    class="two-char-wide"
+    maxlength="2"
+    min="0"
+    max="59"
+    id="timestamp-minute"
+    name="timestamp-minute"
+    bind:value={$timeState.minute}
+  />
+  <select
+    name="timestamp-AmPm"
+    class="three-char-wide"
+    id="timestamp-AmPm"
+    bind:value={$timeState.meridian}
+  >
+    <option value="AM">AM</option>
+    <option value="PM">PM</option>
+  </select>
+  <input
+    type="number"
+    class="four-char-wide"
+    maxlength="4"
+    min="1970"
+    id="timestamp-year"
+    name="timestamp-year"
+    bind:value={$timeState.year}
+  />
+</div>
 
 <style>
   .two-char-wide {
@@ -115,5 +117,10 @@
   }
   .four-char-wide {
     width: 6em;
+  }
+  .line-constraints {
+    font-size: 0.55em;
+    align-items: center;
+    text-align: center;
   }
 </style>

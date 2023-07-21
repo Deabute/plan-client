@@ -60,7 +60,7 @@
     if (valid) startTimer();
   };
 
-  // if a newValue is comming in its just a trigger to reset the timer
+  // if a newValue is coming in its just a trigger to reset the timer
   $: onValidityChange(valid, newValue);
 
   const openFund = () => {
@@ -106,7 +106,7 @@
       budget: 0,
       unlock: task.autoAssigned,
     });
-    // given autoAssigned togged to true refresh assignment to distrubute new funds
+    // given autoAssigned togged to true refresh assignment to distribute new funds
     if (task.autoAssigned) await refreshTask();
   };
 
@@ -138,7 +138,7 @@
     }
     if (lagTimerId) clearTimeout(lagTimerId);
     sliding = true;
-    // procesor anti-spam
+    // processor anti-spam
     lagTimerId = setTimeout(() => {
       const { hour, minute, remainder } = hourAndMinutesObj(value);
       remaining = remainder;

@@ -12,6 +12,7 @@
   import CheckOffButton from '../components/ActionButtons/CheckOffButton.svelte';
   import ListTask from 'svelte-bootstrap-icons/lib/ListTask';
   import ArrowDownUp from 'svelte-bootstrap-icons/lib/ArrowDownUp';
+  import CreateFolderExport from '../components/cardInterface/CreateFolderExport.svelte';
 
   // Exposed component props
   export let task: memTaskI;
@@ -51,6 +52,7 @@
       <FolderBudget {task} />
       <RecurEditBar {task} />
       <DueDate {task} />
+      <CreateFolderExport {task} />
       {#if $showTopChild && task.topChild && $editTask?.id !== task.id}
         <div class="row text-center py-1">
           <CheckOffButton

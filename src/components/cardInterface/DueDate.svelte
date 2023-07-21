@@ -108,9 +108,7 @@
 <div class="row text-center">
   {#if $editDue?.id === task.id && correctStamp(task, setExact)}
     {#if setExact}
-      <div class="due-line col-12">
-        <StampEdit {stamp} bind:editedStamp={$editedStamp} />
-      </div>
+      <StampEdit {stamp} bind:editedStamp={$editedStamp} />
     {:else}
       <PeriodEdit {stamp} bind:editedStamp={$editedStamp} />
     {/if}
@@ -204,11 +202,3 @@
     </div>
   </div>
 {/if}
-
-<style>
-  .due-line {
-    font-size: 0.55em;
-    align-items: center;
-    text-align: center;
-  }
-</style>
